@@ -1,0 +1,4 @@
+Copy or these 2 files to your shindig/php/src/social folder, and edit the mysql settings in the top of PartuzaDbFetcher.php.
+
+After that edit your shindig's config.php and set the social data handlers to 'PartuzaHandler', like:
+	'handlers' => 'PartuzaHandler'
