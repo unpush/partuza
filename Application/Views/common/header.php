@@ -2,13 +2,17 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<link href="/css/common.css" rel="stylesheet" type="text/css">
-	<link rel="stylesheet" href="/css//gadgets.css" type="text/css">
-	<script type="text/javascript" src="<?=Config::get('gadget_server')?>/gadgets/js/rpc.js?c=1"></script>
-	<script type="text/javascript" src="<?=Config::get('gadget_server')?>/gadgets/files/container/cookies.js"></script>
-	<script type="text/javascript" src="<?=Config::get('gadget_server')?>/gadgets/files/container/util.js"></script>  
-	<script type="text/javascript" src="<?=Config::get('gadget_server')?>/gadgets/files/container/gadgets.js"></script>
-	<script type="text/javascript" src="<?=Config::get('gadget_server')?>/gadgets/files/container/cookiebaseduserprefstore.js"></script>
+	<link href="/css/container.css" rel="stylesheet" type="text/css">
+	<script type="text/javascript" src="/js/container.compressed.js"></script>
+<!--
+	Container.compressed.js is created by cat'ing the folowing files together
+	and running: java -jar yuicompressor-2.3.5.jar -o container.compressed.js container.js
+	<script type="text/javascript" src="/js/rpc.js"></script>
+	<script type="text/javascript" src="/js/cookies.js"></script>
+	<script type="text/javascript" src="/js/util.js"></script>  
+	<script type="text/javascript" src="/js/gadgets.js"></script>
+	<script type="text/javascript" src="/js/cookiebaseduserprefstore.js"></script>
+-->
 </head>
 <body>
 <div id="headerDiv">
