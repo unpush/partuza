@@ -19,9 +19,13 @@ if (!empty($vars['gadget']['error'])) {
 		urlencode($gadget['url']),									// app url
 		$gadget['mod_id']											// mod id
 		);
+		
 	$iframe_url = 
 		Config::get('gadget_server').'/gadgets/ifr?'.
 		"synd=default".
+		"&viewer=".(isset($_SESSION['id']) ? $_SESSION['id'] : '0').
+		"&owner=".(isset($vars['person']['id']) ? $vars['person']['id'] : '0').
+		"&aid=".$gadget['mod_id'].
 		"&mid=".$gadget['mod_id'].
 		((isset($_GET['nocache']) && $_GET['nocache'] == '1') || isset($_GET['bpc']) && $_GET['bpc'] == '1' ? "&nocache=1" : '').
 		"&country=US".
