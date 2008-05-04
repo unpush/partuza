@@ -9,7 +9,7 @@
 $gadget = $vars['application'];
 $width = 796;
 $view = 'canvas';
-$this->template('/applications/gadget.php', array('width' => $width, 'gadget' => $gadget, 'person' => $vars['person'], 'view' => $view));
+$this->template('/gadget/gadget.php', array('width' => $width, 'gadget' => $gadget, 'person' => $vars['person'], 'view' => $view));
 ?>
 </div>
 <div style="clear:both"></div>

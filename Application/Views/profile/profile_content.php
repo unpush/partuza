@@ -10,6 +10,6 @@ foreach($vars['person'] as $key => $val) {
 foreach ($vars['applications'] as $gadget) {
 	$width = 470;
 	$view = 'profile';
-	$this->template('/applications/gadget.php', array('width' => $width, 'gadget' => $gadget, 'person' => $vars['person'], 'view' => $view));
+	$this->template('/gadget/gadget.php', array('width' => $width, 'gadget' => $gadget, 'person' => $vars['person'], 'view' => $view));
 }
 ?><br />
