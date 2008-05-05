@@ -7,15 +7,18 @@ Container.prototype = {
 		gadgets.rpc.register('resize_iframe', this.setHeight);
 		gadgets.rpc.register('set_pref', this.setUserPref);
 		gadgets.rpc.register('set_title', this.setTitle);
+		gadgets.rpc.register('requestShareApp', this.requestShareApp);
 		gadgets.rpc.register('requestNavigateTo', this.requestNavigateTo);
 	},
 	
 	setHeight: function(height) {
-		// change the height of the gadget iframe, limit to maxHeight height
-		if (height > gadgets.container.maxHeight) {
-			height = gadgets.container.maxHeight;
+		if ($(this.f) != undefined) {
+			// change the height of the gadget iframe, limit to maxHeight height
+			if (height > gadgets.container.maxHeight) {
+				height = gadgets.container.maxHeight;
+			}
+			Element.setStyle($(this.f), {'height':height+'px'});
 		}
-		$(this.f).setStyle({'height':height+'px'});
 	},
 	
 	_parseIframeUrl: function(url) {
@@ -63,17 +66,23 @@ Container.prototype = {
 	},
 	
 	requestNavigateTo: function(view, opt_params) {
-		var params = this._parseIframeUrl();
-		var url = this._getUrlForView(view, params.owner, params.aid, params.mid);
-		if (opt_params) {
-			var paramStr = JSON.stringify(opt_params);
-			if (paramStr.length > 0) {
-				url += '&appParams=' + encodeURIComponent(paramStr);
+		if ($(this.f) != undefined) {
+			var params = gadgets.container._parseIframeUrl($(this.f).src);
+			var url = gadgets.container._getUrlForView(view, params.owner, params.aid, params.mid);
+			if (opt_params) {
+				var paramStr = JSON.stringify(opt_params);
+				if (paramStr.length > 0) {
+					url += '&appParams=' + encodeURIComponent(paramStr);
+				}
+			}
+			if (url && document.location.href.indexOf(url) == -1) {
+	 			document.location.href = url;
 			}
 		}
-		if (url && document.location.href.indexOf(url) == -1) {
- 			document.location.href = url;
-		}
+	},
+	
+	requestShareApp: function(recipients, params) {
+		console.log('requestShareApp');
 	}
 }
 
