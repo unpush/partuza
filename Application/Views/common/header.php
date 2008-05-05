@@ -10,15 +10,27 @@
 </head>
 <body>
 <div id="headerDiv">
-	<div id="userMenuDiv">
 	<? if (isset($_SESSION['username'])) { ?>
-	<div id="searchMenuDiv"><form method="get" action="/search"> | <label for="search_q">search</label> <input type="text" id="search_q" name="q"> <input type="submit" value="Go" /></form></div>
-<?			echo "		<a href=\"/profile/{$_SESSION['id']}\">{$_SESSION['email']}</a> | <a href=\"/logout\">logout.</a>\n";
-		} else {
-			echo "		<form method=\"post\" action=\"{$_SERVER['REQUEST_URI']}\"><a href=\"/register\" >register</a>, or login with <label for=\"email\">e-mail</label> <input type=\"text\" name=\"email\" id=\"email\" /> and <label for=\"password\">password</label> <input type=\"password\" name=\"password\" id=\"password\" /> <input class=\"button\" type=\"submit\" value=\"Go\" /></form>&nbsp;\n";
-		}
-	?>
+	<div id="searchDiv">
+		<form method="get" action="/search"> | <label for="search_q">search</label> <input type="text" id="search_q" name="q"> <input type="submit" value="Go" /></form>
 	</div>
-	<span id="menuDiv"><a href="/home">Home</a><?=isset($_SESSION['username']) ? " | <a href=\"/profile/{$_SESSION['id']}\">Profile</a> | <a href=\"/profile/myapps\">Applications</a>" : '' ?></span>
+	<? } ?>
+	<div id="userMenuDiv" <?=!isset($_SESSION['username'])? ' style="margin-right:12px"' : ''?>>
+		<? if (isset($_SESSION['username'])) {
+			echo "<a href=\"/profile/{$_SESSION['id']}\">home</a> | <a href=\"/profile/{$_SESSION['id']}\">profile</a> | <a href=\"/profile/myapps\">applications</a> | <a href=\"/logout\">logout</a>&nbsp;";
+		} else {
+			echo "<form method=\"post\" action=\"{$_SERVER['REQUEST_URI']}\"><a href=\"/register\" >register</a>, or login with <label for=\"email\">e-mail</label> <input type=\"text\" name=\"email\" id=\"email\" /> and <label for=\"password\">password</label> <input type=\"password\" name=\"password\" id=\"password\" /> <input class=\"button\" type=\"submit\" value=\"Go\" /></form>&nbsp;\n";
+		}
+		?>	
+	</div>
+	<span id="headerLogo">
+		<a href="/home">Partuza!</a>
+	</span>
+<!-- 
+	<div id="menuDiv"></div>
+	<div id="userMenuDiv">
+		
+	</div>
+ -->
 </div>
 <div id="contentDiv">

@@ -25,27 +25,28 @@ div {
 #headerDiv {
 	background-color: #e5ecf9;
 	color			: #3366CC;
-	line-height		: 44px;
+	line-height		: 42px;
 	font-weight		: bold;
-	height			: 44px;
+	height			: 42px;
 	width			: 960px;
 	margin			: auto;
-	margin-bottom	: 20px;
-	margin-top		: 20px;
+	margin-bottom	: 12px;
+	margin-top		: 12px;
 }
 
-#menuDiv {
-	padding-left	: 10px;	
+#headerDiv #headerLogo {
+	font-size		: 22px;
+	font-weight		: bold;
+	padding-left	: 12px;	
+}
+
+#headerDiv #searchDiv {
+	float			: right;
+	margin-right	: 12px;
 }
 
 #headerDiv #userMenuDiv {
-	padding-right	: 10px;
-	font-size		: 11px;
 	float			: right;
-}
-
-#headerDiv #searchMenuDiv {
-	float			: right;	
 }
 
 #contentDiv {
@@ -67,7 +68,7 @@ form#register div .label {
 
 .blue, .borderBlue {
 	background-color: #e5ecf9;
-	padding			: 11px;
+	padding			: 12px;
 }
 
 .borderBlue {
@@ -81,8 +82,8 @@ form#register div .label {
 }
 
 #profileContent, #profileContentWide {
-	padding-left	: 20px;
-	width			: 490px;
+	padding-left	: 12px;
+	width			: 502px;
 	float			: left;
 }
 
@@ -91,8 +92,8 @@ form#register div .label {
 }
 
 #profileFriends {
-	padding-left	: 20px;
-	padding-bottom	: 10px;
+	padding-left	: 12px;
+	padding-bottom	: 12px;
 	width			: 286px;
 	float			: left;
 	border			: 1px solid #7aa5d6;
@@ -101,15 +102,14 @@ form#register div .label {
 .header {
 	font-size		: 12px;
 	font-weight		: bold;	
-	color			: #3366CC;
-	margin-top		: 10px;
-	margin-bottom	: 10px;
+	margin-top		: 12px;
+	margin-bottom	: 12px;
 }
 
 .searchResult {
 	background-color: #e5ecf9;
-	height			: 40px;
-	padding			: 10px;
+	height			: 36px;
+	padding			: 12px;
 }
 
 .searchResult .menu {
@@ -119,22 +119,22 @@ form#register div .label {
 
 #friendRequests {
 	border			: 1px solid #7aa5d6;
-	margin-right	: 10px;
-	margin-bottom	: 10px;
-	padding			: 10px;
+	margin-right	: 12px;
+	margin-bottom	: 12px;
+	padding			: 12px;
 }
 
 .friend {
 	background-color:#f0f0f0;
 	float			: left;
-	width			: 87px;
+	width			: 84px;
 	margin-right	: 5px;
 	overflow		: hidden;
 	margin-bottom	: 4px;
 }
 
 .friend .thumb {
-	height			: 64px;
+	height			: 60px;
 	overflow		: hidden;
 	text-align		: center;
 	margin-bottom	: 3px;
@@ -149,9 +149,9 @@ form#register div .label {
 
 .app {
 	background-color: #e5ecf9;
-	padding			: 11px;
+	padding			: 12px;
 	height			: 60px;	
-	margin-bottom	: 8px;
+	margin-bottom	: 6px;
 	overflow		: hidden;
 }
 
@@ -160,12 +160,12 @@ form#register div .label {
 	float 			: left;
 	width			: 120px;
 	height			: 60px;
-	margin-right	: 8px;	
+	margin-right	: 6px;	
 }
 
 .app .options {
 	float			: right;
-	padding			: 4px;
+	padding			: 6px;
 	width			: 100px;	
 	height			: 60px;
 	text-align		: right;
@@ -174,8 +174,8 @@ form#register div .label {
 .application_link {
 	font-size		: smaller;
 	width			: 110px;
-	height			: 14px;
-	line-height		: 14px;
+	height			: 12px;
+	line-height		: 12px;
 	overflow		: hidden;
 }
 
@@ -191,9 +191,9 @@ form#register div .label {
 }
 
 .gadgets-gadget-chrome {
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   border: 1px solid #7aa5d6;
-  width	: 470px;
+  width	: 476px;
 }
 
 .gadgets-gadget {
