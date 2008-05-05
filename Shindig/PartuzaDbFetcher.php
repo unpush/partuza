@@ -66,7 +66,7 @@ class PartuzaDbFetcher {
 			order by 
 				created desc
 			");
-		while ($row = mysqli_fetch_array($res, MYSQLI_ASSOC)) {
+		while ($row = @mysqli_fetch_array($res, MYSQLI_ASSOC)) {
 			$activity = new Activity($row['activity_id'], $row['person_id']);
 			$activity->setStreamTitle($row['stream_title']);
 			$activity->setTitle($row['activity_title']);
@@ -83,7 +83,7 @@ class PartuzaDbFetcher {
 		$media = array();
 		$activity_id = mysqli_real_escape_string($this->db, $activity_id);
 		$res = mysqli_query($this->db, "select mime_type, media_type, url from activity_media_items where activity_id = $activity_id");
-		while (list($mime_type, $type, $url) = mysqli_fetch_row($res)) {
+		while (list($mime_type, $type, $url) = @mysqli_fetch_row($res)) {
 			$media[] = new MediaItem($mime_type, $type, $url);
 		}
 		return $media;
@@ -94,7 +94,7 @@ class PartuzaDbFetcher {
 		$ret = array();
 		$person_id = mysqli_real_escape_string($this->db, $person_id);
 		$res = mysqli_query($this->db, "select person_id, friend_id from friends where person_id = $person_id or friend_id = $person_id");
-		while (list($pid, $fid) = mysqli_fetch_row($res)) {
+		while (list($pid, $fid) = @mysqli_fetch_row($res)) {
 			$ret[] = ($pid == $person_id) ? $fid : $pid;
 		}
 		return $ret;
@@ -123,14 +123,19 @@ class PartuzaDbFetcher {
 	public function getAppData($ids, $keys, $app_id, $mod_id)
 	{
 		$data = array();
-		foreach ($keys as $key => $val) {
-			$keys[$key] = "'".mysqli_real_escape_string($this->db, $val)."'";
-		}
 		foreach ($ids as $key => $val) {
 			$ids[$key] = mysqli_real_escape_string($this->db, $val);
 		}
-		$res = mysqli_query($this->db, "select person_id, name, value from application_settings where application_id = $app_id and module_id = $mod_id and person_id in (".implode(',', $ids).") and name in (".implode(',',$keys).")");
-		while (list($person_id, $key, $value) = mysqli_fetch_row($res)) {
+		if ($keys[0] == '*') {
+			$keys = '';
+		} else {
+			foreach ($keys as $key => $val) {
+				$keys[$key] = "'".mysqli_real_escape_string($this->db, $val)."'";
+			}
+			$keys = "and name in (".implode(',',$keys).")";
+		}
+		$res = mysqli_query($this->db, "select person_id, name, value from application_settings where application_id = $app_id and module_id = $mod_id and person_id in (".implode(',', $ids).") $keys");
+		while (list($person_id, $key, $value) = @mysqli_fetch_row($res)) {
 			if (!isset($data[$person_id])) {
 				$data[$person_id] = array();
 			}
@@ -149,7 +154,7 @@ class PartuzaDbFetcher {
 		// ps don't pay attention to the -funroll-loops style coding, it's meant to be quick and dirty :)
 		$query = "select * from persons where id in (".implode(',', $ids).")";
 		$res = mysqli_query($this->db, $query);
-		while ($row = mysqli_fetch_array($res, MYSQLI_ASSOC)) {
+		if ($res) while ($row = @mysqli_fetch_array($res, MYSQLI_ASSOC)) {
 			$person_id = mysqli_real_escape_string($this->db, $row['id']);
 			$name = new Name($row['first_name'].' '.$row['last_name']);
 			$name->setGivenName($row['first_name']);
@@ -193,7 +198,7 @@ class PartuzaDbFetcher {
 			if (isset($profileDetails['activities'])) {
 				$activities = array();
 				$res2 = mysqli_query($this->db, "select activity from person_activities where person_id = ".$person_id);
-				while (list($activity) = mysqli_fetch_row($res2)) {
+				while (list($activity) = @mysqli_fetch_row($res2)) {
 					$activities[] = $activity;
 				}
 				$person->setActivities($activities);
@@ -236,7 +241,7 @@ class PartuzaDbFetcher {
 			if (isset($profileDetails['books'])) {
 				$books = array();
 				$res2 = mysqli_query($this->db, "select book from person_books where person_id = ".$person_id);
-				while (list($book) = mysqli_fetch_row($res2)) {
+				while (list($book) = @mysqli_fetch_row($res2)) {
 					$books[] = $book;
 				}
 				$person->setBooks($books);
@@ -244,7 +249,7 @@ class PartuzaDbFetcher {
 			if (isset($profileDetails['cars'])) {
 				$cars = array();
 				$res2 = mysqli_query($this->db, "select car from person_cars where person_id = ".$person_id);
-				while (list($car) = mysqli_fetch_row($res2)) {
+				while (list($car) = @mysqli_fetch_row($res2)) {
 					$cars[] = $car;
 				}
 				$person->setCars($cars);
@@ -274,7 +279,7 @@ class PartuzaDbFetcher {
 			if (isset($profileDetails['emails'])) {
 				$emails = array();
 				$res2 = mysqli_query($this->db, "select address, email_type from person_emails where person_id = ".$person_id);
-				while (list($address, $type) = mysqli_fetch_row($res2)) {
+				while (list($address, $type) = @mysqli_fetch_row($res2)) {
 					$emails[] = new Email($address, $type);
 				}
 				$person->setEmails($emails);
@@ -282,7 +287,7 @@ class PartuzaDbFetcher {
 			if (isset($profileDetails['food'])) {
 				$foods = array();
 				$res2 = mysqli_query($this->db, "select food from person_foods where person_id = ".$person_id);
-				while (list($food) = mysqli_fetch_row($res2)) {
+				while (list($food) = @mysqli_fetch_row($res2)) {
 					$foods[] = $food;
 				}
 				$person->setFood($foods);
@@ -291,7 +296,7 @@ class PartuzaDbFetcher {
 			if (isset($profileDetails['heroes'])) {
 				$strings = array();
 				$res2 = mysqli_query($this->db, "select hero from person_heroes where person_id = ".$person_id);
-				while (list($data) = mysqli_fetch_row($res2)) {
+				while (list($data) = @mysqli_fetch_row($res2)) {
 					$strings[] = $data;
 				}
 				$person->setHeroes($strings);
@@ -300,7 +305,7 @@ class PartuzaDbFetcher {
 			if (isset($profileDetails['interests'])) {
 				$strings = array();
 				$res2 = mysqli_query($this->db, "select interest from person_interests where person_id = ".$person_id);
-				while (list($data) = mysqli_fetch_row($res2)) {
+				while (list($data) = @mysqli_fetch_row($res2)) {
 					$strings[] = $data;
 				}
 				$person->setInterests($strings);
@@ -350,7 +355,7 @@ class PartuzaDbFetcher {
 			if (isset($profileDetails['movies'])) {
 				$strings = array();
 				$res2 = mysqli_query($this->db, "select movie from person_movies where person_id = ".$person_id);
-				while (list($data) = mysqli_fetch_row($res2)) {
+				while (list($data) = @mysqli_fetch_row($res2)) {
 					$strings[] = $data;
 				}
 				$person->setMovies($strings);
@@ -358,7 +363,7 @@ class PartuzaDbFetcher {
 			if (isset($profileDetails['music'])) {
 				$strings = array();
 				$res2 = mysqli_query($this->db, "select music from person_music where person_id = ".$person_id);
-				while (list($data) = mysqli_fetch_row($res2)) {
+				while (list($data) = @mysqli_fetch_row($res2)) {
 					$strings[] = $data;
 				}
 				$person->setMusic($strings);
@@ -366,7 +371,7 @@ class PartuzaDbFetcher {
 			if (isset($profileDetails['phoneNumbers'])) {
 				$numbers = array();
 				$res2 = mysqli_query($this->db, "select number, number_type from person_phone_numbers where person_id = ".$person_id);
-				while (list($number, $type) = mysqli_fetch_row($res2)) {
+				while (list($number, $type) = @mysqli_fetch_row($res2)) {
 					$numbers[] = new Phone($number, $type);
 				}
 				$person->setPhoneNumbers($numbers);
@@ -374,7 +379,7 @@ class PartuzaDbFetcher {
 			if (isset($profileDetails['quotes'])) {
 				$strings = array();
 				$res2 = mysqli_query($this->db, "select quote from person_quotes where person_id = ".$person_id);
-				while (list($data) = mysqli_fetch_row($res2)) {
+				while (list($data) = @mysqli_fetch_row($res2)) {
 					$strings[] = $data;
 				}
 				$person->setQuotes($strings);
@@ -421,7 +426,7 @@ class PartuzaDbFetcher {
 			if (isset($profileDetails['sports'])) {
 				$strings = array();
 				$res2 = mysqli_query($this->db, "select sport from person_sports where person_id = ".$person_id);
-				while (list($data) = mysqli_fetch_row($res2)) {
+				while (list($data) = @mysqli_fetch_row($res2)) {
 					$strings[] = $data;
 				}
 				$person->setSports($strings);
@@ -429,7 +434,7 @@ class PartuzaDbFetcher {
 			if (isset($profileDetails['tags'])) {
 				$strings = array();
 				$res2 = mysqli_query($this->db, "select tag from person_tags where person_id = ".$person_id);
-				while (list($data) = mysqli_fetch_row($res2)) {
+				while (list($data) = @mysqli_fetch_row($res2)) {
 					$strings[] = $data;
 				}
 				$person->setTags($strings);
@@ -438,7 +443,7 @@ class PartuzaDbFetcher {
 			if (isset($profileDetails['turnOns'])) {
 				$strings = array();
 				$res2 = mysqli_query($this->db, "select turn_on from person_turn_ons where person_id = ".$person_id);
-				while (list($data) = mysqli_fetch_row($res2)) {
+				while (list($data) = @mysqli_fetch_row($res2)) {
 					$strings[] = $data;
 				}
 				$person->setTurnOns($strings);
@@ -446,7 +451,7 @@ class PartuzaDbFetcher {
 			if (isset($profileDetails['turnOffs'])) {
 				$strings = array();
 				$res2 = mysqli_query($this->db, "select turn_off from person_turn_offs where person_id = ".$person_id);
-				while (list($data) = mysqli_fetch_row($res2)) {
+				while (list($data) = @mysqli_fetch_row($res2)) {
 					$strings[] = $data;
 				}
 				$person->setTurnOffs($strings);
@@ -454,7 +459,7 @@ class PartuzaDbFetcher {
 			if (isset($profileDetails['urls'])) {
 				$strings = array();
 				$res2 = mysqli_query($this->db, "select url from person_urls where person_id = ".$person_id);
-				while (list($data) = mysqli_fetch_row($res2)) {
+				while (list($data) = @mysqli_fetch_row($res2)) {
 					$strings[] = $data;
 				}
 				$person->setUrls($strings);
