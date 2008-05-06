@@ -145,10 +145,17 @@ class applicationsModel extends Model {
 					$info['author_email'] = $gadget->authorEmail;
 					$info['description'] = $gadget->description;
 					$info['settings'] = serialize($gadget->userPrefs);
+					$info['scrolling'] = !empty($gadget->scrolling) ? $gadget->scrolling : '0';
+					$info['height'] = !empty($gadget->height) ? $gadget->height : '0';
+					// extract the version from the iframe url
+					$iframe_url = $gadget->iframeUrl;
+					$iframe_params = array();
+					parse_str($iframe_url, $iframe_params);
+					$info['version'] = isset($iframe_params['v']) ? $iframe_params['v'] : '';
 					$info['modified'] = time();
 					// Insert new application into our db, or if it exists (but had expired info) update the meta data
 					$db->query("insert into applications
-								(id, url, title, directory_title, screenshot, thumbnail, author, author_email, description, settings, modified)
+								(id, url, title, directory_title, screenshot, thumbnail, author, author_email, description, settings, version, height, scrolling, modified)
 								values
 								(
 									0,
@@ -161,6 +168,9 @@ class applicationsModel extends Model {
 									'" . $db->addslashes($info['author_email']) . "',
 									'" . $db->addslashes($info['description']) . "',
 									'" . $db->addslashes($info['settings']) . "',
+									'" . $db->addslashes($info['version']) . "',
+									'" . $db->addslashes($info['height']) . "',
+									'" . $db->addslashes($info['scrolling']) . "',
 									'" . $db->addslashes($info['modified']) . "'
 								) on duplicate key update
 									url = '" . $db->addslashes($info['url']) . "',
@@ -172,6 +182,9 @@ class applicationsModel extends Model {
 									author_email = '" . $db->addslashes($info['author_email']) . "',
 									description = '" . $db->addslashes($info['description']) . "',
 									settings = '" . $db->addslashes($info['settings']) . "',
+									version = '" . $db->addslashes($info['version']) . "',
+									height = '" . $db->addslashes($info['height']) . "',
+									scrolling = '" . $db->addslashes($info['scrolling']) . "',
 									modified = '" . $db->addslashes($info['modified']) . "'
 								");
 					$res = $db->query("select id from applications where url = '" . $db->addslashes($info['url']) . "'");

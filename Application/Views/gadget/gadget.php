@@ -8,7 +8,9 @@ if (!empty($vars['gadget']['error'])) {
 	
 	$prefs = '';
 	foreach ($gadget['user_prefs'] as $name => $value) {
-		$prefs .= '&up_'.urlencode($name).'='.urlencode($value);
+		if (!empty($value)) {
+			$prefs .= '&up_'.urlencode($name).'='.urlencode($value);
+		}
 	}
 	
 	$securityToken = BasicGadgetToken::createFromValues(
@@ -19,7 +21,7 @@ if (!empty($vars['gadget']['error'])) {
 		urlencode($gadget['url']),									// app url
 		$gadget['mod_id']											// mod id
 		);
-		
+	
 	$iframe_url = 
 		Config::get('gadget_server').'/gadgets/ifr?'.
 		"synd=default".
@@ -34,6 +36,7 @@ if (!empty($vars['gadget']['error'])) {
 		"&parent=".urlencode("http://".$_SERVER['HTTP_HOST']).
 		$prefs.
 		"&st=".$securityToken->toSerialForm().
+		"&v=".$gadget['version'].
 		"&url=".urlencode($gadget['url']).
 		"#rpctoken=".rand(0,getrandmax());
 			
@@ -49,7 +52,7 @@ if (!empty($vars['gadget']['error'])) {
 		<span id="remote_iframe_<?=$gadget['mod_id']?>_title" class="gadgets-gadget-title"><?=!empty($gadget['directory_title']) ? $gadget['directory_title'] : $gadget['title']?></span>
 	</div>
 	<div class="gadgets-gadget-content">
-		<iframe width="<?=($width - 6)?>" scrolling="no" height="<?=!empty($gadget['height'])?$gadget['height']:'200'?>" frameborder="no" src="<?=$iframe_url?>" class="gadgets-gadget" name="remote_iframe_<?=$gadget['mod_id']?>" id="remote_iframe_<?=$gadget['mod_id']?>"></iframe>
+		<iframe width="<?=($width - 6)?>" scrolling="<?=$gadget['scrolling'] ? 'yes' : 'no'?>" height="<?=!empty($gadget['height'])?$gadget['height']:'200'?>" frameborder="no" src="<?=$iframe_url?>" class="gadgets-gadget" name="remote_iframe_<?=$gadget['mod_id']?>" id="remote_iframe_<?=$gadget['mod_id']?>"></iframe>
 	</div>
 </div>
 <? 

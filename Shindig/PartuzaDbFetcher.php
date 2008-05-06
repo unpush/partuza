@@ -61,7 +61,7 @@ class PartuzaDbFetcher {
 			from 
 				activity_streams, activities
 			where
-				activity_streams.person_id in (".implode(',', $ids).") and
+				activity_streams.person_id in (" . implode(',', $ids) . ") and
 				activities.activity_stream_id = activity_streams.id
 			order by 
 				created desc
@@ -77,7 +77,7 @@ class PartuzaDbFetcher {
 		}
 		return $activities;
 	}
-
+	
 	private function getMediaItems($activity_id)
 	{
 		$media = array();
@@ -109,11 +109,11 @@ class PartuzaDbFetcher {
 		$mod_id = mysqli_real_escape_string($this->db, $mod_id);
 		if (empty($value)) {
 			// orkut specific type feature, empty string = delete value
-			if (!@mysqli_query($this->db, "delete from application_settings where application_id = $app_id and person_id = $person_id and module_id = $mod_id and name = $key")) {
+			if (! @mysqli_query($this->db, "delete from application_settings where application_id = $app_id and person_id = $person_id and module_id = $mod_id and name = $key")) {
 				return false;
 			}
 		} else {
-			if (!@mysqli_query($this->db, "insert into application_settings (application_id, person_id, module_id, name, value) values ($app_id, $person_id, $mod_id, '$key', '$value') on duplicate key update value = '$value'")) {
+			if (! @mysqli_query($this->db, "insert into application_settings (application_id, person_id, module_id, name, value) values ($app_id, $person_id, $mod_id, '$key', '$value') on duplicate key update value = '$value'")) {
 				return false;
 			}
 		}
@@ -130,13 +130,13 @@ class PartuzaDbFetcher {
 			$keys = '';
 		} else {
 			foreach ($keys as $key => $val) {
-				$keys[$key] = "'".mysqli_real_escape_string($this->db, $val)."'";
+				$keys[$key] = "'" . mysqli_real_escape_string($this->db, $val) . "'";
 			}
-			$keys = "and name in (".implode(',',$keys).")";
+			$keys = "and name in (" . implode(',', $keys) . ")";
 		}
-		$res = mysqli_query($this->db, "select person_id, name, value from application_settings where application_id = $app_id and module_id = $mod_id and person_id in (".implode(',', $ids).") $keys");
+		$res = mysqli_query($this->db, "select person_id, name, value from application_settings where application_id = $app_id and module_id = $mod_id and person_id in (" . implode(',', $ids) . ") $keys");
 		while (list($person_id, $key, $value) = @mysqli_fetch_row($res)) {
-			if (!isset($data[$person_id])) {
+			if (! isset($data[$person_id])) {
 				$data[$person_id] = array();
 			}
 			$data[$person_id][$key] = $value;
@@ -151,322 +151,325 @@ class PartuzaDbFetcher {
 		// need all fields, so strains the DB and IO way to much.
 		// Add a more subtle select where it only selects the requested profileDetails
 		
-		// ps don't pay attention to the -funroll-loops style coding, it's meant to be quick and dirty :)
-		$query = "select * from persons where id in (".implode(',', $ids).")";
-		$res = mysqli_query($this->db, $query);
-		if ($res) while ($row = @mysqli_fetch_array($res, MYSQLI_ASSOC)) {
-			$person_id = mysqli_real_escape_string($this->db, $row['id']);
-			$name = new Name($row['first_name'].' '.$row['last_name']);
-			$name->setGivenName($row['first_name']);
-			$name->setFamilyName($row['last_name']);
-			$person = new Person($row['id'], $name);
-			$person->setAboutMe($row['about_me']);
-			$person->setAge($row['age']);
-			$person->setChildren($row['children']);
-			$person->setDateOfBirth($row['date_of_birth']);
-			$person->setEthnicity($row['ethnicity']);
-			$person->setFashion($row['fashion']);
-			$person->setHappiestWhen($row['happiest_when']);
-			$person->setHumor($row['humor']);
-			$person->setJobInterests($row['job_interests']);
-			$person->setLivingArrangement($row['living_arrangement']);
-			$person->setLookingFor($row['looking_for']);
-			$person->setNickname($row['nickname']);
-			$person->setPets($row['pets']);
-			$person->setPoliticalViews($row['political_views']);
-			$person->setProfileSong($row['profile_song']);
-			$person->setProfileUrl($row['profile_url']);
-			$person->setProfileVideo($row['profile_video']);
-			$person->setRelationshipStatus($row['relationship_status']);
-			$person->setReligion($row['religion']);
-			$person->setRomance($row['romance']);
-			$person->setScaredOf($row['scared_of']);
-			$person->setSexualOrientation($row['sexual_orientation']);
-			$person->setStatus($row['status']);
-			$person->setThumbnailUrl($row['thumbnail_url']);
-			$person->setTimeZone($row['time_zone']);
-			if (!empty($row['drinker'])) {
-				$person->setDrinker(new EnumDrinker($row['drinker']));
-			}
-			if (!empty($row['gender'])) {
-				$person->setGender(new EnumGender($row['gender']));
-			}
-			if (!empty($row['smoker'])){
-				$person->setSmoker(new EnumSmoker($row['smoker']));
-			}
-			/* the following fields require additional queries so are only executed if requested */
-			if (isset($profileDetails['activities'])) {
-				$activities = array();
-				$res2 = mysqli_query($this->db, "select activity from person_activities where person_id = ".$person_id);
-				while (list($activity) = @mysqli_fetch_row($res2)) {
-					$activities[] = $activity;
-				}
-				$person->setActivities($activities);
-			}
-			if (isset($profileDetails['addresses'])) {
-				$addresses = array();
-				$res2 = mysqli_query($this->db, "select address.* from person_addresses, addresses where address.id = person_addresses.address_id and person_addresses.person_id = ".$person_id);
-				while ($row = mysqli_fetch_array($res2, MYSQLI_ASSOC)) {
-					if (empty($row['unstructured_address'])) {
-						$row['unstructured_address'] = trim($row['street_address']." ". $row['region']." ".$row['country']);
-					}
-					$addres = new Address($row['unstructured_address']);
-					$addres->setCountry($row['country']);
-					$addres->setExtendedAddress($row['extended_address']);
-					$addres->setLatitude($row['latitude']);
-					$addres->setLongitude($row['longitude']);
-					$addres->setLocality($row['locality']);
-					$addres->setPoBox($row['po_box']);
-					$addres->setPostalCode($row['postal_code']);
-					$addres->setRegion($row['region']);
-					$addres->setStreetAddress($row['street_address']);
-					$addres->setType($row['address_type']);					
-					$addresses[] = $addres;
-				}
-				$person->setAddresses($addresses);
-			}
-			if (isset($profileDetails['bodyType'])) {
-				$res2 = mysqli_query($this->db, "select * from person_body_type where person_id = ".$person_id);
-				if (mysqli_num_rows($res2)) {
-					$row = mysql_fetch_array($res2, MYSQLI_ASSOC);
-					$bodyType = new BodyType();
-					$bodyType->setBuild($row['build']);
-					$bodyType->setEyeColor($row['eye_color']);
-					$bodyType->setHairColor($row['hair_color']);
-					$bodyType->setHeight($row['height']);
-					$bodyType->setWeight($row['weight']);
-					$person->setBodyType($bodyType);
-				}
-			}
-			if (isset($profileDetails['books'])) {
-				$books = array();
-				$res2 = mysqli_query($this->db, "select book from person_books where person_id = ".$person_id);
-				while (list($book) = @mysqli_fetch_row($res2)) {
-					$books[] = $book;
-				}
-				$person->setBooks($books);
-			}
-			if (isset($profileDetails['cars'])) {
-				$cars = array();
-				$res2 = mysqli_query($this->db, "select car from person_cars where person_id = ".$person_id);
-				while (list($car) = @mysqli_fetch_row($res2)) {
-					$cars[] = $car;
-				}
-				$person->setCars($cars);
-			}
-			if (isset($profileDetails['currentLocation'])) {
-				$addresses = array();
-				$res2 = mysqli_query($this->db, "select address.* from person_current_location, addresses where address.id = person_current_location.address_id and person_addresses.person_id = ".$person_id);
-				if (mysqli_num_rows($res2)) {
-					$row = mysqli_fetch_array($res2, MYSQLI_ASSOC);
-					if (empty($row['unstructured_address'])) {
-						$row['unstructured_address'] = trim($row['street_address']." ". $row['region']." ".$row['country']);
-					}
-					$addres = new Address($row['unstructured_address']);
-					$addres->setCountry($row['country']);
-					$addres->setExtendedAddress($row['extended_address']);
-					$addres->setLatitude($row['latitude']);
-					$addres->setLongitude($row['longitude']);
-					$addres->setLocality($row['locality']);
-					$addres->setPoBox($row['po_box']);
-					$addres->setPostalCode($row['postal_code']);
-					$addres->setRegion($row['region']);
-					$addres->setStreetAddress($row['street_address']);
-					$addres->setType($row['address_type']);					
-					$person->setCurrentLocation($addres);
-				}
-			}
-			if (isset($profileDetails['emails'])) {
-				$emails = array();
-				$res2 = mysqli_query($this->db, "select address, email_type from person_emails where person_id = ".$person_id);
-				while (list($address, $type) = @mysqli_fetch_row($res2)) {
-					$emails[] = new Email($address, $type);
-				}
-				$person->setEmails($emails);
-			}
-			if (isset($profileDetails['food'])) {
-				$foods = array();
-				$res2 = mysqli_query($this->db, "select food from person_foods where person_id = ".$person_id);
-				while (list($food) = @mysqli_fetch_row($res2)) {
-					$foods[] = $food;
-				}
-				$person->setFood($foods);
-			}
-			
-			if (isset($profileDetails['heroes'])) {
-				$strings = array();
-				$res2 = mysqli_query($this->db, "select hero from person_heroes where person_id = ".$person_id);
-				while (list($data) = @mysqli_fetch_row($res2)) {
-					$strings[] = $data;
-				}
-				$person->setHeroes($strings);
-			}
 
-			if (isset($profileDetails['interests'])) {
-				$strings = array();
-				$res2 = mysqli_query($this->db, "select interest from person_interests where person_id = ".$person_id);
-				while (list($data) = @mysqli_fetch_row($res2)) {
-					$strings[] = $data;
+		// ps don't pay attention to the -funroll-loops style coding, it's meant to be quick and dirty :)
+		$query = "select * from persons where id in (" . implode(',', $ids) . ")";
+		$res = mysqli_query($this->db, $query);
+		if ($res)
+			while ($row = @mysqli_fetch_array($res, MYSQLI_ASSOC)) {
+				$person_id = mysqli_real_escape_string($this->db, $row['id']);
+				$name = new Name($row['first_name'] . ' ' . $row['last_name']);
+				$name->setGivenName($row['first_name']);
+				$name->setFamilyName($row['last_name']);
+				$person = new Person($row['id'], $name);
+				$person->setAboutMe($row['about_me']);
+				$person->setAge($row['age']);
+				$person->setChildren($row['children']);
+				$person->setDateOfBirth($row['date_of_birth']);
+				$person->setEthnicity($row['ethnicity']);
+				$person->setFashion($row['fashion']);
+				$person->setHappiestWhen($row['happiest_when']);
+				$person->setHumor($row['humor']);
+				$person->setJobInterests($row['job_interests']);
+				$person->setLivingArrangement($row['living_arrangement']);
+				$person->setLookingFor($row['looking_for']);
+				$person->setNickname($row['nickname']);
+				$person->setPets($row['pets']);
+				$person->setPoliticalViews($row['political_views']);
+				$person->setProfileSong($row['profile_song']);
+				$person->setProfileUrl($row['profile_url']);
+				$person->setProfileVideo($row['profile_video']);
+				$person->setRelationshipStatus($row['relationship_status']);
+				$person->setReligion($row['religion']);
+				$person->setRomance($row['romance']);
+				$person->setScaredOf($row['scared_of']);
+				$person->setSexualOrientation($row['sexual_orientation']);
+				$person->setStatus($row['status']);
+				$person->setThumbnailUrl($row['thumbnail_url']);
+				$person->setTimeZone($row['time_zone']);
+				if (! empty($row['drinker'])) {
+					$person->setDrinker(new EnumDrinker($row['drinker']));
 				}
-				$person->setInterests($strings);
-			}
-			if (isset($profileDetails['jobs'])) {
-				$organizations = array();
-				$res2 = mysqli_query($this->db, "select organizations.* from person_jobs, organizations where organizations.id = person_jobs.organization_id and person_jobs.person_id = ".$person_id);
-				while ($row = mysqli_fetch_array($res2, MYSQLI_ASSOC)) {
-					$organization = new Organization();
-					$organization->setDescription($row['description']);
-					$organization->setEndDate($row['end_date']);
-					$organization->setField($row['field']);
-					$organization->setName($row['name']);
-					$organization->setSalary($row['salary']);
-					$organization->setStartDate($row['start_date']);
-					$organization->setSubField($row['sub_field']);
-					$organization->setTitle($row['title']);
-					$organization->setWebpage($row['webpage']);
-					if ($row['address_id']) {
-						$res3 = mysqli_query($this->db, "select * from addresses where id = ".mysqli_real_escape_string($this->db, $row['address_id']));
-						if (mysqli_num_rows($res3)) {
-							$row = mysqli_fetch_array($res3, MYSQLI_ASSOC);
-							if (empty($row['unstructured_address'])) {
-								$row['unstructured_address'] = trim($row['street_address']." ". $row['region']." ".$row['country']);
-							}
-							$addres = new Address($row['unstructured_address']);
-							$addres->setCountry($row['country']);
-							$addres->setExtendedAddress($row['extended_address']);
-							$addres->setLatitude($row['latitude']);
-							$addres->setLongitude($row['longitude']);
-							$addres->setLocality($row['locality']);
-							$addres->setPoBox($row['po_box']);
-							$addres->setPostalCode($row['postal_code']);
-							$addres->setRegion($row['region']);
-							$addres->setStreetAddress($row['street_address']);
-							$addres->setType($row['address_type']);					
-							$organization->setAddress($address);
-						}
+				if (! empty($row['gender'])) {
+					$person->setGender(new EnumGender($row['gender']));
+				}
+				if (! empty($row['smoker'])) {
+					$person->setSmoker(new EnumSmoker($row['smoker']));
+				}
+				/* the following fields require additional queries so are only executed if requested */
+				if (isset($profileDetails['activities'])) {
+					$activities = array();
+					$res2 = mysqli_query($this->db, "select activity from person_activities where person_id = " . $person_id);
+					while (list($activity) = @mysqli_fetch_row($res2)) {
+						$activities[] = $activity;
 					}
-					$organizations[] = $organization;
+					$person->setActivities($activities);
 				}
-				$person->setJobs($organizations);
-			}
-			
-			//TODO languagesSpoken, currently missing the languages / countries tables so can't do this yet
-			
-			if (isset($profileDetails['movies'])) {
-				$strings = array();
-				$res2 = mysqli_query($this->db, "select movie from person_movies where person_id = ".$person_id);
-				while (list($data) = @mysqli_fetch_row($res2)) {
-					$strings[] = $data;
-				}
-				$person->setMovies($strings);
-			}
-			if (isset($profileDetails['music'])) {
-				$strings = array();
-				$res2 = mysqli_query($this->db, "select music from person_music where person_id = ".$person_id);
-				while (list($data) = @mysqli_fetch_row($res2)) {
-					$strings[] = $data;
-				}
-				$person->setMusic($strings);
-			}			
-			if (isset($profileDetails['phoneNumbers'])) {
-				$numbers = array();
-				$res2 = mysqli_query($this->db, "select number, number_type from person_phone_numbers where person_id = ".$person_id);
-				while (list($number, $type) = @mysqli_fetch_row($res2)) {
-					$numbers[] = new Phone($number, $type);
-				}
-				$person->setPhoneNumbers($numbers);
-			}
-			if (isset($profileDetails['quotes'])) {
-				$strings = array();
-				$res2 = mysqli_query($this->db, "select quote from person_quotes where person_id = ".$person_id);
-				while (list($data) = @mysqli_fetch_row($res2)) {
-					$strings[] = $data;
-				}
-				$person->setQuotes($strings);
-			}
-			if (isset($profileDetails['schools'])) {
-				$organizations = array();
-				$res2 = mysqli_query($this->db, "select organizations.* from person_schools, organizations where organizations.id = person_schools.organization_id and person_schools.person_id = ".$person_id);
-				while ($row = mysqli_fetch_array($res2, MYSQLI_ASSOC)) {
-					$organization = new Organization();
-					$organization->setDescription($row['description']);
-					$organization->setEndDate($row['end_date']);
-					$organization->setField($row['field']);
-					$organization->setName($row['name']);
-					$organization->setSalary($row['salary']);
-					$organization->setStartDate($row['start_date']);
-					$organization->setSubField($row['sub_field']);
-					$organization->setTitle($row['title']);
-					$organization->setWebpage($row['webpage']);
-					if ($row['address_id']) {
-						$res3 = mysqli_query($this->db, "select * from addresses where id = ".mysqli_real_escape_string($this->db, $row['address_id']));
-						if (mysqli_num_rows($res3)) {
-							$row = mysqli_fetch_array($res3, MYSQLI_ASSOC);
-							if (empty($row['unstructured_address'])) {
-								$row['unstructured_address'] = trim($row['street_address']." ". $row['region']." ".$row['country']);
-							}
-							$addres = new Address($row['unstructured_address']);
-							$addres->setCountry($row['country']);
-							$addres->setExtendedAddress($row['extended_address']);
-							$addres->setLatitude($row['latitude']);
-							$addres->setLongitude($row['longitude']);
-							$addres->setLocality($row['locality']);
-							$addres->setPoBox($row['po_box']);
-							$addres->setPostalCode($row['postal_code']);
-							$addres->setRegion($row['region']);
-							$addres->setStreetAddress($row['street_address']);
-							$addres->setType($row['address_type']);					
-							$organization->setAddress($address);
+				if (isset($profileDetails['addresses'])) {
+					$addresses = array();
+					$res2 = mysqli_query($this->db, "select address.* from person_addresses, addresses where address.id = person_addresses.address_id and person_addresses.person_id = " . $person_id);
+					while ($row = mysqli_fetch_array($res2, MYSQLI_ASSOC)) {
+						if (empty($row['unstructured_address'])) {
+							$row['unstructured_address'] = trim($row['street_address'] . " " . $row['region'] . " " . $row['country']);
 						}
+						$addres = new Address($row['unstructured_address']);
+						$addres->setCountry($row['country']);
+						$addres->setExtendedAddress($row['extended_address']);
+						$addres->setLatitude($row['latitude']);
+						$addres->setLongitude($row['longitude']);
+						$addres->setLocality($row['locality']);
+						$addres->setPoBox($row['po_box']);
+						$addres->setPostalCode($row['postal_code']);
+						$addres->setRegion($row['region']);
+						$addres->setStreetAddress($row['street_address']);
+						$addres->setType($row['address_type']);
+						$addresses[] = $addres;
 					}
-					$organizations[] = $organization;
+					$person->setAddresses($addresses);
 				}
-				$person->setSchools($organizations);
+				if (isset($profileDetails['bodyType'])) {
+					$res2 = mysqli_query($this->db, "select * from person_body_type where person_id = " . $person_id);
+					if (mysqli_num_rows($res2)) {
+						$row = mysql_fetch_array($res2, MYSQLI_ASSOC);
+						$bodyType = new BodyType();
+						$bodyType->setBuild($row['build']);
+						$bodyType->setEyeColor($row['eye_color']);
+						$bodyType->setHairColor($row['hair_color']);
+						$bodyType->setHeight($row['height']);
+						$bodyType->setWeight($row['weight']);
+						$person->setBodyType($bodyType);
+					}
+				}
+				if (isset($profileDetails['books'])) {
+					$books = array();
+					$res2 = mysqli_query($this->db, "select book from person_books where person_id = " . $person_id);
+					while (list($book) = @mysqli_fetch_row($res2)) {
+						$books[] = $book;
+					}
+					$person->setBooks($books);
+				}
+				if (isset($profileDetails['cars'])) {
+					$cars = array();
+					$res2 = mysqli_query($this->db, "select car from person_cars where person_id = " . $person_id);
+					while (list($car) = @mysqli_fetch_row($res2)) {
+						$cars[] = $car;
+					}
+					$person->setCars($cars);
+				}
+				if (isset($profileDetails['currentLocation'])) {
+					$addresses = array();
+					$res2 = mysqli_query($this->db, "select address.* from person_current_location, addresses where address.id = person_current_location.address_id and person_addresses.person_id = " . $person_id);
+					if (mysqli_num_rows($res2)) {
+						$row = mysqli_fetch_array($res2, MYSQLI_ASSOC);
+						if (empty($row['unstructured_address'])) {
+							$row['unstructured_address'] = trim($row['street_address'] . " " . $row['region'] . " " . $row['country']);
+						}
+						$addres = new Address($row['unstructured_address']);
+						$addres->setCountry($row['country']);
+						$addres->setExtendedAddress($row['extended_address']);
+						$addres->setLatitude($row['latitude']);
+						$addres->setLongitude($row['longitude']);
+						$addres->setLocality($row['locality']);
+						$addres->setPoBox($row['po_box']);
+						$addres->setPostalCode($row['postal_code']);
+						$addres->setRegion($row['region']);
+						$addres->setStreetAddress($row['street_address']);
+						$addres->setType($row['address_type']);
+						$person->setCurrentLocation($addres);
+					}
+				}
+				if (isset($profileDetails['emails'])) {
+					$emails = array();
+					$res2 = mysqli_query($this->db, "select address, email_type from person_emails where person_id = " . $person_id);
+					while (list($address, $type) = @mysqli_fetch_row($res2)) {
+						$emails[] = new Email($address, $type);
+					}
+					$person->setEmails($emails);
+				}
+				if (isset($profileDetails['food'])) {
+					$foods = array();
+					$res2 = mysqli_query($this->db, "select food from person_foods where person_id = " . $person_id);
+					while (list($food) = @mysqli_fetch_row($res2)) {
+						$foods[] = $food;
+					}
+					$person->setFood($foods);
+				}
+				
+				if (isset($profileDetails['heroes'])) {
+					$strings = array();
+					$res2 = mysqli_query($this->db, "select hero from person_heroes where person_id = " . $person_id);
+					while (list($data) = @mysqli_fetch_row($res2)) {
+						$strings[] = $data;
+					}
+					$person->setHeroes($strings);
+				}
+				
+				if (isset($profileDetails['interests'])) {
+					$strings = array();
+					$res2 = mysqli_query($this->db, "select interest from person_interests where person_id = " . $person_id);
+					while (list($data) = @mysqli_fetch_row($res2)) {
+						$strings[] = $data;
+					}
+					$person->setInterests($strings);
+				}
+				if (isset($profileDetails['jobs'])) {
+					$organizations = array();
+					$res2 = mysqli_query($this->db, "select organizations.* from person_jobs, organizations where organizations.id = person_jobs.organization_id and person_jobs.person_id = " . $person_id);
+					while ($row = mysqli_fetch_array($res2, MYSQLI_ASSOC)) {
+						$organization = new Organization();
+						$organization->setDescription($row['description']);
+						$organization->setEndDate($row['end_date']);
+						$organization->setField($row['field']);
+						$organization->setName($row['name']);
+						$organization->setSalary($row['salary']);
+						$organization->setStartDate($row['start_date']);
+						$organization->setSubField($row['sub_field']);
+						$organization->setTitle($row['title']);
+						$organization->setWebpage($row['webpage']);
+						if ($row['address_id']) {
+							$res3 = mysqli_query($this->db, "select * from addresses where id = " . mysqli_real_escape_string($this->db, $row['address_id']));
+							if (mysqli_num_rows($res3)) {
+								$row = mysqli_fetch_array($res3, MYSQLI_ASSOC);
+								if (empty($row['unstructured_address'])) {
+									$row['unstructured_address'] = trim($row['street_address'] . " " . $row['region'] . " " . $row['country']);
+								}
+								$addres = new Address($row['unstructured_address']);
+								$addres->setCountry($row['country']);
+								$addres->setExtendedAddress($row['extended_address']);
+								$addres->setLatitude($row['latitude']);
+								$addres->setLongitude($row['longitude']);
+								$addres->setLocality($row['locality']);
+								$addres->setPoBox($row['po_box']);
+								$addres->setPostalCode($row['postal_code']);
+								$addres->setRegion($row['region']);
+								$addres->setStreetAddress($row['street_address']);
+								$addres->setType($row['address_type']);
+								$organization->setAddress($address);
+							}
+						}
+						$organizations[] = $organization;
+					}
+					$person->setJobs($organizations);
+				}
+				
+				//TODO languagesSpoken, currently missing the languages / countries tables so can't do this yet
+				
+
+				if (isset($profileDetails['movies'])) {
+					$strings = array();
+					$res2 = mysqli_query($this->db, "select movie from person_movies where person_id = " . $person_id);
+					while (list($data) = @mysqli_fetch_row($res2)) {
+						$strings[] = $data;
+					}
+					$person->setMovies($strings);
+				}
+				if (isset($profileDetails['music'])) {
+					$strings = array();
+					$res2 = mysqli_query($this->db, "select music from person_music where person_id = " . $person_id);
+					while (list($data) = @mysqli_fetch_row($res2)) {
+						$strings[] = $data;
+					}
+					$person->setMusic($strings);
+				}
+				if (isset($profileDetails['phoneNumbers'])) {
+					$numbers = array();
+					$res2 = mysqli_query($this->db, "select number, number_type from person_phone_numbers where person_id = " . $person_id);
+					while (list($number, $type) = @mysqli_fetch_row($res2)) {
+						$numbers[] = new Phone($number, $type);
+					}
+					$person->setPhoneNumbers($numbers);
+				}
+				if (isset($profileDetails['quotes'])) {
+					$strings = array();
+					$res2 = mysqli_query($this->db, "select quote from person_quotes where person_id = " . $person_id);
+					while (list($data) = @mysqli_fetch_row($res2)) {
+						$strings[] = $data;
+					}
+					$person->setQuotes($strings);
+				}
+				if (isset($profileDetails['schools'])) {
+					$organizations = array();
+					$res2 = mysqli_query($this->db, "select organizations.* from person_schools, organizations where organizations.id = person_schools.organization_id and person_schools.person_id = " . $person_id);
+					while ($row = mysqli_fetch_array($res2, MYSQLI_ASSOC)) {
+						$organization = new Organization();
+						$organization->setDescription($row['description']);
+						$organization->setEndDate($row['end_date']);
+						$organization->setField($row['field']);
+						$organization->setName($row['name']);
+						$organization->setSalary($row['salary']);
+						$organization->setStartDate($row['start_date']);
+						$organization->setSubField($row['sub_field']);
+						$organization->setTitle($row['title']);
+						$organization->setWebpage($row['webpage']);
+						if ($row['address_id']) {
+							$res3 = mysqli_query($this->db, "select * from addresses where id = " . mysqli_real_escape_string($this->db, $row['address_id']));
+							if (mysqli_num_rows($res3)) {
+								$row = mysqli_fetch_array($res3, MYSQLI_ASSOC);
+								if (empty($row['unstructured_address'])) {
+									$row['unstructured_address'] = trim($row['street_address'] . " " . $row['region'] . " " . $row['country']);
+								}
+								$addres = new Address($row['unstructured_address']);
+								$addres->setCountry($row['country']);
+								$addres->setExtendedAddress($row['extended_address']);
+								$addres->setLatitude($row['latitude']);
+								$addres->setLongitude($row['longitude']);
+								$addres->setLocality($row['locality']);
+								$addres->setPoBox($row['po_box']);
+								$addres->setPostalCode($row['postal_code']);
+								$addres->setRegion($row['region']);
+								$addres->setStreetAddress($row['street_address']);
+								$addres->setType($row['address_type']);
+								$organization->setAddress($address);
+							}
+						}
+						$organizations[] = $organization;
+					}
+					$person->setSchools($organizations);
+				}
+				if (isset($profileDetails['sports'])) {
+					$strings = array();
+					$res2 = mysqli_query($this->db, "select sport from person_sports where person_id = " . $person_id);
+					while (list($data) = @mysqli_fetch_row($res2)) {
+						$strings[] = $data;
+					}
+					$person->setSports($strings);
+				}
+				if (isset($profileDetails['tags'])) {
+					$strings = array();
+					$res2 = mysqli_query($this->db, "select tag from person_tags where person_id = " . $person_id);
+					while (list($data) = @mysqli_fetch_row($res2)) {
+						$strings[] = $data;
+					}
+					$person->setTags($strings);
+				}
+				
+				if (isset($profileDetails['turnOns'])) {
+					$strings = array();
+					$res2 = mysqli_query($this->db, "select turn_on from person_turn_ons where person_id = " . $person_id);
+					while (list($data) = @mysqli_fetch_row($res2)) {
+						$strings[] = $data;
+					}
+					$person->setTurnOns($strings);
+				}
+				if (isset($profileDetails['turnOffs'])) {
+					$strings = array();
+					$res2 = mysqli_query($this->db, "select turn_off from person_turn_offs where person_id = " . $person_id);
+					while (list($data) = @mysqli_fetch_row($res2)) {
+						$strings[] = $data;
+					}
+					$person->setTurnOffs($strings);
+				}
+				if (isset($profileDetails['urls'])) {
+					$strings = array();
+					$res2 = mysqli_query($this->db, "select url from person_urls where person_id = " . $person_id);
+					while (list($data) = @mysqli_fetch_row($res2)) {
+						$strings[] = $data;
+					}
+					$person->setUrls($strings);
+				}
+				$ret[$person_id] = $person;
 			}
-			if (isset($profileDetails['sports'])) {
-				$strings = array();
-				$res2 = mysqli_query($this->db, "select sport from person_sports where person_id = ".$person_id);
-				while (list($data) = @mysqli_fetch_row($res2)) {
-					$strings[] = $data;
-				}
-				$person->setSports($strings);
-			}
-			if (isset($profileDetails['tags'])) {
-				$strings = array();
-				$res2 = mysqli_query($this->db, "select tag from person_tags where person_id = ".$person_id);
-				while (list($data) = @mysqli_fetch_row($res2)) {
-					$strings[] = $data;
-				}
-				$person->setTags($strings);
-			}
-			
-			if (isset($profileDetails['turnOns'])) {
-				$strings = array();
-				$res2 = mysqli_query($this->db, "select turn_on from person_turn_ons where person_id = ".$person_id);
-				while (list($data) = @mysqli_fetch_row($res2)) {
-					$strings[] = $data;
-				}
-				$person->setTurnOns($strings);
-			}
-			if (isset($profileDetails['turnOffs'])) {
-				$strings = array();
-				$res2 = mysqli_query($this->db, "select turn_off from person_turn_offs where person_id = ".$person_id);
-				while (list($data) = @mysqli_fetch_row($res2)) {
-					$strings[] = $data;
-				}
-				$person->setTurnOffs($strings);
-			}
-			if (isset($profileDetails['urls'])) {
-				$strings = array();
-				$res2 = mysqli_query($this->db, "select url from person_urls where person_id = ".$person_id);
-				while (list($data) = @mysqli_fetch_row($res2)) {
-					$strings[] = $data;
-				}
-				$person->setUrls($strings);
-			}			
-			$ret[$person_id] = $person;			
-		}
 		return $ret;
 	}
-	
+
 }

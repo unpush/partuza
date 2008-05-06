@@ -18,8 +18,7 @@
  * under the License.
  */
 
-class GeneralSecurityException extends Exception {
-}
+class GeneralSecurityException extends Exception {}
 
 final class Crypto {
 	
@@ -69,7 +68,12 @@ final class Crypto {
 	{
 		/* Open the cipher */
 		$td = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', MCRYPT_MODE_CBC, '');
-		$iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($td), MCRYPT_DEV_RANDOM);
+		if (!$td) {
+			throw new GeneralSecurityException('Invalid mcrypt cipher, check your libmcrypt library and php-mcrypt extention');
+		}
+		// replaced MCRYPT_DEV_RANDOM with MCRYPT_RAND since windows doesn't have /dev/rand :)
+		srand((double) microtime() * 1000000);
+		$iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($td), MCRYPT_RAND);
 		/* Intialize encryption */
 		mcrypt_generic_init($td, $key, $iv);
 		/* Encrypt data */
@@ -87,7 +91,9 @@ final class Crypto {
 	{
 		/* Open the cipher */
 		$td = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', MCRYPT_MODE_CBC, '');
-		$iv = substr($encrypted_text, 0, Crypto::$CIPHER_BLOCK_SIZE);
+		if (!$td) {
+			throw new GeneralSecurityException('Invalid mcrypt cipher, check your libmcrypt library and php-mcrypt extention');
+		}		$iv = substr($encrypted_text, 0, Crypto::$CIPHER_BLOCK_SIZE);
 		/* Initialize encryption module for decryption */
 		mcrypt_generic_init($td, $key, $iv);
 		/* Decrypt encrypted string */

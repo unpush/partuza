@@ -19,7 +19,7 @@
 
 class PartuzaHandler extends GadgetDataHandler {
 	private $handles = array('FETCH_PEOPLE', 'FETCH_PERSON_APP_DATA', 'UPDATE_PERSON_APP_DATA', 'FETCH_ACTIVITIES', 'CREATE_ACTIVITY');
-			
+	
 	public function shouldHandle($requestType)
 	{
 		return in_array($requestType, $this->handles);
@@ -33,12 +33,12 @@ class PartuzaHandler extends GadgetDataHandler {
 			$response = new ResponseItem(NOT_IMPLEMENTED, $type . " has not been implemented yet.", array());
 			$idSpec = idSpec::fromJson($params['idSpec']);
 			$peopleIds = $this->getIds($idSpec, $request->getToken());
-			switch ( $type) {
+			switch ($type) {
 				
-				case 'FETCH_PEOPLE' :
+				case 'FETCH_PEOPLE':
 					$profileDetail = $params["profileDetail"];
 					$profileDetailFields = Array();
-					foreach ( $profileDetail as $detail ) {
+					foreach ($profileDetail as $detail) {
 						$profileDetailFields[] = $detail;
 					}
 					$sortOrder = ! empty($params["sortOrder"]) ? $params["sortOrder"] : 'topFriends';
@@ -50,16 +50,16 @@ class PartuzaHandler extends GadgetDataHandler {
 					$response = $this->getPeople($peopleIds, $sortOrder, $filter, $first, $max, $profileDetailFields, $request->getToken());
 					break;
 				
-				case 'FETCH_PERSON_APP_DATA' :
+				case 'FETCH_PERSON_APP_DATA':
 					$jsonKeys = $params["keys"];
 					$keys = array();
-					foreach ( $jsonKeys as $key ) {
+					foreach ($jsonKeys as $key) {
 						$keys[] = $key;
 					}
 					$response = $this->getPersonData($peopleIds, $keys, $request->getToken());
 					break;
 				
-				case 'UPDATE_PERSON_APP_DATA' :
+				case 'UPDATE_PERSON_APP_DATA':
 					// this is either viewer or owner right? lets hack in propper support shall we?
 					// We only support updating one person right now
 					$id = $peopleIds[0];
@@ -68,14 +68,14 @@ class PartuzaHandler extends GadgetDataHandler {
 					$response = $this->updatePersonData($id, $key, $value, $request->getToken());
 					break;
 				
-				case 'FETCH_ACTIVITIES' :
+				case 'FETCH_ACTIVITIES':
 					$response = $this->getActivities($peopleIds, $request->getToken());
 					break;
 				
-				case 'CREATE_ACTIVITY' :
+				case 'CREATE_ACTIVITY':
 					break;
 			}
-		} catch ( Exception $e ) {
+		} catch (Exception $e) {
 			$response = new ResponseItem(BAD_REQUEST, $e->getMessage());
 		}
 		return $response;
@@ -86,7 +86,7 @@ class PartuzaHandler extends GadgetDataHandler {
 	{
 		$allPeople = PartuzaDbFetcher::get()->getPeople($ids, $profileDetails);
 		$people = array();
-		foreach ( $ids as $id ) {
+		foreach ($ids as $id) {
 			$person = null;
 			if (isset($allPeople[$id])) {
 				$person = $allPeople[$id];
@@ -106,8 +106,8 @@ class PartuzaHandler extends GadgetDataHandler {
 					$newPerson['isOwner'] = $person->isOwner;
 					$newPerson['isViewer'] = $person->isViewer;
 					$newPerson['name'] = $person->name;
-					foreach ( $profileDetails as $field ) {
-						if (isset($person->$field) && !empty($person->$field)) {
+					foreach ($profileDetails as $field) {
+						if (isset($person->$field) && ! empty($person->$field)) {
 							$newPerson[$field] = $person->$field;
 						}
 					}
@@ -134,26 +134,25 @@ class PartuzaHandler extends GadgetDataHandler {
 	private function getIds($idSpec, $token)
 	{
 		$ids = array();
-		switch ( $idSpec->getType()) {
-			case 'OWNER' :
+		switch ($idSpec->getType()) {
+			case 'OWNER':
 				$ids[] = $token->getOwnerId();
 				break;
-			case 'VIEWER' :
+			case 'VIEWER':
 				$ids[] = $token->getViewerId();
 				break;
-			case 'OWNER_FRIENDS' :
+			case 'OWNER_FRIENDS':
 				$ids = PartuzaDbFetcher::get()->getFriendIds($token->getOwnerId());
 				break;
-			case 'VIEWER_FRIENDS' :
+			case 'VIEWER_FRIENDS':
 				$ids = PartuzaDbFetcher::get()->getFriendIds($token->getViewerId());
 				break;
-			case 'USER_IDS' :
+			case 'USER_IDS':
 				$ids = $idSpec->fetchUserIds();
 				break;
 		}
 		return $ids;
 	}
-	
 	
 	/* Data */
 	private function getPersonData($ids, $keys, $token)
@@ -188,7 +187,7 @@ class PartuzaHandler extends GadgetDataHandler {
 	
 	private function createActivity($personId, $activity, $token)
 	{
-		
+	
 	}
 	
 	/**
@@ -203,7 +202,7 @@ class PartuzaHandler extends GadgetDataHandler {
 		if (empty($key)) {
 			return false;
 		}
-		for($i = 0; $i < strlen($key); ++ $i) {
+		for ($i = 0; $i < strlen($key); ++ $i) {
 			$c = substr($key, $i, 1);
 			if (($c >= 'a' && $c <= 'z') || ($c >= 'A' && $c <= 'Z') || ($c >= '0' && $c <= '9') || ($c == '-') || ($c == '_') || ($c == '.')) {
 				continue;
