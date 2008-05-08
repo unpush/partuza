@@ -52,7 +52,8 @@ class Dispatcher {
 			header('Content-Length: '.ob_get_length());
 			// Normally i would put a 5 min caching here at least, but on social sites data tends to
 			// change quite rapidly, so ... no cache it is
-			header('Cache-Control: no-cache, must-revalidate, private');
+		    header('Last-Modified: '.gmdate('D, d M Y H:i:s') . ' GMT');
+		    header('Cache-Control: no-store, no-cache, must-revalidate, private');
 			header('Pragma: no-cache');
 			header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 			$content = ob_get_clean();

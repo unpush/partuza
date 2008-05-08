@@ -73,6 +73,7 @@ class PartuzaHandler extends GadgetDataHandler {
 					break;
 				
 				case 'CREATE_ACTIVITY':
+					$response = $this->createActivity($peopleIds, $params['activity'], $request->getToken());
 					break;
 			}
 		} catch (Exception $e) {
@@ -185,9 +186,17 @@ class PartuzaHandler extends GadgetDataHandler {
 		return new ResponseItem(null, null, PartuzaDbFetcher::get()->getActivities($ids));
 	}
 
-	private function createActivity($personId, $activity, $token)
+	private function createActivity($personIds, $activity, $token)
 	{
-	
+		$requestId = $personIds[0];
+		if ($requestId != $token->getViewerId()) {
+			return new ResponseItem(BAD_REQUEST, "Invalid person id for createActivity, person id can only be viewer", null);
+		}
+		if (PartuzaDbFetcher::get()->createActivity($token->getViewerId(), $activity, $token->getAppId())) {
+			return new ResponseItem(null, null, array());
+		} else {
+			return new ResponseItem(BAD_REQUEST, "Error storing activity item", null);
+		}
 	}
 
 	/**

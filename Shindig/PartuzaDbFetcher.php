@@ -43,6 +43,32 @@ class PartuzaDbFetcher {
 		}
 		return PartuzaDbFetcher::$fetcher;
 	}
+	
+	public function createActivity($person_id, $activity, $app_id = '0')
+	{
+		$app_id = mysqli_real_escape_string($this->db, $app_id);
+		$person_id = mysqli_real_escape_string($this->db, $person_id);
+		$title = mysqli_real_escape_string($this->db, !empty($activity['fields_']['title']) ? trim($activity['fields_']['title']) : '');
+		$body = mysqli_real_escape_string($this->db, !empty($activity['fields_']['body']) ? trim($activity['fields_']['body']) : '');
+		$time = time();
+		mysqli_query($this->db, "insert into activities (id, person_id, app_id, title, body, created) values (0, $person_id, $app_id, '$title', '$body', $time)");
+		echo mysqli_error($this->db);
+		if (!($activityId = mysqli_insert_id($this->db))) {
+			return false;
+		}
+		if (isset($activity['fields_']['mediaItems']) && count($activity['fields_']['mediaItems'])) {
+			foreach ($activity['fields_']['mediaItems'] as $mediaItem) {
+				$type = mysqli_real_escape_string($this->db, $mediaItem['fields_']['type']);
+				$mimeType = mysqli_real_escape_string($this->db, $mediaItem['fields_']['mimeType']);
+				$url = mysqli_real_escape_string($this->db, $mediaItem['fields_']['url']);
+				mysqli_query($this->db, "insert into activity_media_items (id, activity_id, mime_type, media_type, url) values (0, $activityId, '$mimeType', '$type', '$url')");
+				if (!mysqli_insert_id($this->db)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 
 	public function getActivities($ids)
 	{
@@ -50,26 +76,23 @@ class PartuzaDbFetcher {
 		foreach ($ids as $key => $val) {
 			$ids[$key] = mysqli_real_escape_string($this->db, $val);
 		}
-		//TODO missing: streamFaviconUrl, streamSourceUrl, streamUrl, templateParams, titleId, url
 		$res = mysqli_query($this->db, "
 			select 
-				activity_streams.title as stream_title,
-				activity_streams.person_id as person_id,
+				activities.person_id as person_id,
 				activities.id as activity_id,
 				activities.title as activity_title,
 				activities.body as activity_body,
 				activities.created as created
 			from 
-				activity_streams, activities
+				activities
 			where
-				activity_streams.person_id in (" . implode(',', $ids) . ") and
-				activities.activity_stream_id = activity_streams.id
+				activities.person_id in (" . implode(',', $ids) . ")
 			order by 
 				created desc
 			");
 		while ($row = @mysqli_fetch_array($res, MYSQLI_ASSOC)) {
 			$activity = new Activity($row['activity_id'], $row['person_id']);
-			$activity->setStreamTitle($row['stream_title']);
+			$activity->setStreamTitle('activities');
 			$activity->setTitle($row['activity_title']);
 			$activity->setBody($row['activity_body']);
 			$activity->setPostedTime($row['created']);
