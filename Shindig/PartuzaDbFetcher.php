@@ -97,7 +97,7 @@ class PartuzaDbFetcher {
 			$activity->setBody($row['activity_body']);
 			$activity->setPostedTime($row['created']);
 			$activity->setMediaItems($this->getMediaItems($row['activity_id']));
-			$activities[$row['person_id']][] = $activity;
+			$activities[] = $activity;
 		}
 		return $activities;
 	}
