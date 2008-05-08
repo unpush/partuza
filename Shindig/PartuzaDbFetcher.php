@@ -209,7 +209,7 @@ class PartuzaDbFetcher {
 				$person->setScaredOf($row['scared_of']);
 				$person->setSexualOrientation($row['sexual_orientation']);
 				$person->setStatus($row['status']);
-				$person->setThumbnailUrl(!empty($row['thumbnail_url']) ? $row['thumbnail_url'] : Config::get('gadget_server')."/gadgets/files/samplecontainer/examples/nophoto.gif");
+				$person->setThumbnailUrl($row['thumbnail_url']);
 				$person->setTimeZone($row['time_zone']);
 				if (! empty($row['drinker'])) {
 					$person->setDrinker(new EnumDrinker($row['drinker']));
