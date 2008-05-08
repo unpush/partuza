@@ -128,9 +128,9 @@ form#register div .label {
 	background-color:#f0f0f0;
 	float			: left;
 	width			: 84px;
-	margin-right	: 5px;
+	margin-right	: 6px;
+	margin-bottom	: 6px;
 	overflow		: hidden;
-	margin-bottom	: 4px;
 }
 
 .friend .thumb {

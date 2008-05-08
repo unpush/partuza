@@ -19,12 +19,12 @@
 
 class PartuzaHandler extends GadgetDataHandler {
 	private $handles = array('FETCH_PEOPLE', 'FETCH_PERSON_APP_DATA', 'UPDATE_PERSON_APP_DATA', 'FETCH_ACTIVITIES', 'CREATE_ACTIVITY');
-	
+
 	public function shouldHandle($requestType)
 	{
 		return in_array($requestType, $this->handles);
 	}
-	
+
 	public function handleRequest($request)
 	{
 		try {
@@ -80,7 +80,7 @@ class PartuzaHandler extends GadgetDataHandler {
 		}
 		return $response;
 	}
-	
+
 	/* People */
 	private function getPeople($ids, $sortOrder, $filter, $first, $max, $profileDetails, $token)
 	{
@@ -130,7 +130,7 @@ class PartuzaHandler extends GadgetDataHandler {
 		$collection = new ApiCollection($people, $first, $totalSize);
 		return new ResponseItem(null, null, $collection);
 	}
-	
+
 	private function getIds($idSpec, $token)
 	{
 		$ids = array();
@@ -153,7 +153,7 @@ class PartuzaHandler extends GadgetDataHandler {
 		}
 		return $ids;
 	}
-	
+
 	/* Data */
 	private function getPersonData($ids, $keys, $token)
 	{
@@ -161,7 +161,7 @@ class PartuzaHandler extends GadgetDataHandler {
 		$mod_id = $token->getModuleId();
 		return new ResponseItem(null, null, PartuzaDbFetcher::get()->getAppData($ids, $keys, $app_id, $mod_id));
 	}
-	
+
 	private function updatePersonData($id, $key, $value, $token)
 	{
 		if (! $this->isValidKey($key)) {
@@ -178,18 +178,18 @@ class PartuzaHandler extends GadgetDataHandler {
 			return new ResponseItem(BAD_REQUEST, "Error storing app preference", null);
 		}
 	}
-	
+
 	/* activities */
 	private function getActivities($ids, $token)
 	{
 		return new ResponseItem(null, null, PartuzaDbFetcher::get()->getActivities($ids));
 	}
-	
+
 	private function createActivity($personId, $activity, $token)
 	{
 	
 	}
-	
+
 	/**
 	 * Determines whether the input is a valid key. Valid keys match the regular
 	 * expression [\w\-\.]+.

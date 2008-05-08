@@ -23,17 +23,18 @@ class PartuzaDbFetcher {
 	
 	// Singleton
 	private static $fetcher;
+
 	private function __construct()
 	{
 		$this->db = mysqli_connect('localhost', 'root', '', 'partuza');
 		mysqli_select_db($this->db, 'partuza');
 	}
-	
+
 	private function __clone()
 	{
 		// private, don't allow cloning of a singleton
 	}
-	
+
 	static function get()
 	{
 		// This object is a singleton
@@ -42,7 +43,7 @@ class PartuzaDbFetcher {
 		}
 		return PartuzaDbFetcher::$fetcher;
 	}
-	
+
 	public function getActivities($ids)
 	{
 		$activities = array();
@@ -77,7 +78,7 @@ class PartuzaDbFetcher {
 		}
 		return $activities;
 	}
-	
+
 	private function getMediaItems($activity_id)
 	{
 		$media = array();
@@ -88,7 +89,7 @@ class PartuzaDbFetcher {
 		}
 		return $media;
 	}
-	
+
 	public function getFriendIds($person_id)
 	{
 		$ret = array();
@@ -99,7 +100,7 @@ class PartuzaDbFetcher {
 		}
 		return $ret;
 	}
-	
+
 	public function setAppData($person_id, $key, $value, $app_id, $mod_id)
 	{
 		$person_id = mysqli_real_escape_string($this->db, $person_id);
@@ -119,7 +120,7 @@ class PartuzaDbFetcher {
 		}
 		return true;
 	}
-	
+
 	public function getAppData($ids, $keys, $app_id, $mod_id)
 	{
 		$data = array();
@@ -143,7 +144,7 @@ class PartuzaDbFetcher {
 		}
 		return $data;
 	}
-	
+
 	public function getPeople($ids, $profileDetails)
 	{
 		$ret = array();
