@@ -117,12 +117,7 @@ class PartuzaHandler extends GadgetDataHandler {
 				}
 				$people[] = $person;
 			}
-		}
-		// We can pretend that by default the people are in top friends order
-		if ($sortOrder == 'name') {
-			usort($people, array($this, 'comparator'));
-		}
-		
+		}		
 		//TODO: The Partuza doesn't support any filters yet. We should fix this.
 		$totalSize = count($people);
 		$last = $first + $max;
