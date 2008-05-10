@@ -31,9 +31,9 @@ require Config::get('controllers_root')."/base/base.php";
 // Files copied from shindig, required to make the security token
 require Config::get('library_root')."/Crypto.php";
 require Config::get('library_root')."/BlobCrypter.php";
-require Config::get('library_root')."/GadgetToken.php";
+require Config::get('library_root')."/SecurityToken.php";
 require Config::get('library_root')."/BasicBlobCrypter.php";
-require Config::get('library_root')."/BasicGadgetToken.php";
+require Config::get('library_root')."/BasicSecurityToken.php";
 
 // Initialize envirioment, and start the dispatcher
 Language::set(Config::get('language'));

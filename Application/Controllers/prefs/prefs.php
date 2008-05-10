@@ -13,7 +13,7 @@ class prefsController extends baseController {
 			$st = urldecode($_GET['st']);
 			$key = urldecode($_GET['name']);
 			$value = urldecode($_GET['value']);
-			$token = BasicGadgetToken::createFromToken($st, Config::get('st_max_age'));
+			$token = BasicSecurityToken::createFromToken($st, Config::get('st_max_age'));
 			$app_id = $token->getAppId();
 			$mod_id = $token->getModuleId();
 			$viewer = $token->getViewerId();

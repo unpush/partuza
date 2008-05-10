@@ -22,7 +22,7 @@
 /**
  * Primitive token implementation that uses stings as tokens.
  */
-class BasicGadgetToken extends GadgetToken {
+class BasicSecurityToken extends SecurityToken {
   /** serialized form of the token */
   private $token;
   
@@ -55,7 +55,7 @@ class BasicGadgetToken extends GadgetToken {
    */
   static public function createFromToken($token, $maxAge)
   {
-	return new BasicGadgetToken($token, $maxAge, null, null, null, null, null, null);
+	return new BasicSecurityToken($token, $maxAge, null, null, null, null, null, null);
   }
   
   /**
@@ -70,7 +70,7 @@ class BasicGadgetToken extends GadgetToken {
    */
   static public function createFromValues($owner, $viewer, $app, $domain, $appUrl, $moduleId)
   {
-  	return new BasicGadgetToken(null, null, $owner, $viewer, $app, $domain, $appUrl, $moduleId);
+  	return new BasicSecurityToken(null, null, $owner, $viewer, $app, $domain, $appUrl, $moduleId);
   }
   
   

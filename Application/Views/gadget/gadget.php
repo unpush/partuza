@@ -13,7 +13,7 @@ if (!empty($vars['gadget']['error'])) {
 		}
 	}
 	
-	$securityToken = BasicGadgetToken::createFromValues(
+	$securityToken = BasicSecurityToken::createFromValues(
 		isset($vars['person']['id']) ? $vars['person']['id'] : '0',	// owner
 		(isset($_SESSION['id']) ? $_SESSION['id'] : '0'),			// viewer
 		$gadget['id'],												// app id
