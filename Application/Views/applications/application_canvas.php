@@ -7,7 +7,7 @@
 <div id="profileContentWide">
 <?
 $gadget = $vars['application'];
-$width = 802;
+$width = 790;
 $view = 'canvas';
 $this->template('/gadget/gadget.php', array('width' => $width, 'gadget' => $gadget, 'person' => $vars['person'], 'view' => $view));
 ?>

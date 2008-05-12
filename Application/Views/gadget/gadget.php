@@ -43,7 +43,7 @@ if (!empty($vars['gadget']['error'])) {
 ?><div class="gadgets-gadget-chrome" style="width:<?=$width?>px">
 	<div id="gadgets-gadget-title-bar-<?=$gadget['mod_id']?>" class="gadgets-gadget-title-bar">
 		<div class="gadgets-gadget-title-button-bar">
-		<? if (isset($_SESSION['id']) && $_SESSION['id'] == $vars['person']['id']) { if (is_object(unserialize($gadget['settings']))) { ?>
+		<? if ($view != 'preview' && isset($_SESSION['id']) && $_SESSION['id'] == $vars['person']['id']) { if (is_object(unserialize($gadget['settings']))) { ?>
 			<a href="/profile/appsettings/<?=$gadget['id']?>/<?=$gadget['mod_id']?>" class="gadgets-gadget-title-button">Settings</a>
 		<? } } else { ?>
 			<a href="/profile/addapp?appUrl=<?=urlencode($gadget['url'])?>" class="gadgets-gadget-title-button">Add application to your profile</a>

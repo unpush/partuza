@@ -253,7 +253,7 @@ form#register div .label {
 
 .preview_thumbnail {
 	width			: 288px;
-	height			: 200px;
+	height			: 120px;
 	overflow		: hidden;
 	text-align		: center;
 }
