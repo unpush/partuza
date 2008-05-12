@@ -37,6 +37,21 @@ class profileController extends baseController {
 		$this->template('profile/profile.php', array('applications' => $applications, 'person' => $person, 'friend_requests' => $friend_requests, 'friends' => $friends, 'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $id) : false));
 	}
 	
+	public function preview($params)
+	{
+		if (!isset($params[3]) || !is_numeric($params[3])) {
+			header("Location: /");
+			die();
+		}
+		$app_id = intval($params[3]);
+		$people = $this->model('people');
+		$person = isset($_SESSION['id']) ? $people->get_person($_SESSION['id'], true) : false;
+		$apps = $this->model('applications');
+		$application = $apps->get_application_by_id($app_id);
+		$applications = isset($_SESSION['id']) ? $apps->get_person_applications($_SESSION['id']) : array();
+		$this->template('applications/application_preview.php', array('applications' => $applications, 'application' => $application, 'person' => $person, 'is_owner' => true));
+	}
+	
 	public function application($params)
 	{
 		$id = isset($params[3]) && is_numeric($params[3]) ? $params[3] : false;

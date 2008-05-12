@@ -105,6 +105,18 @@ class applicationsModel extends Model {
 		return json_decode($content);
 	}
 	
+	public function get_application_by_id($id)
+	{
+		global $db;
+		$id = $db->addslashes($id);
+		$res = $db->query("select url from applications where id = $id");
+		if ($db->num_rows($res)) {
+			list($url) = $db->fetch_row($res);
+			return $this->get_application($url);
+		}
+		return false;
+	}
+	
 	// This function either returns a valid applications record or
 	// the error (string) that occured in ['error'].
 	// After this function you can assume there is a valid, and up to date gadget metadata

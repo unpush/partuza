@@ -7,9 +7,9 @@ foreach($vars['person'] as $key => $val) {
 	}
 }
 
+$width = 488;
+$view = 'profile';
 foreach ($vars['applications'] as $gadget) {
-	$width = 488;
-	$view = 'profile';
 	$this->template('/gadget/gadget.php', array('width' => $width, 'gadget' => $gadget, 'person' => $vars['person'], 'view' => $view));
 }
 ?><br />

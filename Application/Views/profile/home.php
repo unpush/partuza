@@ -5,15 +5,13 @@
 </div>
 
 <div id="profileContent">
-	<? if (!empty($vars['message'])) {
-		echo "<b>{$vars['message']}</b><br /><br />";
-	} ?>
-	<div id="profileActivities">
-		<? $this->template('profile/profile_activities.php', $vars); ?>
-	</div>
-	
-	<br />	
+<div class="gadgets-gadget-chrome">
+	<? $this->template('profile/profile_activities.php', $vars); ?>
+</div>
 <?
+if (!empty($vars['message'])) {
+	echo "<b>{$vars['message']}</b><br /><br />";
+}
 foreach ($vars['applications'] as $gadget) {
 	$width = 488;
 	$view = 'home';
@@ -21,7 +19,6 @@ foreach ($vars['applications'] as $gadget) {
 }
 ?>
 </div>
-
 <div id="profileFriends">
 <? $this->template('profile/profile_friends.php', $vars); ?>
 </div>

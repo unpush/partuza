@@ -23,13 +23,15 @@ class homeController extends baseController {
 	{
 		if (isset($_SESSION['id'])) {
 			$people = $this->model('people');
+			$apps = $this->model('applications');
+			$activities = $this->model('activities');
 			$person = $people->get_person($_SESSION['id'], true);
 			$friends = $people->get_friends($_SESSION['id']);
 			$friend_requests = $people->get_friend_requests($_SESSION['id']);
-			$apps = $this->model('applications');
 			$applications = $apps->get_person_applications($_SESSION['id']);
+			$friend_activities = $activities->get_friend_activities($_SESSION['id'], 20);
 			//TODO add activities here and parse in template..
-			$this->template('profile/home.php', array('applications' => $applications, 'message' => $message, 'person' => $person, 'friend_requests' => $friend_requests, 'friends' => $friends, 'is_owner' => true));
+			$this->template('profile/home.php', array('activities' => $friend_activities, 'applications' => $applications, 'message' => $message, 'person' => $person, 'friend_requests' => $friend_requests, 'friends' => $friends, 'is_owner' => true));
 		} else {
 			$this->template('home/home.php');
 		}

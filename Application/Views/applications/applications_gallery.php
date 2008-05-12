@@ -5,7 +5,7 @@
 </div>
 
 <div id="profileContentWide">
-	<p><b>Applications Gallery</b></p>
+	<p><b>Application Gallery</b></p>
 		<?
 		if (!count($vars['app_gallery'])) {
 			echo "No applications available";
@@ -17,7 +17,7 @@
 					$app['directory_title'] = $app['title'];
 				}
 				echo "<div class=\"app\">
-				<div class=\"options\"><a href=\"/profile/addapp?appUrl=".urlencode($app['url'])."\">Add application</a></div>
+				<div class=\"options\"><a href=\"/profile/preview/{$app['id']}\">Preview</a></div>
 				<div class=\"app_thumbnail\">";
 				if (!empty($app['thumbnail'])) {
 					// ugly hack to make it work with iGoogle images
@@ -27,12 +27,6 @@
 					echo "<img src=\"{$app['thumbnail']}\" />";
 				}
 				echo "</div><b>{$app['directory_title']}</b><br />{$app['description']}<br />";
-				if (!empty($app['author_email'])) {
-					$app['author'] = "<a href=\"mailto: {$app['author_email']}\">{$app['author']}</a>";
-				}
-				if (!empty($app['author'])) {
-					echo "By {$app['author']}";
-				}
 				echo "</div>";
 				//echo "App:<br /><pre>"; print_r($app); echo "</pre><br />";
 			}

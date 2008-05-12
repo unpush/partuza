@@ -17,7 +17,7 @@
 	<? } ?>
 	<div id="userMenuDiv" <?=!isset($_SESSION['username'])? ' style="margin-right:12px"' : ''?>>
 		<? if (isset($_SESSION['username'])) {
-			echo "<a href=\"/profile/{$_SESSION['id']}\">home</a> | <a href=\"/profile/{$_SESSION['id']}\">profile</a> | <a href=\"/profile/myapps\">applications</a> | <a href=\"/logout\">logout</a>&nbsp;";
+			echo "<a href=\"/home\">home</a> | <a href=\"/profile/{$_SESSION['id']}\">profile</a> | <a href=\"/profile/myapps\">applications</a> | <a href=\"/logout\">logout</a>&nbsp;";
 		} else {
 			echo "<form method=\"post\" action=\"{$_SERVER['REQUEST_URI']}\"><a href=\"/register\" >register</a>, or login with <label for=\"email\">e-mail</label> <input type=\"text\" name=\"email\" id=\"email\" /> and <label for=\"password\">password</label> <input type=\"password\" name=\"password\" id=\"password\" /> <input class=\"button\" type=\"submit\" value=\"Go\" /></form>&nbsp;\n";
 		}
@@ -26,11 +26,5 @@
 	<span id="headerLogo">
 		<a href="/home">Partuza!</a>
 	</span>
-<!-- 
-	<div id="menuDiv"></div>
-	<div id="userMenuDiv">
-		
-	</div>
- -->
 </div>
 <div id="contentDiv">

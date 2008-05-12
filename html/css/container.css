@@ -77,7 +77,7 @@ form#register div .label {
 
 #profileInfo {
 	min-height		: 180px;
-	width			: 120px;
+	width			: 132px;
 	float			: left;
 }
 
@@ -88,15 +88,12 @@ form#register div .label {
 }
 
 #profileContentWide {
-	width			: 802px;
+	width			: 790px;
 }
 
 #profileFriends {
-	padding-left	: 12px;
-	padding-bottom	: 12px;
-	width			: 286px;
+	width			: 288px;
 	float			: left;
-	border			: 1px solid #7aa5d6;
 }
 
 .header {
@@ -191,46 +188,87 @@ form#register div .label {
 }
 
 .gadgets-gadget-chrome {
-  margin-bottom: 12px;
-  border: 1px solid #7aa5d6;
-  width	: 476px;
+  margin-bottom		: 12px;
+  border-top		: 1px solid #7aa5d6;
+  width				: 488px;
 }
 
 .gadgets-gadget {
-  border: none;
+  border			: none;
 }
 
 .gadgets-gadget-title-bar {
-  padding: 2px 4px;
-  background-color: #e5ecf9;
+	margin-bottom	: 6px;
+  padding			: 2px 4px;
+  background-color	: #e5ecf9;
 }
 
 .gadgets-gadget-title {
-  font-weight: bold;
-  color: #3366cc;
+  font-weight		: bold;
+  color				: #3366cc;
 }
 
 .gadgets-gadget-title-button-bar {
-  font-size: smaller;
-  float: right;
+  font-size			: smaller;
+  float				: right;
 }
 
 .gadgets-gadget-user-prefs-dialog {
-  background-color: #e5ecf9;
+  background-color	: #e5ecf9;
 }
 
 .gadgets-gadget-user-prefs-dialog-action-bar {
-  text-align: center;
-  padding-bottom: 4px;
+  text-align		: center;
+  padding-bottom	: 4px;
 }
 
 .gadgets-gadget-title-button {
-	margin-right: 6px;
+	margin-right	: 6px;
 }
 
 .gadgets-gadget-content {
-  padding: 4px;
+  padding			: 4px;
 }
 
 .gadgets-log-entry {
+}
+
+.activities_title {
+	_color			: #3366CC;
+	font-size		: 12px;
+	margin-bottom	: 6px;
+	font-weight		: bold;
+}
+
+.activity {
+	padding			: 3px;
+	width			: 482px;
+	border-top		: 1px solid #e5ecf9;
+	min-height		: 36px;
+}
+
+.activity.first {
+	border-top		: none;
+}
+
+.preview_thumbnail {
+	width			: 288px;
+	height			: 200px;
+	overflow		: hidden;
+	text-align		: center;
+}
+
+.preview_section {
+	margin-top		: 6px;
+	padding-top		: 6px;
+	border-top		: 1px solid #e5ecf9;
+}
+
+.preview_add {
+	border			: 1px solid #3366cc;
+	width			: 200px;
+	height			: 32px;
+	line-height		: 32px;
+	text-align		: center;
+	background-color: #e5ecf9;
 }
