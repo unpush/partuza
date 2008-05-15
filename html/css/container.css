@@ -28,6 +28,10 @@ input, select {
 	padding			: 3px;
 }
 
+img {
+	border			: none;
+}
+
 .submit, .button {
 	padding			: 2px 15px 3px 15px;
 	border			: 1px solid #3366CC;
@@ -115,16 +119,35 @@ form#register div .label {
 	width			: 790px;
 }
 
-#profileFriends {
+#profileRight {
 	width			: 288px;
 	float			: left;
 }
 
+#profileRight .gadgets-gadget-chrome {
+	width			: 288px;
+}
+
+#profileRight .form_entry {
+	min-height		: 18px;
+	line-height		: 18px;
+	color			: #7aa5d6;
+}
+
+#profileRight .form_label {
+	color			: #000;
+	width			: 100px;
+	line-height		: 18px;
+	min-height		: 18px;
+}
+
 .header {
 	font-size		: 12px;
-	_font-weight		: bold;	
+	font-weight		: bold;
+	border-bottom	: 1px solid #7aa5d6; 	
 	margin-top		: 12px;
-	margin-bottom	: 4px;
+	margin-bottom	: 3px;
+	padding-bottom	: 3px;
 }
 
 .searchResult {
@@ -195,8 +218,8 @@ form#register div .label {
 .application_link {
 	_font-size		: smaller;
 	width			: 110px;
-	height			: 12px;
-	line-height		: 12px;
+	height			: 14px;
+	line-height		: 14px;
 	overflow		: hidden;
 }
 
@@ -300,6 +323,7 @@ form#register div .label {
 .form_entry {
 	min-height		: 24px;
 	line-height		: 24px;
+	clear			: both;
 }
 
 .form_label {
@@ -362,4 +386,10 @@ ul.subsection_tabs li a:hover {
 ul.subsection_tabs li a.active {
 	background-color: #e5ecf9;
 	color			: #3366CC;
+}
+
+.info_detail {
+	float			: right;
+	width			: 180px;
+	color:#000;
 }

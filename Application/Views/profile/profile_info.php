@@ -1,10 +1,10 @@
 <div>
 	<div style="text-align:center">
-		<img src="<?=Config::get('gadget_server')?>/gadgets/files/samplecontainer/examples/nophoto.gif" /><br />
-		<strong><a href="/profile/<?=$vars['person']['id']?>"><?=$vars['person']['first_name'].' '.$vars['person']['last_name']?></a></strong>
+		<a href="/profile/<?=$vars['person']['id']?>"><img src="<?=Config::get('gadget_server')?>/gadgets/files/samplecontainer/examples/nophoto.gif" /></a><br />
 	</div>
+	<div class="header"><a href="/profile/<?=$vars['person']['id']?>"><?=$vars['person']['first_name'].' '.$vars['person']['last_name']?></a></div>
 </div>
-<br />
+<a href="/profile/friends/<?=$vars['person']['id']?>">View <?=$vars['is_owner']?'my':$vars['person']['first_name']."'s"?> friends</a><br />
 <?
 if ($vars['is_owner']) {
 	$this->template('profile/profile_info_owner.php');
@@ -12,11 +12,15 @@ if ($vars['is_owner']) {
 	$this->template('profile/profile_info_viewer.php');
 }
 ?>
+<br />
 <div class="header">
 <? if ($vars['is_owner']) { ?>
-	<div style="float:right; font-weight: normal"><a href="/profile/myapps">edit</a></div>
+	<a href="/profile/myapps">
 <? } ?>
 Applications
+<? if ($vars['is_owner']) { ?>
+	</a>
+<? } ?>
 </div>
 <? if (isset($vars['applications']) && count($vars['applications'])) {
 	foreach ($vars['applications'] as $app) {

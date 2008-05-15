@@ -30,11 +30,28 @@ class profileController extends baseController {
 		}
 		$people = $this->model('people');
 		$person = $people->get_person($id, true);
+		$activities = $this->model('activities');
+		$person_activities = $activities->get_person_activities($_SESSION['id'], 10);
 		$friends = $people->get_friends($id);
-		$friend_requests = isset($_SESSION['id']) ? $people->get_friend_requests($_SESSION['id']) : array();
+		$friend_requests = isset($_SESSION['id']) && $_SESSION['id'] == $id ? $people->get_friend_requests($_SESSION['id']) : array();
 		$apps = $this->model('applications');
 		$applications = $apps->get_person_applications($id);
-		$this->template('profile/profile.php', array('applications' => $applications, 'person' => $person, 'friend_requests' => $friend_requests, 'friends' => $friends, 'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $id) : false));
+		$this->template('profile/profile.php', array('activities' => $person_activities, 'applications' => $applications, 'person' => $person, 'friend_requests' => $friend_requests, 'friends' => $friends, 'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $id) : false));
+	}
+	
+	public function friends($params)
+	{
+		if (!isset($params[3]) || !is_numeric($params[3])) {
+			header("Location: /");
+			die();
+		}
+		$people = $this->model('people');
+		$person = isset($_SESSION['id']) ? $people->get_person($params[3], true) : false;
+		$friends = $people->get_friends($params[3]);
+		$apps = $this->model('applications');
+		$applications = isset($_SESSION['id']) ? $apps->get_person_applications($params[3]) : array();
+		$this->template('profile/profile_showfriends.php', array('friends' => $friends, 'applications' => $applications, 'person' => $person, 'is_owner' => false));
+		
 	}
 	
 	public function edit($params)
@@ -88,7 +105,7 @@ class profileController extends baseController {
 		$mod_id = intval($params[5]);
 		$people = $this->model('people');
 		$person = $people->get_person($id, true);
-		$friends = $people->get_friends($id);
+		$friends = $people->get_friends($id, 9);
 		$friend_requests = isset($_SESSION['id']) ? $people->get_friend_requests($_SESSION['id']) : array();
 		$apps = $this->model('applications');
 		$applications = $apps->get_person_applications($id);

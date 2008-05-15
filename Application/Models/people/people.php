@@ -125,12 +125,13 @@ class peopleModel extends Model {
 		return $db->fetch_array($res, MYSQLI_ASSOC);
 	}
 	
-	public function get_friends($id)
+	public function get_friends($id, $limit = false)
 	{
 		global $db;
 		$ret = array();
+		$limit = $limit && is_numeric($limit) ? ' limit '.$db->addslashes($limit) : ''; 
 		$person_id = $db->addslashes($id);
-		$res = $db->query("select person_id, friend_id from friends where person_id = $person_id or friend_id = $person_id");
+		$res = $db->query("select person_id, friend_id from friends where person_id = $person_id or friend_id = $person_id $limit");
 		while (list($p1, $p2) = $db->fetch_row($res)) {
 			// friend requests are made both ways, so find the 'friend' in the pair
 			$friend = $p1 != $person_id ? $p1 : $p2;

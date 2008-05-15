@@ -24,7 +24,8 @@ if (!empty($vars['gadget']['error'])) {
 	
 	$iframe_url = 
 		Config::get('gadget_server').'/gadgets/ifr?'.
-		"synd=default".
+		"synd=partuza".
+		"&container=partuza".
 		"&viewer=".(isset($_SESSION['id']) ? $_SESSION['id'] : '0').
 		"&owner=".(isset($vars['person']['id']) ? $vars['person']['id'] : '0').
 		"&aid=".$gadget['mod_id'].

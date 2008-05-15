@@ -15,7 +15,7 @@ $this->template('/gadget/gadget.php', array('width' => $width, 'gadget' => $gadg
 
 ?>
 </div>
-<div id="profileFriends" class="gadgets-gadget-chrome">
+<div id="profileRight" class="gadgets-gadget-chrome">
 	<div class="gadgets-gadget-title-bar"><span class="gadgets-gadget-title"><?=!empty($gadget['directory_title']) ? $gadget['directory_title'] : $gadget['title']?></span></div>
 	<div>
 <?
@@ -23,7 +23,7 @@ $this->template('/gadget/gadget.php', array('width' => $width, 'gadget' => $gadg
 	if (!empty($gadget['thumbnail'])) {
 		// ugly hack to make it work with iGoogle images
 		if (substr($gadget['thumbnail'], 0, strlen('/ig/')) == '/ig/') {
-			$gadget['thumbnail'] = 'http://www.google.com'.$app['thumbnail'];
+			$gadget['thumbnail'] = 'http://www.google.com'.$gadget['thumbnail'];
 		}
 		echo "		<img src=\"{$gadget['thumbnail']}\" />";
 	}

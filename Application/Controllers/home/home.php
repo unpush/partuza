@@ -29,7 +29,7 @@ class homeController extends baseController {
 			$friends = $people->get_friends($_SESSION['id']);
 			$friend_requests = $people->get_friend_requests($_SESSION['id']);
 			$applications = $apps->get_person_applications($_SESSION['id']);
-			$friend_activities = $activities->get_friend_activities($_SESSION['id'], 20);
+			$friend_activities = $activities->get_friend_activities($_SESSION['id'], 10);
 			//TODO add activities here and parse in template..
 			$this->template('profile/home.php', array('activities' => $friend_activities, 'applications' => $applications, 'message' => $message, 'person' => $person, 'friend_requests' => $friend_requests, 'friends' => $friends, 'is_owner' => true));
 		} else {

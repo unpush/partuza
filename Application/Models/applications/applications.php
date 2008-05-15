@@ -90,7 +90,7 @@ class applicationsModel extends Model {
 	
 	private function fetch_gadget_metadata($app_url)
 	{
-		$request = json_encode(array('context' => array('country' => 'US', 'language' => 'en', 'view' => 'default', 'container' => 'default'), 'gadgets' => array(array('url' => $app_url, 'moduleId' => '1'))));
+		$request = json_encode(array('context' => array('country' => 'US', 'language' => 'en', 'view' => 'default', 'container' => 'partuza'), 'gadgets' => array(array('url' => $app_url, 'moduleId' => '1'))));
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, Config::get('gadget_server') . '/gadgets/metadata');
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);

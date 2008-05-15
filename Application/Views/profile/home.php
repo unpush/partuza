@@ -6,6 +6,7 @@
 
 <div id="profileContent">
 <div class="gadgets-gadget-chrome">
+	<div class="gadgets-gadget-title-bar"><span class="gadgets-gadget-title">Friend's activities</span></div>
 	<? $this->template('profile/profile_activities.php', $vars); ?>
 </div>
 <?
@@ -19,7 +20,7 @@ foreach ($vars['applications'] as $gadget) {
 }
 ?>
 </div>
-<div id="profileFriends">
+<div id="profileRight">
 <? $this->template('profile/profile_friends.php', $vars); ?>
 </div>
 

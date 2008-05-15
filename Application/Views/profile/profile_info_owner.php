@@ -1,1 +1,1 @@
-<a href="/profile/edit">Edit profile</a><br />
+<a href="/profile/edit">Edit my profile</a><br />
