@@ -23,6 +23,13 @@
 
 class peopleModel extends Model {
 	
+	public function is_friend($person_id, $friend_id)
+	{
+		global $db;
+		$res = $db->query("select * from friends where (person_id = $person_id and friend_id = $friend_id) or (person_id = $friend_id and friend_id = $person_id)");
+		return $db->num_rows($res) != 0;
+	}
+	
 	public function save_person($id, $person)
 	{
 		global $db;

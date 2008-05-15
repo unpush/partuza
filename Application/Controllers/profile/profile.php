@@ -31,12 +31,13 @@ class profileController extends baseController {
 		$people = $this->model('people');
 		$person = $people->get_person($id, true);
 		$activities = $this->model('activities');
+		$is_friend = isset($_SESSION['id']) ? $people->is_friend($id, $_SESSION['id']) : false;
 		$person_activities = $activities->get_person_activities($_SESSION['id'], 10);
 		$friends = $people->get_friends($id);
 		$friend_requests = isset($_SESSION['id']) && $_SESSION['id'] == $id ? $people->get_friend_requests($_SESSION['id']) : array();
 		$apps = $this->model('applications');
 		$applications = $apps->get_person_applications($id);
-		$this->template('profile/profile.php', array('activities' => $person_activities, 'applications' => $applications, 'person' => $person, 'friend_requests' => $friend_requests, 'friends' => $friends, 'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $id) : false));
+		$this->template('profile/profile.php', array('activities' => $person_activities, 'applications' => $applications, 'person' => $person, 'friend_requests' => $friend_requests, 'friends' => $friends, 'is_friend' => $is_friend, 'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $id) : false));
 	}
 	
 	public function friends($params)

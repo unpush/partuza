@@ -7,9 +7,9 @@
 <a href="/profile/friends/<?=$vars['person']['id']?>">View <?=$vars['is_owner']?'my':$vars['person']['first_name']."'s"?> friends</a><br />
 <?
 if ($vars['is_owner']) {
-	$this->template('profile/profile_info_owner.php');
+	$this->template('profile/profile_info_owner.php', $vars);
 } else {
-	$this->template('profile/profile_info_viewer.php');
+	$this->template('profile/profile_info_viewer.php', $vars);
 }
 ?>
 <br />
