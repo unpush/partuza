@@ -37,6 +37,31 @@ class profileController extends baseController {
 		$this->template('profile/profile.php', array('applications' => $applications, 'person' => $person, 'friend_requests' => $friend_requests, 'friends' => $friends, 'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $id) : false));
 	}
 	
+	public function edit($params)
+	{
+		if (!isset($_SESSION['id'])) {
+			header("Location: /");
+		}
+		$message = '';
+		$people = $this->model('people');
+		if (count($_POST)) {
+			if (!empty($_POST['date_of_birth_month']) && !empty($_POST['date_of_birth_day']) && !empty($_POST['date_of_birth_year']) &&
+			    is_numeric($_POST['date_of_birth_month']) && is_numeric($_POST['date_of_birth_day']) && is_numeric($_POST['date_of_birth_year'])) {
+				$_POST['date_of_birth'] = mktime(0,0,1,$_POST['date_of_birth_month'], $_POST['date_of_birth_day'], $_POST['date_of_birth_year']);
+			}
+			try {
+				$people->save_person($_SESSION['id'], $_POST);
+				$message = 'Saved information';
+			} catch (DBException $e) {
+				$message = 'Error saving information';
+			}
+		}
+		$person = $people->get_person($_SESSION['id'], true);
+		$apps = $this->model('applications');
+		$applications = $apps->get_person_applications($_SESSION['id']);
+		$this->template('profile/profile_edit.php', array('message' => $message, 'applications' => $applications, 'person' => $person, 'is_owner' => true));
+	}
+	
 	public function preview($params)
 	{
 		if (!isset($params[3]) || !is_numeric($params[3])) {

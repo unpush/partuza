@@ -1,18 +1,20 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
+	<title>Partuza!</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<link href="/css/container.css" rel="stylesheet" type="text/css">
-	<!--  compressed with java -jar ~/yuicompressor-2.3.5.jar -o {$file}-min.js {$file}.js -->
+	<link href="/css/container.css?v=2" rel="stylesheet" type="text/css">
+	<!--  compressed with java -jar {$path}/yuicompressor-2.3.5.jar -o {$file}-min.js {$file}.js -->
 	<script type="text/javascript" src="/js/rpc-min.js"></script>
 	<script type="text/javascript" src="/js/prototype-1.6.0.2-min.js"></script>
+	<script type="text/javascript" src="/js/tabs-min.js"></script>
 	<script type="text/javascript" src="/js/container.js"></script>  
 </head>
 <body>
 <div id="headerDiv">
 	<? if (isset($_SESSION['username'])) { ?>
 	<div id="searchDiv">
-		<form method="get" action="/search"> | <label for="search_q">search</label> <input type="text" id="search_q" name="q"> <input type="submit" value="Go" /></form>
+		<form method="get" action="/search"> | <label for="search_q">search</label> <input type="text" id="search_q" name="q"> <input class="button" type="submit" value="Go" /></form>
 	</div>
 	<? } ?>
 	<div id="userMenuDiv" <?=!isset($_SESSION['username'])? ' style="margin-right:12px"' : ''?>>

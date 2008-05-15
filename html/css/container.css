@@ -19,7 +19,31 @@ a:hover {
 }
 
 div {
-	text-align : left;	
+	text-align		 : left;	
+}
+
+input, select {
+	border			: 1px solid #bdc7d8;
+	font-size		: 11px;
+	padding			: 3px;
+}
+
+.submit, .button {
+	padding			: 2px 15px 3px 15px;
+	border			: 1px solid #3366CC;
+	color			: #3366CC;
+	font-size		: 11px;
+	text-align		: center;
+}
+
+.submit {
+	background-color: #E5ECF9;
+}
+
+textarea {
+	border			: 1px solid #bdc7d8;
+	padding			: 3px;
+	font-size		: 11px;
 }
 
 #headerDiv {
@@ -58,7 +82,7 @@ div {
 form#register div {
 	font-size		: 12px;
 	line-height		: 18px;
-	margin-bottom	: 2px;
+	margin-bottom	: 12px;
 }
 
 form#register div .label {
@@ -98,9 +122,9 @@ form#register div .label {
 
 .header {
 	font-size		: 12px;
-	font-weight		: bold;	
+	_font-weight		: bold;	
 	margin-top		: 12px;
-	margin-bottom	: 12px;
+	margin-bottom	: 4px;
 }
 
 .searchResult {
@@ -169,7 +193,7 @@ form#register div .label {
 }
 
 .application_link {
-	font-size		: smaller;
+	_font-size		: smaller;
 	width			: 110px;
 	height			: 12px;
 	line-height		: 12px;
@@ -271,4 +295,71 @@ form#register div .label {
 	line-height		: 32px;
 	text-align		: center;
 	background-color: #e5ecf9;
+}
+
+.form_entry {
+	min-height		: 24px;
+	line-height		: 24px;
+}
+
+.form_label {
+	width			: 144px;
+	text-align		: left;
+	float			: left;
+	color			: #3366CC;
+	line-height		: 21px;
+	min-height		: 21px;
+}
+
+.form_entry input, .form_entry select, .form_entry textarea {
+	width			: 264px;
+}
+
+.form_entry textarea {
+	height			: 80px;
+}
+
+.form_header {
+	font-size		: 14px;
+	font-weight		: bold;
+	color			: #3366CC;
+	margin-bottom	: 12px;
+	margin-top		: 12px;
+	border-bottom	: 1px solid #e5ecf9;
+}
+
+ul.subsection_tabs {
+	list-style		: none;
+	margin			: 0;
+	margin-bottom	: 12px;
+	padding			: 0;
+	clear			: both;
+	border-bottom	: 1px solid #e5ecf9;
+	height			: 24px;
+	clear			: both;
+}
+
+ul.subsection_tabs li {
+	float			: left;
+	margin-right	: 7px;
+	text-align		: center;
+}
+
+ul.subsection_tabs li a {
+	display			: block;
+	height			: 24px;
+	line-height		: 24px;
+	padding			: 0 6px 0 6px;
+	background-color: #fff;
+	color			: #3366CC;
+	width			: 80px;
+}
+
+ul.subsection_tabs li a:hover {
+	color			: #3366CC;
+}
+
+ul.subsection_tabs li a.active {
+	background-color: #e5ecf9;
+	color			: #3366CC;
 }

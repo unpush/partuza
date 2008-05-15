@@ -107,6 +107,7 @@ class PartuzaHandler extends GadgetDataHandler {
 					$newPerson['isOwner'] = $person->isOwner;
 					$newPerson['isViewer'] = $person->isViewer;
 					$newPerson['name'] = $person->name;
+					$newPerson['gender'] = $person->gender;
 					foreach ($profileDetails as $field) {
 						if (isset($person->$field) && ! empty($person->$field)) {
 							$newPerson[$field] = $person->$field;

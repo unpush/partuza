@@ -23,6 +23,54 @@
 
 class peopleModel extends Model {
 	
+	public function save_person($id, $person)
+	{
+		global $db;
+		$id = $db->addslashes($id);
+		$supported_fields = array(
+			'about_me',
+			'children',
+			'date_of_birth',
+			'drinker',
+			'ethnicity',
+			'fashion',
+			'gender',
+			'happiest_when',
+			'humor',
+			'job_interests',
+			'living_arrangement',
+			'looking_for',
+			'nickname',
+			'pets',
+			'political_views',
+			'profile_song',
+			'profile_video',
+			'relationship_status',
+			'religion',
+			'romance',
+			'scared_of',
+			'sexual_orientation',
+			'smoker',
+			'status',
+			'time_zone',
+			'first_name',
+			'last_name'
+		);
+		foreach ($person as $key => $val) {
+			if (in_array($key, $supported_fields)) {
+				if ($val == '-') {
+					$updates[] = "`".$db->addslashes($key)."` = null";
+				} else {
+					$updates[] = "`".$db->addslashes($key)."` = '".$db->addslashes($val)."'";
+				} 
+			}
+		}
+		if (count($updates)) {
+			$query = "update persons set ".implode(', ', $updates)." where id = $id";
+			$db->query($query);
+		}
+	}
+	
 	// if extended = true, it also queries all child tables
 	// defaults to false since its a hell of a presure on the database.
 	// remove once we add some proper caching

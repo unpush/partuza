@@ -28,7 +28,6 @@
 				}
 				echo "</div><b>{$app['directory_title']}</b><br />{$app['description']}<br />";
 				echo "</div>";
-				//echo "App:<br /><pre>"; print_r($app); echo "</pre><br />";
 			}
 		}
 		?>

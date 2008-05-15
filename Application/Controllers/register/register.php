@@ -32,17 +32,23 @@ class registerController extends baseController {
 	public function index($params)
 	{
 		$error = '';
+		if (isset($_SESSION['id'])) {
+			header('Location: /');
+			die();
+		}
 		if (count($_POST)) {
 			// check to see if all required fields are filled in
-			if (empty($_POST['register_email']) || empty($_POST['register_password']) ||
-			    empty($_POST['register_first_name']) || empty($_POST['register_last_name'])) {
+			if (empty($_POST['register_email']) || empty($_POST['register_password']) || empty($_POST['register_first_name']) || empty($_POST['register_last_name']) ||
+				empty($_POST['date_of_birth_month']) || empty($_POST['date_of_birth_day']) || empty($_POST['date_of_birth_year']) ||
+				!is_numeric($_POST['date_of_birth_month']) || !is_numeric($_POST['date_of_birth_day']) || !is_numeric($_POST['date_of_birth_year'])) {
 			    	$error = 'Fill in all fields to continue';
 			} else {
 				// check availability of the email addr used
 				$register = $this->model('register');
+				$_POST['date_of_birth'] = mktime(0,0,1,$_POST['date_of_birth_month'], $_POST['date_of_birth_day'], $_POST['date_of_birth_year']);
 				try {
 					// attempt to register this person, any error in registration will cause an exception
-					$personId = $register->register($_POST['register_email'], $_POST['register_password'], $_POST['register_first_name'], $_POST['register_last_name']);
+					$personId = $register->register($_POST['register_email'], $_POST['register_password'], $_POST['register_first_name'], $_POST['register_last_name'], $_POST['date_of_birth']);
 					
 					// registration went ok, set up the session (and cookie)
 					$this->authenticate($_POST['register_email'], $_POST['register_password']);

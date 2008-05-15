@@ -10,7 +10,7 @@
 		<br /><br />
 		
 		Or add an application by url:<br />
-		<form method="get" action="/profile/addapp"><input type="text" name="appUrl" size="35" /><input type="submit" value="Add Application" /></form>
+		<form method="get" action="/profile/addapp"><input type="text" name="appUrl" size="35" /> <input class="submit" type="submit" value="Add Application" /></form>
 		<hr>
 		<b>Your Applications:</b><br /><br />
 		<?
@@ -44,7 +44,6 @@
 					echo "By {$app['author']}";
 				}
 				echo "</div>";
-				//echo "App:<br /><pre>"; print_r($app); echo "</pre><br />";
 			}
 		}
 		?>

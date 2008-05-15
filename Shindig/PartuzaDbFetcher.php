@@ -493,6 +493,10 @@ class PartuzaDbFetcher {
 				}
 				$ret[$person_id] = $person;
 			}
+		if ($person_id == 2) {
+			//print_r($ret);
+			//die();
+		}
 		return $ret;
 	}
 

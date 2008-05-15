@@ -1,9 +1,7 @@
 <? $this->template('/common/header.php'); ?>
-
 <div id="profileInfo" class="blue">
 	<? $this->template('profile/profile_info.php', $vars); ?>
 </div>
-
 <div id="profileContentWide">
 <?
 $gadget = $vars['application'];
@@ -13,5 +11,4 @@ $this->template('/gadget/gadget.php', array('width' => $width, 'gadget' => $gadg
 ?>
 </div>
 <div style="clear:both"></div>
-
 <? $this->template('/common/footer.php'); ?>
