@@ -21,7 +21,7 @@
 		</div>
 
 		<div class="form_entry">
-			<div class="form_label"><label for="register_password">password</label></div><input type="text" name="register_password" id="register_password" value="<?=isset($_POST['register_password']) ? $_POST['register_password'] : ''?>" />
+			<div class="form_label"><label for="register_password">password</label></div><input type="password" name="register_password" id="register_password" value="<?=isset($_POST['register_password']) ? $_POST['register_password'] : ''?>" />
 		</div>
 
 		<div class="form_header">Your information</div>
@@ -64,6 +64,16 @@
 			?>
 			</select>			
 		</div>
+		
+		<div class="form_entry">
+			<div class="form_label"><label for="gender">gender</label></div>
+			<select name="gender" id="gender" style="width:auto">
+			<option value="-">-</option>
+			<option value="FEMALE">Female</option>
+			<option value="Male">Make</option>
+			</select>
+		</div>
+		
 		<div><input class="submit" type="submit" value="Register" /></div>
 	</form>
 	</div>

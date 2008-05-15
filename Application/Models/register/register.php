@@ -19,7 +19,7 @@
  */
 
 class registerModel extends Model {
-	function register($email, $passwd, $first_name, $last_name, $date_of_birth)
+	function register($email, $passwd, $first_name, $last_name, $gender, $date_of_birth)
 	{
 		global $db;
 		$email = $db->addslashes(trim($email));
@@ -27,12 +27,13 @@ class registerModel extends Model {
 		$first_name = $db->addslashes(ucwords(trim($first_name)));
 		$last_name = $db->addslashes(ucwords(trim($last_name)));
 		$date_of_birth = $db->addslashes($date_of_birth);
+		$gender = $db->addslashes($gender);
 		// check to see if the email is already taken or not
 		if ($db->num_rows($db->query("select id from persons where email = '$email'"))) {
 			throw new Exception("email address is already in use");
 		}
 		// ok email is free, create the persons record
-		$res = $db->query("insert into persons (email, password, first_name, last_name, date_of_birth) values ('$email', PASSWORD('$passwd'), '$first_name', '$last_name', $date_of_birth)");
+		$res = $db->query("insert into persons (email, password, first_name, last_name, gender, date_of_birth) values ('$email', PASSWORD('$passwd'), '$first_name', '$last_name', '$gender', '$date_of_birth')");
 		$id = $db->insert_id($res);
 		// and return the newly created persons record id
 		return $id;
