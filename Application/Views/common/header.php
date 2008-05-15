@@ -3,7 +3,7 @@
 <head>
 	<title>Partuza!</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<link href="/css/container.css?v=2" rel="stylesheet" type="text/css">
+	<link href="/css/container.css?v=3" rel="stylesheet" type="text/css">
 	<!--  compressed with java -jar {$path}/yuicompressor-2.3.5.jar -o {$file}-min.js {$file}.js -->
 	<script type="text/javascript" src="/js/rpc-min.js"></script>
 	<script type="text/javascript" src="/js/prototype-1.6.0.2-min.js"></script>
