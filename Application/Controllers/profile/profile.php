@@ -32,7 +32,7 @@ class profileController extends baseController {
 		$person = $people->get_person($id, true);
 		$activities = $this->model('activities');
 		$is_friend = isset($_SESSION['id']) ? $people->is_friend($id, $_SESSION['id']) : false;
-		$person_activities = $activities->get_person_activities($_SESSION['id'], 10);
+		$person_activities = $activities->get_person_activities($id, 10);
 		$friends = $people->get_friends($id);
 		$friend_requests = isset($_SESSION['id']) && $_SESSION['id'] == $id ? $people->get_friend_requests($_SESSION['id']) : array();
 		$apps = $this->model('applications');
