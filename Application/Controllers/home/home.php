@@ -37,6 +37,18 @@ class homeController extends baseController {
 		}
 	}
 	
+	public function removefriend($params)
+	{
+		$message = 'Friend removed';
+		$people = $this->model('people');
+		if (isset($params[3]) && is_numeric($params[3]) && isset($_SESSION['id'])) {
+			$people->remove_friend($_SESSION['id'], $params[3]);
+		} else {
+			$message = 'Could not remove friend request, invalid friend id';
+		}
+		$this->index($params, $message);
+	}
+	
 	public function addfriend($params)
 	{
 		$message = '';

@@ -5,6 +5,7 @@
 </div>
 
 <div id="profileContent">
+<? $this->template('profile/profile_friendrequests.php', $vars); ?>
 <div class="gadgets-gadget-chrome">
 	<div class="gadgets-gadget-title-bar"><span class="gadgets-gadget-title">Friend's activities</span></div>
 	<? $this->template('profile/profile_activities.php', $vars); ?>
