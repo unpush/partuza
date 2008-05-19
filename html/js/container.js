@@ -7,7 +7,6 @@ Container.prototype = {
 		gadgets.rpc.register('resize_iframe', this.setHeight);
 		gadgets.rpc.register('set_pref', this.setUserPref);
 		gadgets.rpc.register('set_title', this.setTitle);
-		gadgets.rpc.register('requestShareApp', this.requestShareApp);
 		gadgets.rpc.register('requestNavigateTo', this.requestNavigateTo);
 	},
 	
@@ -59,7 +58,7 @@ Container.prototype = {
 		} else if (view === 'profile') {
 			return '/profile/'+person;
 		} else if (view === 'canvas') {
-			return '/profile/application/'+person+'/'+app+'/mod';
+			return '/profile/application/'+person+'/'+app+'/'+mod;
 		} else {
 			return null;
 		}
@@ -79,10 +78,6 @@ Container.prototype = {
 	 			document.location.href = url;
 			}
 		}
-	},
-	
-	requestShareApp: function(recipients, params) {
-		console.log('requestShareApp');
 	}
 }
 
