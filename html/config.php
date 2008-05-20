@@ -20,7 +20,17 @@
 
 $config = array(
 	// Language to use, used for gettext / setenv LC_ALL
-	'language'         => 'en_US',
+	'language' => 'en_US',
+
+	// prefix of where partuza lives, empty means it's /
+	'web_prefix' => '',
+
+	// Container (formaly known as syndicator) to pass in the iframe (defaults to 'default')
+	// Note: your shindig config/container.js needs to match this key, so if you changed this to 'partuza'
+	// you need to edit container.js and change the container key there like:
+	// {"gadgets.container" : ["partuza"],
+	'container' => 'default',
+	//'container' => 'partuza',
 
 	// Max age of a security token, defaults to one hour
 	'st_max_age' => 60 * 60,

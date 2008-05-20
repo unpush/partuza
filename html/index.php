@@ -21,6 +21,7 @@
 require "config.php";
 
 // Basic library requirements that are always needed
+require Config::get('library_root')."/Image.php";
 require Config::get('library_root')."/Language.php";
 require Config::get('library_root')."/Database.php";
 require Config::get('library_root')."/Dispatcher.php";
