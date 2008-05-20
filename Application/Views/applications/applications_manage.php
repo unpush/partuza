@@ -6,11 +6,11 @@
 
 <div id="profileContentWide">
 	<p><b>Manage Applications</b></p>
-		<a href="/profile/appgallery">Browse the application directory >></a>
+		<a href="<?=Config::get('web_prefix');?>/profile/appgallery">Browse the application directory >></a>
 		<br /><br />
 		
 		Or add an application by url:<br />
-		<form method="get" action="/profile/addapp"><input type="text" name="appUrl" size="35" /> <input class="submit" type="submit" value="Add Application" /></form>
+		<form method="get" action="<?=Config::get('web_prefix');?>/profile/addapp"><input type="text" name="appUrl" size="35" /> <input class="submit" type="submit" value="Add Application" /></form>
 		<hr>
 		<b>Your Applications:</b><br /><br />
 		<?
@@ -25,9 +25,9 @@
 				}
 				echo "<div class=\"app\"><div class=\"options\">";
 				if (is_object(unserialize($app['settings']))) { 
-					echo "<a href=\"/profile/appsettings/{$app['id']}/{$app['mod_id']}\">Settings</a><br />";
+					echo "<a href=\"" . Config::get('web_prefix') . "/profile/appsettings/{$app['id']}/{$app['mod_id']}\">Settings</a><br />";
 				}			
-				echo "<a href=\"/profile/removeapp/{$app['id']}/{$app['mod_id']}\">Remove</a></div>
+				echo "<a href=\"" . Config::get('web_prefix') . "/profile/removeapp/{$app['id']}/{$app['mod_id']}\">Remove</a></div>
 				<div class=\"app_thumbnail\">";
 				if (!empty($app['thumbnail'])) {
 					// ugly hack to make it work with iGoogle images

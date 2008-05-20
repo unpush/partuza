@@ -34,7 +34,7 @@ $this->template('/gadget/gadget.php', array('width' => $width, 'gadget' => $gadg
 	</div>
 	<div class="preview_section">
 		<br />
-		<div class="preview_add"><a href="/profile/addapp?appUrl=<?=urlencode($gadget['url'])?>">Add to my profile</a></div>
+		<div class="preview_add"><a href="<?=Config::get('web_prefix');?>/profile/addapp?appUrl=<?=urlencode($gadget['url'])?>">Add to my profile</a></div>
 		<br />
 		<small>Note: By installing this application you will be allowing it to access your profile data and friends list.</small>
 		<br /><br /> 

@@ -24,8 +24,8 @@ if (!empty($vars['gadget']['error'])) {
 	
 	$iframe_url = 
 		Config::get('gadget_server').'/gadgets/ifr?'.
-		"synd=partuza".
-		"&container=partuza".
+		"synd=".Config::get('container').
+		"&container=".Config::get('container').
 		"&viewer=".(isset($_SESSION['id']) ? $_SESSION['id'] : '0').
 		"&owner=".(isset($vars['person']['id']) ? $vars['person']['id'] : '0').
 		"&aid=".$gadget['mod_id'].
@@ -45,9 +45,9 @@ if (!empty($vars['gadget']['error'])) {
 	<div id="gadgets-gadget-title-bar-<?=$gadget['mod_id']?>" class="gadgets-gadget-title-bar">
 		<div class="gadgets-gadget-title-button-bar">
 		<? if ($view != 'preview' && isset($_SESSION['id']) && $_SESSION['id'] == $vars['person']['id']) { if (is_object(unserialize($gadget['settings']))) { ?>
-			<a href="/profile/appsettings/<?=$gadget['id']?>/<?=$gadget['mod_id']?>" class="gadgets-gadget-title-button">Settings</a>
+			<a href="<?=Config::get('web_prefix');?>/profile/appsettings/<?=$gadget['id']?>/<?=$gadget['mod_id']?>" class="gadgets-gadget-title-button">Settings</a>
 		<? } } else { ?>
-			<a href="/profile/addapp?appUrl=<?=urlencode($gadget['url'])?>" class="gadgets-gadget-title-button">Add application to your profile</a>
+			<a href="<?=Config::get('web_prefix');?>/profile/addapp?appUrl=<?=urlencode($gadget['url'])?>" class="gadgets-gadget-title-button">Add application to your profile</a>
 		<? } ?> 
 		</div>
 		<span id="remote_iframe_<?=$gadget['mod_id']?>_title" class="gadgets-gadget-title"><?=!empty($gadget['directory_title']) ? $gadget['directory_title'] : $gadget['title']?></span>

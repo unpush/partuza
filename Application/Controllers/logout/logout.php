@@ -23,6 +23,6 @@ class logoutController extends baseController {
 	{
 		session_destroy();
 		setcookie("authenticated", '', time() - (30 * 24 * 60 * 60), '/');
-		header("Location: /");
+		header("Location: " . Config::get('web_prefix') . "/");
 	}
 }

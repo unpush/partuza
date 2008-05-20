@@ -25,7 +25,7 @@ class profileController extends baseController {
 		$id = isset($params[2]) && is_numeric($params[2]) ? $params[2] : false;
 		if (! $id) {
 			//TODO add a proper 404 / profile not found here
-			header("Location: /");
+			header("Location: " . Config::get('web_prefix') . "/");
 			die();
 		}
 		$people = $this->model('people');
@@ -51,8 +51,7 @@ class profileController extends baseController {
 		$friends = $people->get_friends($params[3]);
 		$apps = $this->model('applications');
 		$applications = isset($_SESSION['id']) ? $apps->get_person_applications($params[3]) : array();
-		$this->template('profile/profile_showfriends.php', array('friends' => $friends, 'applications' => $applications, 'person' => $person, 'is_owner' => false));
-		
+		$this->template('profile/profile_showfriends.php', array('friends' => $friends, 'applications' => $applications, 'person' => $person, 'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $params[3]) : false));
 	}
 	
 	public function edit($params)
@@ -66,6 +65,24 @@ class profileController extends baseController {
 			if (!empty($_POST['date_of_birth_month']) && !empty($_POST['date_of_birth_day']) && !empty($_POST['date_of_birth_year']) &&
 			    is_numeric($_POST['date_of_birth_month']) && is_numeric($_POST['date_of_birth_day']) && is_numeric($_POST['date_of_birth_year'])) {
 				$_POST['date_of_birth'] = mktime(0,0,1,$_POST['date_of_birth_month'], $_POST['date_of_birth_day'], $_POST['date_of_birth_year']);
+			}
+			if (isset($_FILES['profile_photo']) && !empty($_FILES['profile_photo']['name'])) {
+				//TODO quick and dirty profile photo support, should really seperate this out and make a proper one
+				$file = $_FILES['profile_photo'];
+				// make sure the browser thought this was an image
+				if (substr($file['type'], 0, strlen('image/')) == 'image/' && $file['error'] == UPLOAD_ERR_OK) {
+					$ext = strtolower(substr($file['name'], strrpos($file['name'], '.') + 1));
+					// it's a file extention that we accept too (not that means anything really)
+					$accepted = array('gif', 'jpg', 'jpeg', 'png');
+					if (in_array($ext, $accepted)) {
+						if (!move_uploaded_file($file['tmp_name'], Config::get('site_root').'/images/people/'.$_SESSION['id'].'.'.$ext)) {
+							die("no permission to images/people dir, or possible file upload attack, aborting");
+						}
+						// thumbnail the image to 96x96 format (keeping the original)
+						$thumbnail_url = Image::by_size(Config::get('site_root').'/images/people/'.$_SESSION['id'].'.'.$ext, 96, 96);
+						$people->set_profile_photo($_SESSION['id'], $thumbnail_url);
+					}
+				}
 			}
 			try {
 				$people->save_person($_SESSION['id'], $_POST);
@@ -147,7 +164,7 @@ class profileController extends baseController {
 		if (! isset($_SESSION['id']) || ! isset($_GET['appUrl'])) {
 			header("Location: /");
 		}
-		$url = urldecode($_GET['appUrl']);
+		$url = trim(urldecode($_GET['appUrl']));
 		$apps = $this->model('applications');
 		$ret = $apps->add_application($_SESSION['id'], $url);
 		if ($ret['app_id'] && $ret['mod_id'] && ! $ret['error']) {

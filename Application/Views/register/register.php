@@ -13,7 +13,7 @@
 			<div style="color:red"><b>Error : <?=$vars['error']?></b><br /></div>
 		<? } ?>
 		
-	<form action="/register" method="post" id="register">
+	<form action="<?=Config::get('web_prefix');?>/register" method="post" id="register">
 		<div class="form_header">Account information</div>
 
 		<div class="form_entry">

@@ -9,7 +9,7 @@
 </div>
 <div id="profileContentWide">
 		<div style="padding:12px">
-			<form method="post">
+			<form method="post" enctype="multipart/form-data">
 			<ul id="tabs" class="subsection_tabs">
 			    <li><a href="#basic">Basic</a></li>
 			    <li><a href="#contact">Contact</a></li>
@@ -228,7 +228,15 @@
 			</div>
 			
 			<div id="picture" style="display:none">
-				Insert File uploader to change profile picture here<br />
+				<div>
+					<div class="friend" style="margin-right:12px">
+						<div class="thumb"><center><img src="<?=Image::by_size(Config::get('site_root').(!empty($vars['person']['thumbnail_url'])?$vars['person']['thumbnail_url']:'/images/people/nophoto.gif'), 64, 64)?>" /></center></div>
+						<p class="uname">Current profile photo</p>
+					</div>
+					Select a new photo to upload<br />
+				    <input type="hidden" name="MAX_FILE_SIZE" value="6000000" />	
+					<input type="file" name="profile_photo" />
+			<div style="clear:both"></div>
 			</div>
 			<br />
 			<input type="submit" class="submit" value="save" />

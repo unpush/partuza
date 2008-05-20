@@ -9,8 +9,8 @@
 		</div>
 		<? foreach ($vars['friends'] as $friend) {
 			echo "<div class=\"friend\">
-					<div class=\"thumb\"><center>image</center></div>
-					<p class=\"uname\"><a href=\"/profile/{$friend['id']}\">{$friend['first_name']}</a></p>
+					<div class=\"thumb\"><center><a href=\"".Config::get('web_prefix') ."/profile/{$friend['id']}\"><img src=\"".Image::by_size(Config::get('site_root').(!empty($vars['person']['thumbnail_url'])?$vars['person']['thumbnail_url']:'/images/people/nophoto.gif'), 64, 64)."\" /></a></center></div>
+					<p class=\"uname\"><a href=\"".Config::get('web_prefix') ."/profile/{$friend['id']}\">{$friend['first_name']}</a></p>
 			</div>";
 		}
 		?>

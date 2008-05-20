@@ -17,7 +17,7 @@
 					$app['directory_title'] = $app['title'];
 				}
 				echo "<div class=\"app\">
-				<div class=\"options\"><a href=\"/profile/preview/{$app['id']}\">Preview</a></div>
+				<div class=\"options\"><a href=\"" . Config::get('web_prefix') . "/profile/preview/{$app['id']}\">Preview</a></div>
 				<div class=\"app_thumbnail\">";
 				if (!empty($app['thumbnail'])) {
 					// ugly hack to make it work with iGoogle images

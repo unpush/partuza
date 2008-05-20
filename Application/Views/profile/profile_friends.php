@@ -6,8 +6,8 @@
 		</div>
 		<? foreach ($vars['friends'] as $friend) {
 			echo "<div class=\"friend\">
-					<div class=\"thumb\"><center>image</center></div>
-					<p class=\"uname\"><a href=\"/profile/{$friend['id']}\">{$friend['first_name']}</a></p>
+					<div class=\"thumb\"><center><a href=\"".Config::get('web_prefix') ."/profile/{$friend['id']}\" rel=\"friend\"><img src=\"".Image::by_size(Config::get('site_root').(!empty($friend['thumbnail_url'])?$friend['thumbnail_url']:'/images/people/nophoto.gif'), 64, 64)."\" /></a></center></div>
+					<p class=\"uname\"><a href=\"".Config::get('web_prefix') ."/profile/{$friend['id']}\" rel=\"friend\">{$friend['first_name']}</a></p>
 			</div>";
 		}
 		?>
@@ -15,7 +15,12 @@
 	<div style="clear:both"></div>
 	<br />
 	<div class="gadgets-gadget-chrome">
-		<div class="gadgets-gadget-title-bar"><span class="gadgets-gadget-title">Information</span></div>
+		<div class="gadgets-gadget-title-bar">
+		<? if ($vars['is_owner']) {
+			echo "<div class=\"gadgets-gadget-title-button-bar\"><a href=\"".Config::get('web_prefix') ."/profile/edit\">edit</a></div>";
+		}?>
+			<span class="gadgets-gadget-title">Information</span>
+		</div>
 		<div style="margin:6px">
 		<div class="form_entry"><div class="info_detail"><?=$vars['person']['first_name']." ".$vars['person']['last_name']?></div>name</div>
 		<? if (!empty($vars['person']['gender'])) { ?><div class="form_entry"><div class="info_detail"><?=$vars['person']['gender']=='MALE'?'Male':'Female'?></div>gender</div> <? } ?>

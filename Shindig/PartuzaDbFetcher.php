@@ -20,14 +20,19 @@
 
 class PartuzaDbFetcher {
 	private $db;
+	private $url_prefix;
 	
 	// Singleton
 	private static $fetcher;
 
 	private function __construct()
 	{
+		//TODO move these to PartuzaConfig.php, this is uglaaaaaayyyy!
+		// enter your db config here
 		$this->db = mysqli_connect('localhost', 'root', '', 'partuza');
 		mysqli_select_db($this->db, 'partuza');
+		// change this to your site's location
+		$this->url_prefix = 'http://partuza';
 	}
 
 	private function __clone()
@@ -43,17 +48,17 @@ class PartuzaDbFetcher {
 		}
 		return PartuzaDbFetcher::$fetcher;
 	}
-	
+
 	public function createActivity($person_id, $activity, $app_id = '0')
 	{
 		$app_id = mysqli_real_escape_string($this->db, $app_id);
 		$person_id = mysqli_real_escape_string($this->db, $person_id);
-		$title = mysqli_real_escape_string($this->db, !empty($activity['fields_']['title']) ? trim($activity['fields_']['title']) : '');
-		$body = mysqli_real_escape_string($this->db, !empty($activity['fields_']['body']) ? trim($activity['fields_']['body']) : '');
+		$title = mysqli_real_escape_string($this->db, ! empty($activity['fields_']['title']) ? trim($activity['fields_']['title']) : '');
+		$body = mysqli_real_escape_string($this->db, ! empty($activity['fields_']['body']) ? trim($activity['fields_']['body']) : '');
 		$time = time();
 		mysqli_query($this->db, "insert into activities (id, person_id, app_id, title, body, created) values (0, $person_id, $app_id, '$title', '$body', $time)");
 		echo mysqli_error($this->db);
-		if (!($activityId = mysqli_insert_id($this->db))) {
+		if (! ($activityId = mysqli_insert_id($this->db))) {
 			return false;
 		}
 		if (isset($activity['fields_']['mediaItems']) && count($activity['fields_']['mediaItems'])) {
@@ -62,7 +67,7 @@ class PartuzaDbFetcher {
 				$mimeType = mysqli_real_escape_string($this->db, $mediaItem['fields_']['mimeType']);
 				$url = mysqli_real_escape_string($this->db, $mediaItem['fields_']['url']);
 				mysqli_query($this->db, "insert into activity_media_items (id, activity_id, mime_type, media_type, url) values (0, $activityId, '$mimeType', '$type', '$url')");
-				if (!mysqli_insert_id($this->db)) {
+				if (! mysqli_insert_id($this->db)) {
 					return false;
 				}
 			}
@@ -173,13 +178,12 @@ class PartuzaDbFetcher {
 		$ret = array();
 		//TODO select * is damn expensive considering most of the time we don't
 		// need all fields, so strains the DB and IO way to much.
-		// Add a more subtle select where it only selects the requested profileDetails
-		
+		// Add a more subtle select where it only selects the requested profileDetails	
 
 		// ps don't pay attention to the -funroll-loops style coding, it's meant to be quick and dirty :)
 		$query = "select * from persons where id in (" . implode(',', $ids) . ")";
 		$res = mysqli_query($this->db, $query);
-		if ($res)
+		if ($res) {
 			while ($row = @mysqli_fetch_array($res, MYSQLI_ASSOC)) {
 				$person_id = mysqli_real_escape_string($this->db, $row['id']);
 				$name = new Name($row['first_name'] . ' ' . $row['last_name']);
@@ -201,7 +205,7 @@ class PartuzaDbFetcher {
 				$person->setPets($row['pets']);
 				$person->setPoliticalViews($row['political_views']);
 				$person->setProfileSong($row['profile_song']);
-				$person->setProfileUrl($row['profile_url']);
+				$person->setProfileUrl(! empty($row['profile_url']) ? $this->url_prefix . $row['profile_url'] : '');
 				$person->setProfileVideo($row['profile_video']);
 				$person->setRelationshipStatus($row['relationship_status']);
 				$person->setReligion($row['religion']);
@@ -209,7 +213,7 @@ class PartuzaDbFetcher {
 				$person->setScaredOf($row['scared_of']);
 				$person->setSexualOrientation($row['sexual_orientation']);
 				$person->setStatus($row['status']);
-				$person->setThumbnailUrl($row['thumbnail_url']);
+				$person->setThumbnailUrl(! empty($row['thumbnail_url']) ? $this->url_prefix . $row['thumbnail_url'] : '');
 				$person->setTimeZone($row['time_zone']);
 				if (! empty($row['drinker'])) {
 					$person->setDrinker(new EnumDrinker($row['drinker']));
@@ -493,9 +497,6 @@ class PartuzaDbFetcher {
 				}
 				$ret[$person_id] = $person;
 			}
-		if ($person_id == 2) {
-			//print_r($ret);
-			//die();
 		}
 		return $ret;
 	}

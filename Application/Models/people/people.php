@@ -41,6 +41,14 @@ class peopleModel extends Model {
 		return $db->affected_rows($res) != 0;
 	}
 	
+	public function set_profile_photo($id, $url)
+	{
+		global $db;
+		$id = $db->addslashes($id);
+		$url = $db->addslashes($url);
+		$db->query("update persons set thumbnail_url = '$url' where id = $id");
+	}
+	
 	public function save_person($id, $person)
 	{
 		global $db;

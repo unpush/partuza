@@ -95,8 +95,8 @@ class Dispatcher {
 		global $controller;
 		// To do etag etc support, we need output buffering
 		ob_start();
+		$params = explode('/', str_replace(Config::get('web_prefix'), '', $this->url));
 		// Run the application, dispatch the control to the correct Controller (or default to Home if no URL is given)
-		$params = explode('/', $this->url);
 		if (!empty($params[1])) {
 			$action = $params[1];
 		} else {
