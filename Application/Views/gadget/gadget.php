@@ -12,10 +12,14 @@ if (!empty($vars['gadget']['error'])) {
 	}
 	
 	$prefs = '';
+	// parse appParams (from requestNavigateTo) before preferences, the override the other settings
+	if ($appParams && count($appParams)) {
+		foreach ($appParams as $name => $value) {
+			$prefs .= '&up_'.urlencode($name).'='.urlencode($value);
+		}
+	}
 	foreach ($gadget['user_prefs'] as $name => $value) {
-		if ($appParams && isset($appParams[$name])) {
-			$prefs .= '&up_'.urlencode($name).'='.urlencode($appParams[$name]);
-		} elseif (!empty($value)) {
+		if (!empty($value) && !isset($appParams[$name])) {
 			$prefs .= '&up_'.urlencode($name).'='.urlencode($value);
 		}
 	}
