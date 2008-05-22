@@ -6,9 +6,16 @@ if (!empty($vars['gadget']['error'])) {
 	$gadget = $vars['gadget'];
 	$view = $vars['view'];
 	
+	$appParams = false;
+	if (isset($_GET['appParams']) && !empty($_GET['appParams'])) {
+		$appParams = json_decode(urldecode($_GET['appParams']), true);
+	}
+	
 	$prefs = '';
 	foreach ($gadget['user_prefs'] as $name => $value) {
-		if (!empty($value)) {
+		if ($appParams && isset($appParams[$name])) {
+			$prefs .= '&up_'.urlencode($name).'='.urlencode($appParams[$name]);
+		} elseif (!empty($value)) {
 			$prefs .= '&up_'.urlencode($name).'='.urlencode($value);
 		}
 	}
@@ -28,7 +35,7 @@ if (!empty($vars['gadget']['error'])) {
 		"&container=".Config::get('container').
 		"&viewer=".(isset($_SESSION['id']) ? $_SESSION['id'] : '0').
 		"&owner=".(isset($vars['person']['id']) ? $vars['person']['id'] : '0').
-		"&aid=".$gadget['mod_id'].
+		"&aid=".$gadget['id'].
 		"&mid=".$gadget['mod_id'].
 		((isset($_GET['nocache']) && $_GET['nocache'] == '1') || isset($_GET['bpc']) && $_GET['bpc'] == '1' ? "&nocache=1" : '').
 		"&country=US".
