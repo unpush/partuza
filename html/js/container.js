@@ -71,7 +71,7 @@ Container.prototype = {
 			if (opt_params) {
 				var paramStr = Object.toJSON(opt_params);
 				if (paramStr.length > 0) {
-					url += '&appParams=' + encodeURIComponent(paramStr);
+					url += '?appParams=' + encodeURIComponent(paramStr);
 				}
 			}
 			if (url && document.location.href.indexOf(url) == -1) {
