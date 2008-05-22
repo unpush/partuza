@@ -69,7 +69,7 @@ Container.prototype = {
 			var params = gadgets.container._parseIframeUrl($(this.f).src);
 			var url = gadgets.container._getUrlForView(view, params.owner, params.aid, params.mid);
 			if (opt_params) {
-				var paramStr = JSON.stringify(opt_params);
+				var paramStr = Object.toJSON(opt_params);
 				if (paramStr.length > 0) {
 					url += '&appParams=' + encodeURIComponent(paramStr);
 				}
