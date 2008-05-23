@@ -70,7 +70,7 @@
 			<select name="gender" id="gender" style="width:auto">
 			<option value="-">-</option>
 			<option value="FEMALE">Female</option>
-			<option value="Male">Make</option>
+			<option value="Male">Male</option>
 			</select>
 		</div>
 		
