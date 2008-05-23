@@ -10,8 +10,16 @@ if (!count($vars['activities'])) {
 		} else {
 			$add = '';
 		}
-		echo "<div class=\"activity$add\">\n".
-		     "{$activity['title']}<br />\n{$activity['body']}\n".
+		echo "<!--
+		person id: ".$activity['person_id']."
+		person name: ".$activity['person_name']."
+		title: ".$activity['title']."
+		body: ".$activity['body']."
+		-->
+		";
+		echo "<div class=\"activity$add\" style=\'clear:both\">\n".
+			"<a href=\"/profile/{$activity['person_id']}\">{$activity['person_name']}</a> ".
+		     strip_tags($activity['title'])."<br />\n{$activity['body']}\n".
 		     "</div>\n";
 	}
 }
