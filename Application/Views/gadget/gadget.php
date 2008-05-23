@@ -5,19 +5,8 @@ if (!empty($vars['gadget']['error'])) {
 	$width = $vars['width'];
 	$gadget = $vars['gadget'];
 	$view = $vars['view'];
-	
-	$appParams = false;
-	if (isset($_GET['appParams']) && !empty($_GET['appParams'])) {
-		$appParams = json_decode(urldecode($_GET['appParams']), true);
-	}
-	
+		
 	$prefs = '';
-	// parse appParams (from requestNavigateTo) before preferences, the override the other settings
-	if ($appParams && count($appParams)) {
-		foreach ($appParams as $name => $value) {
-			$prefs .= '&up_'.urlencode($name).'='.urlencode($value);
-		}
-	}
 	foreach ($gadget['user_prefs'] as $name => $value) {
 		if (!empty($value) && !isset($appParams[$name])) {
 			$prefs .= '&up_'.urlencode($name).'='.urlencode($value);
@@ -47,6 +36,7 @@ if (!empty($vars['gadget']['error'])) {
 		"&view=".$view.
 		"&parent=".urlencode("http://".$_SERVER['HTTP_HOST']).
 		$prefs.
+		(isset($_GET['appParams']) ? '&view-params='.urlencode($_GET['appParams'])  : '').
 		"&st=".$securityToken->toSerialForm().
 		"&v=".$gadget['version'].
 		"&url=".urlencode($gadget['url']).
