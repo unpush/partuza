@@ -236,7 +236,8 @@
 					Select a new photo to upload<br />
 				    <input type="hidden" name="MAX_FILE_SIZE" value="6000000" />	
 					<input type="file" name="profile_photo" />
-			<div style="clear:both"></div>
+					<div style="clear:both"></div>
+				</div>
 			</div>
 			<br />
 			<input type="submit" class="submit" value="save" />
