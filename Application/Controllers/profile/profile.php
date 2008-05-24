@@ -123,7 +123,7 @@ class profileController extends baseController {
 		$mod_id = intval($params[5]);
 		$people = $this->model('people');
 		$person = $people->get_person($id, true);
-		$friends = $people->get_friends($id, 9);
+		$friends = $people->get_friends($id);
 		$friend_requests = isset($_SESSION['id']) ? $people->get_friend_requests($_SESSION['id']) : array();
 		$apps = $this->model('applications');
 		$applications = $apps->get_person_applications($id);

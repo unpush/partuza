@@ -69,6 +69,7 @@ class activitiesModel extends Model {
 		limit 
 			$limit
 		");
+
 		while ($row = $db->fetch_array($res, MYSQLI_ASSOC)) {
 			$ret[] = $row;
 		}
