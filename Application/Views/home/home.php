@@ -1,5 +1,8 @@
 <? $this->template('/common/header.php'); ?>
-
-Welcome to the Example social container site. Please login or register to continue.
+<img src="images/partuza-home.jpg" align="left" /> 
+<div style="float:right; width: 500px;">
+<p>Welcome to the example Social Network Site: Partuza!</p>
+<p>Please login by entering your email and password in the top or <a href="http://partuza/register">register</a> to continue.</p>
+</div>
 
 <? $this->template('/common/footer.php'); ?>
