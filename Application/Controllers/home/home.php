@@ -19,7 +19,8 @@
  */
 
 class homeController extends baseController {
-	public function index($params, $message = false)
+	
+	public function index($params)
 	{
 		if (isset($_SESSION['id'])) {
 			$people = $this->model('people');
@@ -31,7 +32,7 @@ class homeController extends baseController {
 			$applications = $apps->get_person_applications($_SESSION['id']);
 			$friend_activities = $activities->get_friend_activities($_SESSION['id'], 10);
 			//TODO add activities here and parse in template..
-			$this->template('profile/home.php', array('activities' => $friend_activities, 'applications' => $applications, 'message' => $message, 'person' => $person, 'friend_requests' => $friend_requests, 'friends' => $friends, 'is_owner' => true));
+			$this->template('profile/home.php', array('activities' => $friend_activities, 'applications' => $applications, 'person' => $person, 'friend_requests' => $friend_requests, 'friends' => $friends, 'is_owner' => true));
 		} else {
 			$this->template('home/home.php');
 		}
@@ -46,7 +47,8 @@ class homeController extends baseController {
 		} else {
 			$message = 'Could not remove friend request, invalid friend id';
 		}
-		$this->index($params, $message);
+		$_SESSION['message'] = $message;
+		header("Location: {$_SERVER['HTTP_REFERER']}");
 	}
 	
 	public function addfriend($params)
@@ -63,7 +65,8 @@ class homeController extends baseController {
 		} else {
 			$message = 'Could not send friend request, invalid friend id';
 		}
-		$this->index($params, $message);
+		$_SESSION['message'] = $message;
+		header("Location: {$_SERVER['HTTP_REFERER']}");
 	}
 	
 	public function acceptfriend($params)
@@ -80,7 +83,8 @@ class homeController extends baseController {
 		} else {
 			$message = 'Could not accept friend request, invalid friend id';
 		}
-		$this->index($params, $message);
+		$_SESSION['message'] = $message;
+		header("Location: {$_SERVER['HTTP_REFERER']}");
 	}
 	
 	public function rejectfriend($params)
@@ -97,6 +101,7 @@ class homeController extends baseController {
 		} else {
 			$message = 'Could not remove friend request, invalid friend id';
 		}
-		$this->index($params, $message);
+		$_SESSION['message'] = $message;
+		header("Location: {$_SERVER['HTTP_REFERER']}");
 	}
 }

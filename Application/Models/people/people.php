@@ -189,15 +189,28 @@ class peopleModel extends Model {
 			$db->query("delete from friend_requests where person_id = $friend_id and friend_id = $person_id");
 			// -1 = sql error, 0 = no request was made, so can't accept it since the other party never gave permission
 			if ($db->affected_rows() < 1) {
+				die("couldnt delete friend request, means there was none?");
 				return false;
 			}
 			// make sure there's not already a connection between the two the other way around
-			$res = $db->query("select friend_id from friends where person_id = $friend_id");
+			$res = $db->query("select friend_id from friends where person_id = $friend_id and friend_id = $person_id");
 			if ($db->num_rows($res)) {
+				die("the relation already exists the other way around,bailing");
 				return false;
 			}
 			$db->query("insert into friends values ($person_id, $friend_id)");
+			
+			//FIXME quick hack to put in befriending activities, move this to its own class/function soon
+			// We want to create the friend activities on both people so we do this twice
+			$time = time();
+			foreach (array($friend_id => $person_id, $person_id => $friend_id) as $key => $val) {
+				$res = $db->query("select concat(first_name, ' ', last_name) from persons where id = $key");
+				list($name)	= $db->fetch_row($res);			
+				$db->query("insert into activities (person_id, app_id, title, body, created) values ($val, 0, 'and <a href=\"/profile/$key\" rel=\"friend\">$name</a> are now friends.', '', $time)");
+			}
+			
 		} catch ( DBException $e ) {
+			die("sql error: ".$e->getMessage());
 			return false;
 		}
 		return true;

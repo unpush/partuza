@@ -1,8 +1,11 @@
 <?
+if (!empty($_SESSION['message'])) {
+	echo "<b>{$_SESSION['message']}</b><br /><br />";
+	unset($_SESSION['message']);
+}
 if ($vars['is_owner']) {
 	$this->template('profile/profile_friendrequests.php', $vars);
 }
-
 $width = 488;
 $view = 'profile';
 foreach ($vars['applications'] as $gadget) {
