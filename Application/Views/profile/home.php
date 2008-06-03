@@ -11,8 +11,9 @@
 	<? $this->template('profile/profile_activities.php', $vars); ?>
 </div>
 <?
-if (!empty($vars['message'])) {
-	echo "<b>{$vars['message']}</b><br /><br />";
+if (!empty($_SESSION['message'])) {
+	echo "<b>{$_SESSION['message']}</b><br /><br />";
+	unset($_SESSION['message']);
 }
 foreach ($vars['applications'] as $gadget) {
 	$width = 488;

@@ -8,7 +8,7 @@ if (!count($vars['activities'])) {
 		$first = false;
 		echo "<div class=\"activity$add\">\n".
 			"<a href=\"/profile/{$activity['person_id']}\">{$activity['person_name']}</a> ".
-		     strip_tags($activity['title'])."<br />\n{$activity['body']}\n".
+		     $activity['title']."<br />\n{$activity['body']}\n".
 		     "</div>
 		     <div style=\"clear:both\"></div>
 		     \n";
