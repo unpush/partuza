@@ -66,8 +66,15 @@ class Image {
 			Image::convert($file, $thumb, $twidth, $theight, $desired_width = $desired_width, $desired_height = $desired_height);
 		} else {
 			if (! file_exists($thumb)) {
-				if (!symlink($file, $thumb)) {
-					die("Permission denied on generating thumbnail symlink");
+				if (function_exists('symlink')) {
+					if (! symlink($file, $thumb)) {
+						die("Permission denied on generating thumbnail symlink");
+					}
+				} else {
+					// php on windows doesn't know how to symlink so copy instead
+					if (! copy($file, $thumb)) {
+						die("Permission denied on generating thumbnail copy");
+					}
 				}
 			}
 		}
