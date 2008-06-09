@@ -20,6 +20,19 @@
 
 require "config.php";
 
+// Basic sanity check if we have all required modules,
+// this is the same list as shindig + mysqli
+$modules = array('json', 'SimpleXML', 'libxml', 'curl', 'mysqli');
+// if plain text tokens are disallowed we require mcrypt
+if (!Config::get('allow_plaintext_token')) {
+	$modules[] = 'mcrypt';
+}
+foreach ($modules as $module) {
+	if (!extension_loaded($module)) {
+		die("Shindig requires the {$module} extention, see <a href='http://www.php.net/{$module}'>http://www.php.net/{$module}</a> for more info");
+	}
+}
+
 // Basic library requirements that are always needed
 require Config::get('library_root')."/Image.php";
 require Config::get('library_root')."/Language.php";
