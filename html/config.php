@@ -34,7 +34,7 @@ $config = array(
 
 	// Max age of a security token, defaults to one hour
 	'st_max_age' => 60 * 60,
-	'allow_plaintext_token' => false,
+	'allow_plaintext_token' => true,
 
 	// Security token keys
 	'token_cipher_key' => 'INSECURE_DEFAULT_KEY',
