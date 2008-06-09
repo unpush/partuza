@@ -22,6 +22,9 @@ if (!empty($vars['gadget']['error'])) {
 		$gadget['mod_id']											// mod id
 		);
 	
+		$gadget_url_params = array();
+		parse_str(parse_url ( $gadget['url'], PHP_URL_QUERY ), $gadget_url_params);
+		
 	$iframe_url = 
 		Config::get('gadget_server').'/gadgets/ifr?'.
 		"synd=".Config::get('container').
@@ -30,7 +33,7 @@ if (!empty($vars['gadget']['error'])) {
 		"&owner=".(isset($vars['person']['id']) ? $vars['person']['id'] : '0').
 		"&aid=".$gadget['id'].
 		"&mid=".$gadget['mod_id'].
-		((isset($_GET['nocache']) && $_GET['nocache'] == '1') || isset($_GET['bpc']) && $_GET['bpc'] == '1' ? "&nocache=1" : '').
+		((isset($_GET['nocache']) && $_GET['nocache'] == '1') || (isset($gadget_url_params['nocache']) && intval($gadget_url_params['nocache']) == 1) || isset($_GET['bpc']) && $_GET['bpc'] == '1' ? "&nocache=1" : '').
 		"&country=US".
 		"&lang=EN".
 		"&view=".$view.
