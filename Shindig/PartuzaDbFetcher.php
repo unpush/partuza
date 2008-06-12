@@ -179,6 +179,7 @@ class PartuzaDbFetcher {
 		//TODO select * is damn expensive considering most of the time we don't
 		// need all fields, so strains the DB and IO way to much.
 		// Add a more subtle select where it only selects the requested profileDetails	
+		
 
 		// ps don't pay attention to the -funroll-loops style coding, it's meant to be quick and dirty :)
 		$query = "select * from persons where id in (" . implode(',', $ids) . ")";
@@ -216,13 +217,13 @@ class PartuzaDbFetcher {
 				$person->setThumbnailUrl(! empty($row['thumbnail_url']) ? $this->url_prefix . $row['thumbnail_url'] : '');
 				$person->setTimeZone($row['time_zone']);
 				if (! empty($row['drinker'])) {
-					$person->setDrinker(new EnumDrinker($row['drinker']));
+					$person->setDrinker($row['drinker']);
 				}
 				if (! empty($row['gender'])) {
-					$person->setGender(new EnumGender($row['gender']));
+					$person->setGender($row['gender']);
 				}
 				if (! empty($row['smoker'])) {
-					$person->setSmoker(new EnumSmoker($row['smoker']));
+					$person->setSmoker($row['smoker']);
 				}
 				/* the following fields require additional queries so are only executed if requested */
 				if (isset($profileDetails['activities'])) {

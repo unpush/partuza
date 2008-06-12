@@ -18,7 +18,8 @@
  */
 
 class PartuzaHandler extends GadgetDataHandler {
-	private $handles = array('FETCH_PEOPLE', 'FETCH_PERSON_APP_DATA', 'UPDATE_PERSON_APP_DATA', 'FETCH_ACTIVITIES', 'CREATE_ACTIVITY');
+	private $handles = array('FETCH_PEOPLE', 'FETCH_PERSON_APP_DATA', 'UPDATE_PERSON_APP_DATA', 
+			'FETCH_ACTIVITIES', 'CREATE_ACTIVITY');
 
 	public function shouldHandle($requestType)
 	{
@@ -118,7 +119,7 @@ class PartuzaHandler extends GadgetDataHandler {
 				}
 				$people[] = $person;
 			}
-		}		
+		}
 		//TODO: The Partuza doesn't support any filters yet. We should fix this.
 		$totalSize = count($people);
 		$last = $first + $max;
