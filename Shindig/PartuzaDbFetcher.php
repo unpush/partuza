@@ -206,7 +206,7 @@ class PartuzaDbFetcher {
 				$person->setPets($row['pets']);
 				$person->setPoliticalViews($row['political_views']);
 				$person->setProfileSong($row['profile_song']);
-				$person->setProfileUrl(! empty($row['profile_url']) ? $this->url_prefix . $row['profile_url'] : '');
+				$person->setProfileUrl($this->url_prefix . '/profile/' . $row['id']);
 				$person->setProfileVideo($row['profile_video']);
 				$person->setRelationshipStatus($row['relationship_status']);
 				$person->setReligion($row['religion']);
