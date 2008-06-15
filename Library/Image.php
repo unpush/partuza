@@ -20,7 +20,7 @@
 
 class Image {
 
-	static public function by_size($file_path, $width, $height)
+	static public function by_size($file_path, $width, $height, $force = false)
 	{
 		$width = (empty($width) || ! is_numeric($width)) ? '92' : $width;
 		$height = (empty($height) || ! is_numeric($height)) ? '96' : $height;
@@ -28,6 +28,13 @@ class Image {
 		$thumb = $ofile = $file_path;
 		$ext = substr($thumb, strrpos($thumb, '.') + 1);
 		$thumb = substr($thumb, 0, strrpos($thumb, '.')) . ".$suffix.$ext";
+		if ($force) {
+			// remove all cached thumbnails so they get regenerated
+			$path = dirname($thumb);
+			foreach (glob("$path/*.*x*.$ext") as $file) {
+				@unlink($file);
+			}
+		}		
 		$file = str_replace('//', '/', dirname($ofile) . "/" . basename($thumb));
 		if (! file_exists($thumb)) {
 			if (! Image::thumbnail($ofile, $suffix, $width, $height)) {
@@ -63,47 +70,79 @@ class Image {
 		if (isset($factor) && $factor < 1) {
 			$twidth = ceil($factor * $width);
 			$theight = ceil($factor * $height);
-			Image::convert($file, $thumb, $twidth, $theight, $desired_width = $desired_width, $desired_height = $desired_height);
+			Image::convert($file, $thumb, $width, $height, $twidth, $theight);
 		} else {
-			if (! file_exists($thumb)) {
-				if (function_exists('symlink')) {
-					if (! symlink($file, $thumb)) {
-						die("Permission denied on generating thumbnail symlink");
-					}
-				} else {
-					// php on windows doesn't know how to symlink so copy instead
-					if (! copy($file, $thumb)) {
-						die("Permission denied on generating thumbnail copy");
-					}
+			if (file_exists($thumb)) {
+				@unlink($thumb);
+			}
+			if (function_exists('symlink')) {
+				if (! symlink($file, $thumb)) {
+					die("Permission denied on generating thumbnail symlink");
+				}
+			} else {
+				// php on windows doesn't know how to symlink so copy instead
+				if (! copy($file, $thumb)) {
+					die("Permission denied on generating thumbnail copy");
 				}
 			}
 		}
 		return true;
 	}
 
-	static public function convert($source, $destination, $width, $height, $desired_width = null, $desired_height = null)
+	static public function convert($source, $destination, $width, $height, $desired_width, $desired_height)
 	{
-		//TODO convert gives better results then gd and supports more formats, however it's not likely to work on windows
-		// should add a if platform == win32 case and use gd then if available
-		if (file_exists('/usr/bin/convert')) {
-			$convert = "/usr/bin/convert";
-		} elseif (file_exists('/usr/local/bin/convert')) {
-			$convert = "/usr/local/bin/convert";
-		} elseif (file_exists('/usr/X11R6/bin/convert')) {
-			$convert = "/usr/X11R6/bin/convert";
-		} elseif (file_exists('/sw/bin/convert')) {
-			$convert = "/sw/bin/convert";
-		} else {
-			// lets hope for the best and hope convert can be somewhere else in the shell's PATH
-			$convert = "convert";
-		}
-		$size = $width . 'x' . $height;
-		$desired_size = $desired_width && $desired_height ? $desired_width . 'x' . $desired_height : $size;
-		@exec($convert . ' ' . escapeshellarg($source) . ' -thumbnail ' . $size . ' -size ' . $desired_size . ' ' . escapeshellarg($destination));
+		Image::createImage($source, $destination, $width, $height, $desired_width, $desired_height);
 		if (file_exists($destination)) {
 			@chmod($destination, 0664);
 		} else {
-			die("Failed to generate thumbnail, check directory permissions and the availability of 'convert' (ImageMagick)");
+			die("Failed to generate thumbnail, check directory permissions and the availability of <b>gd.</b>");
 		}
+	}
+
+	static public function createImage($source, $destination, $width, $height, $desired_width, $desired_height)
+	{
+		//die("about to createImage($source, $destination, $width, $height, $desired_width, $desired_height)");
+		// Capture the original size of the uploaded image
+		if (! $info = getimagesize($source)) {
+			return false;
+		}
+		$src = false;
+		switch ($info['mime']) {
+			case 'image/jpeg':
+				$src = imagecreatefromjpeg($source);
+				break;
+			case 'image/gif':
+				$src = imagecreatefromgif($source);
+				break;
+			case 'image/png':
+				$src = imagecreatefrompng($source);
+				break;
+		}
+		if (! $src) {
+			return false;
+		}
+		$tmp = @imagecreatetruecolor($desired_width, $desired_height);
+		if (! @imagecopyresampled($tmp, $src, 0, 0, 0, 0, $desired_width, $desired_height, $width, $height)) {
+			@imagedestroy($src);
+			return false;
+		}
+		@unlink($destination);
+		switch ($info['mime']) {
+			case 'image/jpeg':
+				$ret = @imagejpeg($tmp, $destination, 100);
+				break;
+			case 'image/gif':
+				$ret = @imagegif($tmp, $destination);
+				break;
+			case 'image/png':
+				$ret = @imagepng($tmp, $destination, 100);
+				break;
+		}
+		@imagedestroy($src);
+		@imagedestroy($tmp);
+		if (! $ret) {
+			return false;
+		}
+		return true;
 	}
 }

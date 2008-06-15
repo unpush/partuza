@@ -79,7 +79,7 @@ class profileController extends baseController {
 							die("no permission to images/people dir, or possible file upload attack, aborting");
 						}
 						// thumbnail the image to 96x96 format (keeping the original)
-						$thumbnail_url = Image::by_size(Config::get('site_root').'/images/people/'.$_SESSION['id'].'.'.$ext, 96, 96);
+						$thumbnail_url = Image::by_size(Config::get('site_root').'/images/people/'.$_SESSION['id'].'.'.$ext, 96, 96, true);
 						$people->set_profile_photo($_SESSION['id'], $thumbnail_url);
 					}
 				}
@@ -88,7 +88,7 @@ class profileController extends baseController {
 				$people->save_person($_SESSION['id'], $_POST);
 				$message = 'Saved information';
 			} catch (DBException $e) {
-				$message = 'Error saving information';
+				$message = 'Error saving information ('.$e->getMessage().')';
 			}
 		}
 		$person = $people->get_person($_SESSION['id'], true);

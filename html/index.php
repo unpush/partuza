@@ -22,7 +22,7 @@ require "config.php";
 
 // Basic sanity check if we have all required modules,
 // this is the same list as shindig + mysqli
-$modules = array('json', 'SimpleXML', 'libxml', 'curl', 'mysqli');
+$modules = array('json', 'SimpleXML', 'libxml', 'curl', 'mysqli', 'gd');
 // if plain text tokens are disallowed we require mcrypt
 if (!Config::get('allow_plaintext_token')) {
 	$modules[] = 'mcrypt';
