@@ -44,7 +44,23 @@ class PartuzaAppDataService extends AppDataService {
 	
 	public function getPersonData(UserId $userId, GroupId $groupId, $fields, $appId, SecurityToken $token)
 	{
-		$data = PartuzaDbFetcher::get()->getAppData(array($userId->getUserId($token)), $fields, $token->getAppId());
+		$ids = array();
+		switch($groupId->getType()) {
+			case 'self':
+				$ids[] = $userId->getUserId($token);
+				break;
+			case 'all':
+			case 'friends':
+				$friendIds = PartuzaDbFetcher::get()->getFriendIds($userId->getUserId($token));
+				if (is_array($friendIds) && count($friendIds)) {
+					$ids = $friendIds;
+				}
+				break;
+			default:
+				return new ResponseItem(NOT_IMPLEMENTED, "We don't support fetching data in batches yet", null);		
+				break;
+		}
+		$data = PartuzaDbFetcher::get()->getAppData($ids, $fields, $token->getAppId());
 		return new ResponseItem(null, null, RestFulCollection::createFromEntry($data));
 	}
 
