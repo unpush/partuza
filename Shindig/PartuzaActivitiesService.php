@@ -40,9 +40,8 @@ class PartuzaActivitiesService extends ActivitiesService {
 		switch ($groupId->getType()) {
 			case 'all':
 			case 'friends':
-        		$friendIds = XmlStateFileFetcher::get()->getFriendIds();
-        		$friendIds = isset($friendIds[$userId->getUserId($token)]) ? $friendIds[$userId->getUserId($token)] : null;
-				if ($friendIds != null) {
+				$friendIds = PartuzaDbFetcher::get()->getFriendIds($userId->getUserId($token));
+				if (is_array($friendIds) && count($friendIds)) {
 					$ids = $friendIds;
 				}
 				break;
@@ -50,14 +49,7 @@ class PartuzaActivitiesService extends ActivitiesService {
         		$ids[] = $userId->getUserId($token);
         		break;
     	}
-		$allActivities = XmlStateFileFetcher::get()->getActivities();
-		$activities = array();
-		foreach ($ids as $id) {
-			if (isset($allActivities[$id])) {
-				//FIXME return one big collection with the activities mixed, atleast thats what i think the spec suggests :)
-				$activities = array_merge($activities, $allActivities[$id]);
-			}
-		}
+		$activities = PartuzaDbFetcher::get()->getActivities($ids);
 		// TODO: Sort them
 		return new ResponseItem(null, null, RestfulCollection::createFromEntry($activities));
 	}
@@ -65,9 +57,7 @@ class PartuzaActivitiesService extends ActivitiesService {
 	public function createActivity(UserId $userId, $activity, SecurityToken $token)
 	{
 		// TODO: Validate the activity and do any template expanding
-		$activity->setUserId($userId->getUserId($token));
-		$activity->setPostedTime(time());
-		XmlStateFileFetcher::get()->createActivity($userId->getUserId($token), $activity);
+		PartuzaDbFetcher::get()->createActivity($userId->getUserId($token), $activity, $token->getAppId());
 		return new ResponseItem(null, null, array());
 	}
 }

@@ -53,19 +53,25 @@ class PartuzaDbFetcher {
 	{
 		$app_id = mysqli_real_escape_string($this->db, $app_id);
 		$person_id = mysqli_real_escape_string($this->db, $person_id);
-		$title = mysqli_real_escape_string($this->db, ! empty($activity['fields_']['title']) ? trim($activity['fields_']['title']) : '');
-		$body = mysqli_real_escape_string($this->db, ! empty($activity['fields_']['body']) ? trim($activity['fields_']['body']) : '');
+		$title = isset($activity->title) ? trim($activity->title) : (isset($activity['fields_']['title']) ? $activity['fields_']['title'] : '');
+		$body = isset($activity->body) ? trim($activity->body) : (isset($activity['fields_']['body']) ? $activity['fields_']['body'] : '');
+		$title = mysqli_real_escape_string($this->db, $title);
+		$body = mysqli_real_escape_string($this->db, $body);
 		$time = time();
 		mysqli_query($this->db, "insert into activities (id, person_id, app_id, title, body, created) values (0, $person_id, $app_id, '$title', '$body', $time)");
 		echo mysqli_error($this->db);
 		if (! ($activityId = mysqli_insert_id($this->db))) {
 			return false;
 		}
-		if (isset($activity['fields_']['mediaItems']) && count($activity['fields_']['mediaItems'])) {
-			foreach ($activity['fields_']['mediaItems'] as $mediaItem) {
-				$type = mysqli_real_escape_string($this->db, $mediaItem['fields_']['type']);
-				$mimeType = mysqli_real_escape_string($this->db, $mediaItem['fields_']['mimeType']);
-				$url = mysqli_real_escape_string($this->db, $mediaItem['fields_']['url']);
+		$mediaItems = isset($activity->mediaItems) ? $activity->mediaItems : (isset($activity['fields_']['mediaItems']) ? $activity['fields_']['mediaItems'] : array());
+		if (count($mediaItems)) {
+			foreach ($mediaItems as $mediaItem) {
+				$type = isset($mediaItem->type) ? $mediaItem->type : (isset($mediaItem['fields_']['type']) ? $mediaItem['fields_']['type'] : '');
+				$mimeType = isset($mediaItem->mimeType) ? $mediaItem->type : (isset($mediaItem['fields_']['mimeType']) ? $mediaItem['fields_']['mimeType'] : '');
+				$url = isset($mediaItem->url) ? $mediaItem->url : (isset($mediaItem['fields_']['url']) ? $mediaItem['fields_']['url'] : '');
+				$type = mysqli_real_escape_string($this->db, trim($type));
+				$mimeType = mysqli_real_escape_string($this->db, trim($mimeType));
+				$url = mysqli_real_escape_string($this->db, trim($url));
 				mysqli_query($this->db, "insert into activity_media_items (id, activity_id, mime_type, media_type, url) values (0, $activityId, '$mimeType', '$type', '$url')");
 				if (! mysqli_insert_id($this->db)) {
 					return false;
