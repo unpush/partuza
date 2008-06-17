@@ -157,7 +157,7 @@ class PartuzaHandler extends GadgetDataHandler {
 	{
 		$app_id = $token->getAppId();
 		$mod_id = $token->getModuleId();
-		return new ResponseItem(null, null, PartuzaDbFetcher::get()->getAppData($ids, $keys, $app_id, $mod_id));
+		return new ResponseItem(null, null, PartuzaDbFetcher::get()->getAppData($ids, $keys, $app_id));
 	}
 
 	private function updatePersonData($id, $key, $value, $token)
@@ -170,7 +170,7 @@ class PartuzaHandler extends GadgetDataHandler {
 		}
 		$app_id = $token->getAppId();
 		$mod_id = $token->getModuleId();
-		if (PartuzaDbFetcher::get()->setAppData($id, $key, $value, $app_id, $mod_id)) {
+		if (PartuzaDbFetcher::get()->setAppData($id, $key, $value, $app_id)) {
 			return new ResponseItem(null, null, array());
 		} else {
 			return new ResponseItem(BAD_REQUEST, "Error storing app preference", null);

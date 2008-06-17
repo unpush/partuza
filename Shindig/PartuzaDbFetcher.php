@@ -129,27 +129,27 @@ class PartuzaDbFetcher {
 		return $ret;
 	}
 
-	public function setAppData($person_id, $key, $value, $app_id, $mod_id)
+	public function setAppData($person_id, $key, $value, $app_id)
 	{
 		$person_id = mysqli_real_escape_string($this->db, $person_id);
 		$key = mysqli_real_escape_string($this->db, $key);
 		$value = mysqli_real_escape_string($this->db, $value);
 		$app_id = mysqli_real_escape_string($this->db, $app_id);
-		$mod_id = mysqli_real_escape_string($this->db, $mod_id);
 		if (empty($value)) {
 			// orkut specific type feature, empty string = delete value
-			if (! @mysqli_query($this->db, "delete from application_settings where application_id = $app_id and person_id = $person_id and module_id = $mod_id and name = $key")) {
+			if (! @mysqli_query($this->db, "delete from application_settings where application_id = $app_id and person_id = $person_id and name = $key")) {
 				return false;
 			}
 		} else {
-			if (! @mysqli_query($this->db, "insert into application_settings (application_id, person_id, module_id, name, value) values ($app_id, $person_id, $mod_id, '$key', '$value') on duplicate key update value = '$value'")) {
+			if (! @mysqli_query($this->db, "insert into application_settings (application_id, person_id, module_id, name, value) values ($app_id, $person_id, 0, '$key', '$value') on duplicate key update value = '$value'")) {
+				echo "error: ".mysqli_error($this->db);
 				return false;
 			}
 		}
 		return true;
 	}
 
-	public function getAppData($ids, $keys, $app_id, $mod_id)
+	public function getAppData($ids, $keys, $app_id)
 	{
 		$data = array();
 		foreach ($ids as $key => $val) {
@@ -163,7 +163,7 @@ class PartuzaDbFetcher {
 			}
 			$keys = "and name in (" . implode(',', $keys) . ")";
 		}
-		$res = mysqli_query($this->db, "select person_id, name, value from application_settings where application_id = $app_id and module_id = $mod_id and person_id in (" . implode(',', $ids) . ") $keys");
+		$res = mysqli_query($this->db, "select person_id, name, value from application_settings where application_id = $app_id and person_id in (" . implode(',', $ids) . ") $keys");
 		while (list($person_id, $key, $value) = @mysqli_fetch_row($res)) {
 			if (! isset($data[$person_id])) {
 				$data[$person_id] = array();
