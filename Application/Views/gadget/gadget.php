@@ -40,7 +40,7 @@ if (!empty($vars['gadget']['error'])) {
 		"&parent=".urlencode("http://".$_SERVER['HTTP_HOST']).
 		$prefs.
 		(isset($_GET['appParams']) ? '&view-params='.urlencode($_GET['appParams'])  : '').
-		"&st=".base64_encode($securityToken->toSerialForm()).
+		"&st=".urlencode(base64_encode($securityToken->toSerialForm())).
 		"&v=".$gadget['version'].
 		"&url=".urlencode($gadget['url']).
 		"#rpctoken=".rand(0,getrandmax());

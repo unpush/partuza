@@ -1,6 +1,6 @@
 <div>
 	<div style="text-align:center">
-		<a href="<?=Config::get('web_prefix')?>/profile/<?=$vars['person']['id']?>" rel="me"><img src="<?=Image::by_size(Config::get('site_root').(!empty($vars['person']['thumbnail_url'])?$vars['person']['thumbnail_url']:'/images/people/nophoto.gif'), 92, 96)?>" /></a><br />
+		<a href="<?=Config::get('web_prefix')?>/profile/<?=$vars['person']['id']?>" rel="me"><img src="<?=Image::by_size(Config::get('site_root').(!empty($vars['person']['thumbnail_url'])?$vars['person']['thumbnail_url']:'/images/people/nophoto.gif'), 96, 96)?>" /></a><br />
 	</div>
 	<div class="header">
 		<? if ($vars['is_owner']) {
