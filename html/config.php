@@ -45,6 +45,7 @@ $config = array(
 	'db_user'          => 'root',
 	'db_passwd'        => '',
 	'db_database'      => 'partuza',
+	'db_port'          => '3306',
 
 	// gadget server url
 	'gadget_server'    => 'http://shindig',

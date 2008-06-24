@@ -51,7 +51,7 @@ require Config::get('library_root')."/BasicSecurityToken.php";
 
 // Initialize envirioment, and start the dispatcher
 Language::set(Config::get('language'));
-$db         = new DB(Config::get('db_host'), Config::get('db_user'), Config::get('db_passwd'), Config::get('db_database'), false);
+$db         = new DB(Config::get('db_host'), Config::get('db_port'), Config::get('db_user'), Config::get('db_passwd'), Config::get('db_database'), false);
 $uri = $_SERVER["REQUEST_URI"];
 if (($pos = strpos($_SERVER["REQUEST_URI"], '?')) !== false) {
 	$uri = substr($_SERVER["REQUEST_URI"], 0, $pos);

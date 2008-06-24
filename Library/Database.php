@@ -23,14 +23,16 @@ class DBException extends Exception {}
 class DB {
 	private $db = false;
 	private $host;
+	private $port;
 	private $user;
 	private $password;
 	private $database;
 	private $socket;
 
-	public function __construct($host, $user, $password, $database, $socket)
+	public function __construct($host, $port, $user, $password, $database, $socket)
 	{
 		$this->host     = $host;
+		$this->port		= $port;
 		$this->user     = $user;
 		$this->password = $password;
 		$this->database = $database;
@@ -81,7 +83,7 @@ class DB {
 		if ($this->db && is_object($this->db)) {
 			$this->close();
 		}
-		if (!$this->db = mysqli_connect($this->host, $this->user, $this->password, $this->database, null, $this->socket)) {
+		if (!$this->db = mysqli_connect($this->host, $this->user, $this->password, $this->database, $this->port, $this->socket)) {
 			throw new DBException("Could not connect to DB Host: ".mysqli_connect_error());
 		}
 		return true;

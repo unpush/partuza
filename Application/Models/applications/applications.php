@@ -148,15 +148,15 @@ class applicationsModel extends Model {
 				} else {
 					// retrieved and parsed gadget ok, store it in db
 					$info['url'] = $db->addslashes($gadget->url);
-					$info['title'] = $gadget->title;
-					$info['directory_title'] = $gadget->directoryTitle;
-					$info['height'] = $gadget->height;
-					$info['screenshot'] = $gadget->screenshot;
-					$info['thumbnail'] = $gadget->thumbnail;
-					$info['author'] = $gadget->author;
-					$info['author_email'] = $gadget->authorEmail;
-					$info['description'] = $gadget->description;
-					$info['settings'] = serialize($gadget->userPrefs);
+					$info['title'] = isset($gadget->title) ? $gadget->title : '';
+					$info['directory_title'] = isset($gadget->directoryTitle) ? $gadget->directoryTitle : '';
+					$info['height'] = isset($gadget->height) ? $gadget->height : '';
+					$info['screenshot'] = isset($gadget->screenshot) ? $gadget->screenshot : '';
+					$info['thumbnail'] = isset($gadget->thumbnail) ? $gadget->thumbnail : '';
+					$info['author'] = isset($gadget->author) ? $gadget->author : '';
+					$info['author_email'] = isset($gadget->authorEmail) ? $gadget->authorEmail : '';
+					$info['description'] = isset($gadget->description) ? $gadget->description : '';
+					$info['settings'] = isset($gadget->userPrefs) ? serialize($gadget->userPrefs) : '';
 					$info['scrolling'] = !empty($gadget->scrolling) ? $gadget->scrolling : '0';
 					$info['height'] = !empty($gadget->height) ? $gadget->height : '0';
 					// extract the version from the iframe url
