@@ -28,7 +28,7 @@ class Dispatcher {
 
 	public function __construct($url)
 	{
-		global $_GET, $dispatcher;
+		global $dispatcher;
 		// since we 'run' the dispatcher from the constructor, it can't be put in the global
 		//  address space before execution unless we do it in this constructor.
 		$dispatcher      = $this;
@@ -43,20 +43,20 @@ class Dispatcher {
 		// header magic for all events, adds content size header, cache controls
 		// plus it generates last-modified and etag headers, and if the browser already has the page
 		// in cache (if-modified-since or etag matching) then send a 304 : not modified instead of the whole page
+		//return;
 		if (!$this->_no_headers) {
 			// first send all the headers that help the browser understand this page, length, content type, charset, etc
 			header("Content-Type: $this->content_type; charset={$this->charset}");
 			header('Connection: Keep-Alive');
 			header('Keep-Alive: timeout=15, max=30');
 			header('Accept-Ranges: bytes');
-			header('Content-Length: '.ob_get_length());
 			// Normally i would put a 5 min caching here at least, but on social sites data tends to
 			// change quite rapidly, so ... no cache it is
 		    header('Last-Modified: '.gmdate('D, d M Y H:i:s') . ' GMT');
 		    header('Cache-Control: no-store, no-cache, must-revalidate, private');
 			header('Pragma: no-cache');
 			header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
-			$content = ob_get_clean();
+			$content = ob_get_contents();
 			// Obey browsers (or proxy's) request to send a fresh copy if we recieve a no-cache pragma or cache-control request
 			if (!isset($_SERVER['HTTP_PRAGMA']) || !strstr(strtolower($_SERVER['HTTP_PRAGMA']),'no-cache') && (!isset($_SERVER['HTTP_CACHE_CONTROL']) || !strstr(strtolower($_SERVER['HTTP_CACHE_CONTROL']),'no-cache'))) {
 				// If the browser send us a E-TAG check if it matches (sha1 sum of content), if so send a not modified header instead of content
@@ -64,10 +64,11 @@ class Dispatcher {
 				if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH'] == $etag) {
 					header("ETag: \"$etag\"");
 					if ($this->last_modified) {
-						header('Last-Modified: '.gmdate('D, d M Y H:i:s',$this->last_modified));
+						header('Last-Modified: '.gmdate('D, d M Y H:i:s',$this->last_modified), true);
 					}
-					header("HTTP/1.1 304 Not Modified");
-					header('Content-Length: 0');
+					header("HTTP/1.1 304 Not Modified", true);
+					header('Content-Length: 0', true);
+					ob_end_clean();
 					die();
 				}
 				header("ETag: \"$etag\"");
@@ -76,9 +77,10 @@ class Dispatcher {
 				if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && $this->last_modified && !isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
 					$if_modified_since = strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']);
 					if ($this->last_modified <= $if_modified_since) {
-						header('Last-Modified: '.gmdate('D, d M Y H:i:s',$this->last_modified));
-						header("HTTP/1.1 304 Not Modified");
-						header('Content-Length: 0');
+						header('Last-Modified: '.gmdate('D, d M Y H:i:s',$this->last_modified), true);
+						header("HTTP/1.1 304 Not Modified", true);
+						header('Content-Length: 0', true);
+						ob_end_clean();
 						die();
 					}
 				}
@@ -86,15 +88,19 @@ class Dispatcher {
 					header('Last-Modified: '.gmdate('D, d M Y H:i:s',$this->last_modified));
 				}
 			}
-			echo $content;
 		}
 	}
 
 	public function run()
 	{
 		global $controller;
-		// To do etag etc support, we need output buffering
-		ob_start();
+		// To do etag etc support, we need output buffering, try to use compressed output where possible
+		$zlib_output = ini_get('zlib.output_compression');
+		if ((!$zlib_output || strtolower($zlib_output) == 'off') && function_exists('ob_gzhandler')) { 
+			ob_start('ob_gzhandler');
+		} else {
+			ob_start();
+		}
 		$params = explode('/', str_replace(Config::get('web_prefix'), '', $this->url));
 		// Run the application, dispatch the control to the correct Controller (or default to Home if no URL is given)
 		if (!empty($params[1])) {
