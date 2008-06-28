@@ -56,7 +56,9 @@ $config = array(
 	'cache_port' => 11211, 	
 	'cache_time' => 24 * 60 * 60,
 	// If you use CacheFile as caching backend, this is the directory where it stores the temporary files
-	'cache_root' => '/tmp/partuza', 
+	// Right now you should set this to the same directory as shindig, else the cache invalidations won't
+	// apply to both shindig and partuza
+	'cache_root' => '/tmp/shindig', 
 
 	/* No need to edit the settings below in general, unless you modified the directory layout */
 	'site_root'        => realpath(dirname(__FILE__)),

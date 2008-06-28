@@ -60,13 +60,12 @@ class applicationsModel extends Model {
 	{
 		global $db;
 		$this->invalidate_dependency('person_application_prefs', $person_id);
-		$this->invalidate_dependency('person_application_prefs', $app_id);
+		$this->invalidate_dependency('applications', $app_id);
 		$person_id = $db->addslashes($person_id);
 		$app_id = $db->addslashes($app_id);
-		$mod_id = $db->addslashes($mod_id);
 		$key = $db->addslashes($key);
 		$value = $db->addslashes($value);
-		$db->query("insert into application_settings (application_id, person_id, module_id, name, value) values ($app_id, $person_id, $mod_id, '$key', '$value')
+		$db->query("insert into application_settings (application_id, person_id, name, value) values ($app_id, $person_id, '$key', '$value')
 					on duplicate key update value = '$value'");
 	}
 	
