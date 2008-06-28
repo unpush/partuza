@@ -17,7 +17,7 @@ if (!empty($vars['gadget']['error'])) {
 		isset($vars['person']['id']) ? $vars['person']['id'] : '0',	// owner
 		(isset($_SESSION['id']) ? $_SESSION['id'] : '0'),			// viewer
 		$gadget['id'],												// app id
-		$_SERVER['HTTP_HOST'],										// domain
+		Config::get('container'),									// domain key, shindig will check for php/config/<domain>.php for container specific configuration
 		urlencode($gadget['url']),									// app url
 		$gadget['mod_id']											// mod id
 		);

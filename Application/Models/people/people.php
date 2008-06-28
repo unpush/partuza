@@ -18,23 +18,32 @@
  * under the License.
  */
 
-//TODO with outsome sql magic and proper caching, this has no hope of being schalable :)
-
-
 class peopleModel extends Model {
+	public $cachable = array(
+		'is_friend',
+		'get_person',
+		'get_person_info',
+		'get_friends',
+		'get_friend_requests'
+	);
 	
-	public function is_friend($person_id, $friend_id)
+	public function load_is_friend($person_id, $friend_id)
 	{
 		global $db;
+		$this->add_dependency('people', $person_id);
+		$this->add_dependency('people', $friend_id);
 		$person_id = $db->addslashes($person_id);
 		$friend_id = $db->addslashes($friend_id);
 		$res = $db->query("select * from friends where (person_id = $person_id and friend_id = $friend_id) or (person_id = $friend_id and friend_id = $person_id)");
-		return $db->num_rows($res) != 0;
+		// return 0 instead of false, not to trip up the caching layer (who does a binary === false compare on data, so 0 == false but not === false)
+		return $db->num_rows($res) != 0 ? true : 0;
 	}
 	
 	public function remove_friend($person_id, $friend_id)
 	{
 		global $db;
+		$this->invalidate_dependency('people', $person_id);
+		$this->invalidate_dependency('people', $friend_id);
 		$person_id = $db->addslashes($person_id);
 		$friend_id = $db->addslashes($friend_id);
 		$res = $db->query("delete from friends where (person_id = $person_id and friend_id = $friend_id) or (person_id = $friend_id and friend_id = $person_id)");
@@ -44,6 +53,7 @@ class peopleModel extends Model {
 	public function set_profile_photo($id, $url)
 	{
 		global $db;
+		$this->invalidate_dependency('people', $id);
 		$id = $db->addslashes($id);
 		$url = $db->addslashes($url);
 		$db->query("update persons set thumbnail_url = '$url' where id = $id");
@@ -52,6 +62,7 @@ class peopleModel extends Model {
 	public function save_person($id, $person)
 	{
 		global $db;
+		$this->invalidate_dependency('people', $id);
 		$id = $db->addslashes($id);
 		$supported_fields = array(
 			'about_me',
@@ -100,9 +111,10 @@ class peopleModel extends Model {
 	// if extended = true, it also queries all child tables
 	// defaults to false since its a hell of a presure on the database.
 	// remove once we add some proper caching
-	public function get_person($id, $extended = false)
+	public function load_get_person($id, $extended = false)
 	{
 		global $db;
+		$this->add_dependency('people', $id);
 		$id = $db->addslashes($id);
 		$res = $db->query("select * from persons where id = $id");
 		if (! $db->num_rows($res)) {
@@ -140,9 +152,10 @@ class peopleModel extends Model {
 	 * to build a person expression:
 	 * id, email, first_name, last_name, thumbnail_url and profile_url 
 	 */
-	public function get_person_info($id)
+	public function load_get_person_info($id)
 	{
 		global $db;
+		$this->add_dependency('people', $id);
 		$id = $db->addslashes($id);
 		$res = $db->query("select id, email, first_name, last_name, thumbnail_url, profile_url from persons where id = $id");
 		if (! $db->num_rows($res)) {
@@ -151,9 +164,10 @@ class peopleModel extends Model {
 		return $db->fetch_array($res, MYSQLI_ASSOC);
 	}
 	
-	public function get_friends($id, $limit = false)
+	public function load_get_friends($id, $limit = false)
 	{
 		global $db;
+		$this->add_dependency('people', $id);
 		$ret = array();
 		$limit = $limit && is_numeric($limit) ? ' limit '.$db->addslashes($limit) : ''; 
 		$person_id = $db->addslashes($id);
@@ -170,6 +184,8 @@ class peopleModel extends Model {
 	{
 		global $db;
 		try {
+			$this->invalidate_dependency('friendrequest', $id);
+			$this->invalidate_dependency('friendrequest', $friend_id);
 			$person_id = $db->addslashes($id);
 			$friend_id = $db->addslashes($friend_id);
 			$db->query("insert into friend_requests values ($person_id, $friend_id)");
@@ -207,18 +223,24 @@ class peopleModel extends Model {
 				$res = $db->query("select concat(first_name, ' ', last_name) from persons where id = $key");
 				list($name)	= $db->fetch_row($res);			
 				$db->query("insert into activities (person_id, app_id, title, body, created) values ($val, 0, 'and <a href=\"/profile/$key\" rel=\"friend\">$name</a> are now friends.', '', $time)");
+				$this->invalidate_dependency('activities', $key);
 			}
-			
 		} catch ( DBException $e ) {
 			die("sql error: ".$e->getMessage());
 			return false;
 		}
+		$this->invalidate_dependency('friendrequest', $id);
+		$this->invalidate_dependency('friendrequest', $friend_id);
+		$this->invalidate_dependency('people', $id);
+		$this->invalidate_dependency('people', $friend_id);
 		return true;
 	}
 	
 	public function reject_friend_request($id, $friend_id)
 	{
 		global $db;
+		$this->invalidate_dependency('friendrequest', $id);
+		$this->invalidate_dependency('friendrequest', $friend_id);
 		$person_id = $db->addslashes($id);
 		$friend_id = $db->addslashes($friend_id);
 		try {
@@ -229,9 +251,10 @@ class peopleModel extends Model {
 		return true;
 	}
 	
-	public function get_friend_requests($id)
+	public function load_get_friend_requests($id)
 	{
 		global $db;
+		$this->add_dependency('friendrequest', $id);
 		$requests = array();
 		$friend_id = $db->addslashes($id);
 		$res = $db->query("select person_id from friend_requests where friend_id = $friend_id");

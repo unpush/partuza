@@ -32,6 +32,9 @@ $config = array(
 	'container' => 'default',
 	//'container' => 'partuza',
 
+	// gadget server url
+	'gadget_server'    => 'http://shindig',
+
 	// Max age of a security token, defaults to one hour
 	'st_max_age' => 60 * 60,
 	'allow_plaintext_token' => true,
@@ -47,8 +50,13 @@ $config = array(
 	'db_database'      => 'partuza',
 	'db_port'          => '3306',
 
-	// gadget server url
-	'gadget_server'    => 'http://shindig',
+	'data_cache' => 'CacheFile',
+	// If you use CacheMemcache as caching backend, change these to the memcache server settings
+	'cache_host' => 'localhost',
+	'cache_port' => 11211, 	
+	'cache_time' => 24 * 60 * 60,
+	// If you use CacheFile as caching backend, this is the directory where it stores the temporary files
+	'cache_root' => '/tmp/partuza', 
 
 	/* No need to edit the settings below in general, unless you modified the directory layout */
 	'site_root'        => realpath(dirname(__FILE__)),

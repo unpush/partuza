@@ -1,10 +1,15 @@
 <?php
 
 class activitiesModel extends Model {
-
-	public function get_person_activities($id, $limit)
+	public $cachable = array(
+	'get_person_activities',
+	'get_friend_activities'
+	);
+	
+	public function load_get_person_activities($id, $limit)
 	{
 		global $db;
+		$this->add_dependency('activities', $id);
 		$id = $db->addslashes($id);
 		$limit = $db->addslashes($limit);
 		$ret = array();
@@ -30,14 +35,16 @@ class activitiesModel extends Model {
 			$limit
 		");
 		while ($row = $db->fetch_array($res, MYSQLI_ASSOC)) {
+			$this->add_dependency('activities', $row['person_id']);
 			$ret[] = $row;
 		}
 		return $ret;		
 	}
 	
-	public function get_friend_activities($id, $limit)
+	public function load_get_friend_activities($id, $limit)
 	{
 		global $db;
+		$this->add_dependency('activities', $id);
 		$id = $db->addslashes($id);
 		$limit = $db->addslashes($limit);
 		$ret = array();
@@ -71,6 +78,7 @@ class activitiesModel extends Model {
 		");
 
 		while ($row = $db->fetch_array($res, MYSQLI_ASSOC)) {
+			$this->add_dependency('activities', $row['person_id']);
 			$ret[] = $row;
 		}
 		return $ret;

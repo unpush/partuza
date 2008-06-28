@@ -19,26 +19,37 @@
  */
 
 class applicationsModel extends Model {
+	public $cachable = array(
+	'get_person_applications',
+	'get_all_applications',
+	'get_application_prefs',
+	'get_person_application',
+	'get_application_by_id',
+	'get_application'
+	);
 	
-	public function get_person_applications($id)
+	public function load_get_person_applications($id)
 	{
 		global $db;
+		$this->add_dependency('person_applications', $id);
 		$ret = array();
 		$id = $db->addslashes($id);
 		$res = $db->query("select applications.*, person_applications.id as mod_id from person_applications, applications where person_applications.person_id = $id and applications.id = person_applications.application_id");
 		while ( $row = $db->fetch_array($res, MYSQLI_ASSOC) ) {
+			$this->add_dependency('applications', $row['id']);
 			$row['user_prefs'] = $this->get_application_prefs($id, $row['id'], $row['mod_id']);
 			$ret[] = $row;
 		}
 		return $ret;
 	}
 	
-	public function get_all_applications()
+	public function load_get_all_applications()
 	{
 		global $db;
 		$ret = array();
 		$res = $db->query("select * from applications order by directory_title, title");
 		while ( $row = $db->fetch_array($res, MYSQLI_ASSOC) ) {
+			$this->add_dependency('applications', $row['id']);
 			$row['user_prefs'] = array();
 			$ret[] = $row;
 		}
@@ -48,6 +59,8 @@ class applicationsModel extends Model {
 	public function set_application_pref($person_id, $app_id, $mod_id, $key, $value)
 	{
 		global $db;
+		$this->invalidate_dependency('person_application_prefs', $person_id);
+		$this->invalidate_dependency('person_application_prefs', $app_id);
 		$person_id = $db->addslashes($person_id);
 		$app_id = $db->addslashes($app_id);
 		$mod_id = $db->addslashes($mod_id);
@@ -57,9 +70,11 @@ class applicationsModel extends Model {
 					on duplicate key update value = '$value'");
 	}
 	
-	public function get_application_prefs($person_id, $app_id, $mod_id)
+	public function load_get_application_prefs($person_id, $app_id, $mod_id)
 	{
 		global $db;
+		$this->add_dependency('person_application_prefs', $person_id);
+		$this->add_dependency('applications', $app_id);
 		$person_id = $db->addslashes($person_id);
 		$app_id = $db->addslashes($app_id);
 		$mod_id = $db->addslashes($mod_id);
@@ -71,9 +86,11 @@ class applicationsModel extends Model {
 		return $prefs;
 	}
 	
-	public function get_person_application($person_id, $app_id, $mod_id)
+	public function load_get_person_application($person_id, $app_id, $mod_id)
 	{
 		global $db;
+		$this->add_dependency('person_applications', $person_id);
+		$this->add_dependency('applications', $app_id);
 		$ret = array();
 		$person_id = $db->addslashes($person_id);
 		$app_id = $db->addslashes($app_id);
@@ -105,9 +122,10 @@ class applicationsModel extends Model {
 		return json_decode($content);
 	}
 	
-	public function get_application_by_id($id)
+	public function load_get_application_by_id($id)
 	{
 		global $db;
+		$this->add_dependency('applications', $id);
 		$id = $db->addslashes($id);
 		$res = $db->query("select url from applications where id = $id");
 		if ($db->num_rows($res)) {
@@ -121,7 +139,7 @@ class applicationsModel extends Model {
 	// the error (string) that occured in ['error'].
 	// After this function you can assume there is a valid, and up to date gadget metadata
 	// record in the database.
-	public function get_application($app_url)
+	public function load_get_application($app_url)
 	{
 		global $db;
 		$error = false;
@@ -205,9 +223,13 @@ class applicationsModel extends Model {
 					} else {
 						list($id) = $db->fetch_row($res);
 						$info['id'] = $id;
+						$this->invalidate_dependency('applications', $id);
 					}
 				}
 			}
+		}
+		if (!$error) {
+			$this->add_dependency('applications', $info['id']);
 		}
 		$info['error'] = $error;
 		return $info;
@@ -228,6 +250,7 @@ class applicationsModel extends Model {
 			$app_id = $db->addslashes($app_id);
 			$db->query("insert into person_applications (id, person_id, application_id) values (0, $person_id, $app_id)");
 			$mod_id = $db->insert_id();
+			$this->invalidate_dependency('person_applications', $person_id);
 		}
 		return array('app_id' => $app_id, 'mod_id' => $mod_id, 'error' => $app['error']);
 	}
@@ -239,6 +262,8 @@ class applicationsModel extends Model {
 		$app_id = $db->addslashes($app_id);
 		$mod_id = $db->addslashes($mod_id);
 		$db->query("delete from person_applications where id = $mod_id and person_id = $person_id and application_id = $app_id");
+		$this->invalidate_dependency('person_applications', $person_id);
+		$this->invalidate_dependency('person_applications', $app_id);
 		return ($db->affected_rows() != 0);
 	}
 }
