@@ -32,6 +32,7 @@ class applicationsModel extends Model {
 	{
 		global $db;
 		$this->add_dependency('person_applications', $id);
+		$this->add_dependency('person_application_prefs', $id);
 		$ret = array();
 		$id = $db->addslashes($id);
 		$res = $db->query("select applications.*, person_applications.id as mod_id from person_applications, applications where person_applications.person_id = $id and applications.id = person_applications.application_id");
@@ -60,7 +61,6 @@ class applicationsModel extends Model {
 	{
 		global $db;
 		$this->invalidate_dependency('person_application_prefs', $person_id);
-		$this->invalidate_dependency('applications', $app_id);
 		$person_id = $db->addslashes($person_id);
 		$app_id = $db->addslashes($app_id);
 		$key = $db->addslashes($key);
@@ -73,7 +73,6 @@ class applicationsModel extends Model {
 	{
 		global $db;
 		$this->add_dependency('person_application_prefs', $person_id);
-		$this->add_dependency('applications', $app_id);
 		$person_id = $db->addslashes($person_id);
 		$app_id = $db->addslashes($app_id);
 		$mod_id = $db->addslashes($mod_id);

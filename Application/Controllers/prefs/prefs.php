@@ -10,7 +10,7 @@ class prefsController extends baseController {
 			die();
 		}
 		try {
-			$st = urldecode($_GET['st']);
+			$st = urldecode(base64_decode($_GET['st']));
 			$key = urldecode($_GET['name']);
 			$value = urldecode($_GET['value']);
 			$token = BasicSecurityToken::createFromToken($st, Config::get('st_max_age'));
