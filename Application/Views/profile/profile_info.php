@@ -1,6 +1,13 @@
 <div>
 	<div style="text-align:center">
-		<a href="<?=Config::get('web_prefix')?>/profile/<?=$vars['person']['id']?>" rel="me"><img src="<?=Image::by_size(Config::get('site_root').(!empty($vars['person']['thumbnail_url'])?$vars['person']['thumbnail_url']:'/images/people/nophoto.gif'), 96, 96)?>" /></a><br />
+<?php
+$thumb = Config::get('site_root').'/images/people/'.$vars['person']['id'].'.jpg';
+if (!file_exists($thumb)) {
+	$thumb = Config::get('site_root').'/images/people/nophoto.gif';
+}
+$thumb = Image::by_size($thumb, 128, 128);
+?>
+		<a href="<?=Config::get('web_prefix')?>/profile/<?=$vars['person']['id']?>" rel="me"><img src="<?=$thumb?>" /></a><br />
 	</div>
 	<div class="header">
 		<? if ($vars['is_owner']) {
