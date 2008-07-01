@@ -95,12 +95,7 @@ class Dispatcher {
 	{
 		global $controller;
 		// To do etag etc support, we need output buffering, try to use compressed output where possible
-		$zlib_output = ini_get('zlib.output_compression');
-		if ((!$zlib_output || strtolower($zlib_output) == 'off') && function_exists('ob_gzhandler')) { 
-			ob_start('ob_gzhandler');
-		} else {
-			ob_start();
-		}
+		ob_start();
 		$params = explode('/', str_replace(Config::get('web_prefix'), '', $this->url));
 		// Run the application, dispatch the control to the correct Controller (or default to Home if no URL is given)
 		if (!empty($params[1])) {

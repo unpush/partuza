@@ -126,9 +126,8 @@ class profileController extends baseController {
 		$friends = $people->get_friends($id);
 		$friend_requests = isset($_SESSION['id']) ? $people->get_friend_requests($_SESSION['id']) : array();
 		$apps = $this->model('applications');
-		$applications = $apps->get_person_applications($id);
 		$application = $apps->get_person_application($id, $app_id, $mod_id);
-		$this->template('applications/application_canvas.php', array('applications' => $applications, 'application' => $application, 'person' => $person, 'friend_requests' => $friend_requests, 'friends' => $friends, 'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $id) : false));
+		$this->template('applications/application_canvas.php', array('application' => $application, 'person' => $person, 'friend_requests' => $friend_requests, 'friends' => $friends, 'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $id) : false));
 	}
 
 	
@@ -215,7 +214,7 @@ class profileController extends baseController {
 				foreach ($_POST as $key => $value) {
 					// only store if the gadget indeed knows this setting, otherwise it could be abuse..
 					if (isset($settings->$key)) {
-						$apps->set_application_pref($_SESSION['id'], $app_id, $mod_id, $key, $value);
+						$apps->set_application_pref($_SESSION['id'], $app_id, $key, $value);
 					}
 				}
 			}

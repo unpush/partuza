@@ -57,7 +57,7 @@ class applicationsModel extends Model {
 		return $ret;	
 	}
 	
-	public function set_application_pref($person_id, $app_id, $mod_id, $key, $value)
+	public function set_application_pref($person_id, $app_id, $key, $value)
 	{
 		global $db;
 		$this->invalidate_dependency('person_application_prefs', $person_id);
@@ -69,15 +69,14 @@ class applicationsModel extends Model {
 					on duplicate key update value = '$value'");
 	}
 	
-	public function load_get_application_prefs($person_id, $app_id, $mod_id)
+	public function load_get_application_prefs($person_id, $app_id)
 	{
 		global $db;
 		$this->add_dependency('person_application_prefs', $person_id);
 		$person_id = $db->addslashes($person_id);
 		$app_id = $db->addslashes($app_id);
-		$mod_id = $db->addslashes($mod_id);
 		$prefs = array();
-		$res = $db->query("select name, value from application_settings where application_id = $app_id and module_id = $mod_id and person_id = $person_id");
+		$res = $db->query("select name, value from application_settings where application_id = $app_id and person_id = $person_id");
 		while (list($name, $value) = $db->fetch_row($res)) {
 			$prefs[$name] = $value;
 		}
@@ -87,6 +86,7 @@ class applicationsModel extends Model {
 	public function load_get_person_application($person_id, $app_id, $mod_id)
 	{
 		global $db;
+		$this->add_dependency('person_application_prefs', $person_id);
 		$this->add_dependency('person_applications', $person_id);
 		$this->add_dependency('applications', $app_id);
 		$ret = array();
@@ -123,6 +123,7 @@ class applicationsModel extends Model {
 	public function load_get_application_by_id($id)
 	{
 		global $db;
+		$this->add_dependency('person_applications', $person_id);
 		$this->add_dependency('applications', $id);
 		$id = $db->addslashes($id);
 		$res = $db->query("select url from applications where id = $id");
@@ -227,6 +228,7 @@ class applicationsModel extends Model {
 			}
 		}
 		if (!$error) {
+			
 			$this->add_dependency('applications', $info['id']);
 		}
 		$info['error'] = $error;
@@ -249,6 +251,7 @@ class applicationsModel extends Model {
 			$db->query("insert into person_applications (id, person_id, application_id) values (0, $person_id, $app_id)");
 			$mod_id = $db->insert_id();
 			$this->invalidate_dependency('person_applications', $person_id);
+			$this->invalidate_dependency('person_application_prefs', $person_id);
 		}
 		return array('app_id' => $app_id, 'mod_id' => $mod_id, 'error' => $app['error']);
 	}
@@ -261,7 +264,6 @@ class applicationsModel extends Model {
 		$mod_id = $db->addslashes($mod_id);
 		$db->query("delete from person_applications where id = $mod_id and person_id = $person_id and application_id = $app_id");
 		$this->invalidate_dependency('person_applications', $person_id);
-		$this->invalidate_dependency('person_applications', $app_id);
 		return ($db->affected_rows() != 0);
 	}
 }
