@@ -123,7 +123,7 @@ class applicationsModel extends Model {
 	public function load_get_application_by_id($id)
 	{
 		global $db;
-		$this->add_dependency('person_applications', $person_id);
+		$this->add_dependency('person_applications', $id);
 		$this->add_dependency('applications', $id);
 		$id = $db->addslashes($id);
 		$res = $db->query("select url from applications where id = $id");
