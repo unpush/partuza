@@ -170,7 +170,7 @@ class PartuzaDbFetcher {
 				return false;
 			}
 		} else {
-			if (! @mysqli_query($this->db, "insert into application_settings (application_id, person_id, module_id, name, value) values ($app_id, $person_id, 0, '$key', '$value') on duplicate key update value = '$value'")) {
+			if (! @mysqli_query($this->db, "insert into application_settings (application_id, person_id, name, value) values ($app_id, $person_id, '$key', '$value') on duplicate key update value = '$value'")) {
 				echo "error: ".mysqli_error($this->db);
 				return false;
 			}
