@@ -34,7 +34,7 @@
 					if (substr($app['thumbnail'], 0, strlen('/ig/')) == '/ig/') {
 						$app['thumbnail'] = 'http://www.google.com'.$app['thumbnail'];
 					}
-					echo "<img src=\"{$app['thumbnail']}\" />";
+					echo "<img src=\"".Config::get('gadget_server')."/gadgets/proxy?url=".urlencode($app['thumbnail'])."\" />";
 				}
 				echo "</div><b>{$app['directory_title']}</b><br />{$app['description']}<br />";
 				if (!empty($app['author_email'])) {
