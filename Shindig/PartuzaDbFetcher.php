@@ -31,7 +31,7 @@ class PartuzaDbFetcher {
 	{
 		//TODO move these to PartuzaConfig.php, this is uglaaaaaayyyy!
 		// enter your db config here
-		$this->db = mysqli_connect('localhost', 'root', 'ref45x', 'partuza');
+		$this->db = mysqli_connect('localhost', 'root', '', 'partuza');
 		mysqli_select_db($this->db, 'partuza');
 	}
 	
