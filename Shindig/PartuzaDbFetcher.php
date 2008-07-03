@@ -31,7 +31,7 @@ class PartuzaDbFetcher {
 	{
 		//TODO move these to PartuzaConfig.php, this is uglaaaaaayyyy!
 		// enter your db config here
-		$this->db = mysqli_connect('localhost', 'root', '', 'partuza');
+		$this->db = mysqli_connect('localhost', 'root', 'ref45x', 'partuza');
 		mysqli_select_db($this->db, 'partuza');
 	}
 	
@@ -40,7 +40,7 @@ class PartuzaDbFetcher {
 		$cache = Config::get('data_cache');
 		$this->cache = new $cache();
 		// change this to your site's location
-		$this->url_prefix = 'http://partuza';
+		$this->url_prefix = 'http://www.partuza.nl';
 	}
 	
 	private function checkDb()
@@ -69,8 +69,8 @@ class PartuzaDbFetcher {
 		$this->checkDb();
 		$app_id = mysqli_real_escape_string($this->db, $app_id);
 		$person_id = mysqli_real_escape_string($this->db, $person_id);
-		$title = isset($activity->title) ? trim($activity->title) : (isset($activity['fields_']['title']) ? $activity['fields_']['title'] : '');
-		$body = isset($activity->body) ? trim($activity->body) : (isset($activity['fields_']['body']) ? $activity['fields_']['body'] : '');
+		$title = isset($activity->title) ? trim($activity->title) : (@isset($activity['fields_']['title']) ? $activity['fields_']['title'] : '');
+		$body = isset($activity->body) ? trim($activity->body) : (@isset($activity['fields_']['body']) ? $activity['fields_']['body'] : '');
 		$title = mysqli_real_escape_string($this->db, $title);
 		$body = mysqli_real_escape_string($this->db, $body);
 		$time = time();
