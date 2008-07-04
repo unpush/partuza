@@ -26,13 +26,13 @@ CREATE TABLE `activities` (
   `id` int(11) NOT NULL auto_increment,
   `person_id` int(11) NOT NULL,
   `app_id` int(11) NOT NULL,
-  `title` char(128) NOT NULL,
-  `body` char(255) NOT NULL,
+  `title` mediumtext NOT NULL,
+  `body` mediumtext NOT NULL,
   `created` int(11) NOT NULL,
   KEY `id` (`id`),
   KEY `activity_stream_id` (`person_id`),
   KEY `created` (`created`)
-) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -50,7 +50,7 @@ CREATE TABLE `activity_media_items` (
   `url` char(128) NOT NULL,
   KEY `id` (`id`),
   KEY `activity_id` (`activity_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -74,7 +74,7 @@ CREATE TABLE `addresses` (
   `address_type` char(128) default NULL,
   `unstructured_address` char(255) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -87,11 +87,10 @@ SET character_set_client = utf8;
 CREATE TABLE `application_settings` (
   `application_id` int(11) NOT NULL,
   `person_id` int(11) NOT NULL,
-  `module_id` int(11) NOT NULL,
   `name` char(128) NOT NULL,
   `value` char(255) NOT NULL,
-  UNIQUE KEY `application_id` (`application_id`,`person_id`,`module_id`,`name`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  UNIQUE KEY `application_id` (`application_id`,`person_id`,`name`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -118,7 +117,7 @@ CREATE TABLE `applications` (
   `modified` int(11) NOT NULL,
   UNIQUE KEY `url` (`url`),
   KEY `id` (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=22 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -133,7 +132,7 @@ CREATE TABLE `authenticated` (
   `hash` varchar(41) NOT NULL,
   PRIMARY KEY  (`hash`),
   UNIQUE KEY `person_id` (`person_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -147,7 +146,7 @@ CREATE TABLE `friend_requests` (
   `person_id` int(11) NOT NULL,
   `friend_id` int(11) NOT NULL,
   UNIQUE KEY `person_id` (`person_id`,`friend_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -161,7 +160,7 @@ CREATE TABLE `friends` (
   `person_id` int(11) NOT NULL,
   `friend_id` int(11) NOT NULL,
   UNIQUE KEY `person_id` (`person_id`,`friend_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -176,7 +175,7 @@ CREATE TABLE `languages` (
   `code` char(4) default NULL,
   `name` char(32) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -199,7 +198,7 @@ CREATE TABLE `organizations` (
   `title` char(64) default NULL,
   `webpage` char(128) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -213,7 +212,7 @@ CREATE TABLE `person_activities` (
   `person_id` int(11) NOT NULL,
   `activity` char(128) NOT NULL,
   KEY `person_id` (`person_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -227,7 +226,7 @@ CREATE TABLE `person_addresses` (
   `person_id` int(11) NOT NULL,
   `address_id` int(11) NOT NULL,
   KEY `person_id` (`person_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -244,7 +243,7 @@ CREATE TABLE `person_applications` (
   PRIMARY KEY  (`id`),
   KEY `person_id` (`person_id`),
   KEY `application_id` (`application_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=44 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -262,7 +261,7 @@ CREATE TABLE `person_body_type` (
   `height` int(11) default NULL,
   `weight` int(11) default NULL,
   KEY `person_id` (`person_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -276,7 +275,7 @@ CREATE TABLE `person_books` (
   `person_id` int(11) NOT NULL,
   `book` char(128) NOT NULL,
   KEY `person_id` (`person_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -290,7 +289,7 @@ CREATE TABLE `person_cars` (
   `person_id` int(11) NOT NULL,
   `car` char(128) NOT NULL,
   KEY `person_id` (`person_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -304,7 +303,7 @@ CREATE TABLE `person_current_location` (
   `person_id` int(11) NOT NULL,
   `address_id` int(11) NOT NULL,
   KEY `person_id` (`person_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -319,7 +318,7 @@ CREATE TABLE `person_emails` (
   `address` char(128) NOT NULL,
   `email_type` char(128) default NULL,
   KEY `person_id` (`person_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -333,7 +332,7 @@ CREATE TABLE `person_food` (
   `person_id` int(11) NOT NULL,
   `food` char(128) NOT NULL,
   KEY `person_id` (`person_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -347,7 +346,7 @@ CREATE TABLE `person_heroes` (
   `person_id` int(11) NOT NULL,
   `hero` char(128) NOT NULL,
   KEY `person_id` (`person_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -361,7 +360,7 @@ CREATE TABLE `person_interests` (
   `person_id` int(11) NOT NULL,
   `intrest` char(128) NOT NULL,
   KEY `person_id` (`person_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -375,7 +374,7 @@ CREATE TABLE `person_jobs` (
   `person_id` int(11) NOT NULL,
   `organization_id` int(11) NOT NULL,
   KEY `person_id` (`person_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -389,7 +388,7 @@ CREATE TABLE `person_languages_spoken` (
   `person_id` int(11) NOT NULL,
   `language_id` int(11) NOT NULL,
   KEY `person_id` (`person_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -403,7 +402,7 @@ CREATE TABLE `person_movies` (
   `person_id` int(11) NOT NULL,
   `movie` char(128) default NULL,
   KEY `person_id` (`person_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -417,7 +416,7 @@ CREATE TABLE `person_music` (
   `person_id` int(11) NOT NULL,
   `music` char(128) default NULL,
   KEY `person_id` (`person_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -432,7 +431,7 @@ CREATE TABLE `person_phone_numbers` (
   `number` char(64) default NULL,
   `number_type` char(128) default NULL,
   KEY `person_id` (`person_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -446,7 +445,7 @@ CREATE TABLE `person_quotes` (
   `person_id` int(11) NOT NULL,
   `quote` mediumtext,
   KEY `person_id` (`person_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -460,7 +459,7 @@ CREATE TABLE `person_schools` (
   `person_id` int(11) NOT NULL,
   `organization_id` int(11) NOT NULL,
   KEY `person_id` (`person_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -474,7 +473,7 @@ CREATE TABLE `person_sports` (
   `person_id` int(11) NOT NULL,
   `sport` char(128) default NULL,
   KEY `person_id` (`person_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -488,7 +487,7 @@ CREATE TABLE `person_tags` (
   `person_id` int(11) NOT NULL,
   `tag` char(128) default NULL,
   KEY `person_id` (`person_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -502,7 +501,7 @@ CREATE TABLE `person_turn_offs` (
   `person_id` int(11) NOT NULL,
   `turn_off` char(128) default NULL,
   KEY `person_id` (`person_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -516,7 +515,7 @@ CREATE TABLE `person_turn_ons` (
   `person_id` int(11) NOT NULL,
   `turn_on` char(128) default NULL,
   KEY `person_id` (`person_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -530,7 +529,7 @@ CREATE TABLE `person_tv_shows` (
   `person_id` int(11) NOT NULL,
   `tv_show` char(128) default NULL,
   KEY `person_id` (`person_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -544,7 +543,7 @@ CREATE TABLE `person_urls` (
   `person_id` int(11) NOT NULL,
   `url` char(128) default NULL,
   KEY `person_id` (`person_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -591,7 +590,7 @@ CREATE TABLE `persons` (
   PRIMARY KEY  (`id`),
   KEY `nickname` (`nickname`),
   KEY `email` (`email`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -603,4 +602,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2008-05-09 14:55:13
+-- Dump completed on 2008-07-04 10:43:15

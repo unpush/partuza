@@ -65,7 +65,7 @@ class applicationsModel extends Model {
 		$app_id = $db->addslashes($app_id);
 		$key = $db->addslashes($key);
 		$value = $db->addslashes($value);
-		$db->query("insert into application_settings (application_id, person_id, name, value) values ($app_id, $person_id, '$key', '$value')
+		$db->query("insert into application_settings (application_id, person_id, name, value) values ($app_id, $person_id, '$key', '$value') 
 					on duplicate key update value = '$value'");
 	}
 	

@@ -64,7 +64,7 @@ class Dispatcher {
 				if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH'] == $etag) {
 					header("ETag: \"$etag\"");
 					if ($this->last_modified) {
-						header('Last-Modified: '.gmdate('D, d M Y H:i:s',$this->last_modified), true);
+						header('Last-Modified: '.gmdate('D, d M Y H:i:s',$this->last_modified).' GMT', true);
 					}
 					header("HTTP/1.1 304 Not Modified", true);
 					header('Content-Length: 0', true);
@@ -77,7 +77,7 @@ class Dispatcher {
 				if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && $this->last_modified && !isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
 					$if_modified_since = strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']);
 					if ($this->last_modified <= $if_modified_since) {
-						header('Last-Modified: '.gmdate('D, d M Y H:i:s',$this->last_modified), true);
+						header('Last-Modified: '.gmdate('D, d M Y H:i:s',$this->last_modified).' GMT', true);
 						header("HTTP/1.1 304 Not Modified", true);
 						header('Content-Length: 0', true);
 						ob_end_clean();
@@ -85,7 +85,7 @@ class Dispatcher {
 					}
 				}
 				if ($this->last_modified) {
-					header('Last-Modified: '.gmdate('D, d M Y H:i:s',$this->last_modified));
+					header('Last-Modified: '.gmdate('D, d M Y H:i:s',$this->last_modified).' GMT');
 				}
 			}
 		}
@@ -113,15 +113,15 @@ class Dispatcher {
 				if (!empty($params[2]) && is_callable(array($controller, $params[2]))) {
 					$show404 = false;
 					$controller->$params[2]($params);
-				} elseif ((isset($params[1]) && $params[1] == 'profile') || empty($params[2])) {
+				} elseif (((isset($params[1]) && $params[1] == 'profile') || empty($params[2])) && is_callable(array($controller, 'index'))) {
 					$show404 = false;
 					$controller->index($params);
 				}
 			}
 		}
 		if ($show404) {
-			echo "404!";
-			// some kind of 404 handling should really go here :-)
+				header("HTTP/1.0 404 Not Found", true);
+				echo "<html><body><h1>404 - Not Found</h1></body></html>";
 		}
 	}
 }
