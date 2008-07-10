@@ -32,7 +32,7 @@ class PartuzaHandler extends GadgetDataHandler {
 			$params = $request->getParams();
 			$type = $params['type'];
 			$response = new ResponseItem(NOT_IMPLEMENTED, $type . " has not been implemented yet.", array());
-			$idSpec = idSpec::fromJson($params['idSpec']);
+			$idSpec = IdSpec::fromJson($params['idSpec']);
 			$peopleIds = $this->getIds($idSpec, $request->getToken());
 			switch ($type) {
 				
