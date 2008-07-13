@@ -20,6 +20,12 @@
 
 require "config.php";
 
+// An "Accept : application/xrds+xml" header means they want our XRDS document (and nothing else) 
+if (strpos(strtolower($_SERVER['HTTP_ACCEPT']), 'application/xrds+xml') !== false) {
+	require Config::get('library_root')."/XRDS.php";
+	die();
+}
+
 // Basic sanity check if we have all required modules,
 // this is the same list as shindig + mysqli
 $modules = array('json', 'SimpleXML', 'libxml', 'curl', 'mysqli', 'gd');
