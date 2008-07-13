@@ -8,7 +8,8 @@
 	<script type="text/javascript" src="<?=Config::get('gadget_server')?>/gadgets/js/rpc.js?c=1"></script>
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/prototype/1.6.0.2/prototype.js"></script>
 	<script type="text/javascript" src="/js/tabs-min.js"></script>
-	<script type="text/javascript" src="/js/container.js"></script>  
+	<script type="text/javascript" src="/js/container.js"></script>
+	<meta http-equiv="X-XRDS-Location" content="http://<?php echo $_SERVER['HTTP_HOST']; ?>/xrds"/> 
 </head>
 <body>
 <div id="headerDiv">
