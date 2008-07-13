@@ -126,8 +126,9 @@ class peopleModel extends Model {
 		$tables_organizations = array('person_jobs', 'person_schools');
 		$tables = array('person_activities', 'person_body_type', 'person_books', 'person_cars', 'person_emails', 'person_food', 'person_heroes', 'person_movies', 'person_interests', 'person_music', 'person_phone_numbers', 'person_quotes', 'person_sports', 'person_tags', 'person_turn_offs', 'person_turn_ons', 'person_tv_shows', 'person_urls');
 		foreach ( $tables as $table ) {
+			$person[$table] = array();
 			$res = $db->query("select * from $table where person_id = $id");
-			while ( $data = $db->fetch_array($res) ) {
+			while ( $data = $db->fetch_array($res, MYSQLI_ASSOC)) {
 				$person[$table][] = $data;
 			}
 		}
