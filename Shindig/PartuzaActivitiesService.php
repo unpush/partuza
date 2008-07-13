@@ -19,9 +19,9 @@
 
 class PartuzaActivitiesService extends ActivitiesService {
 
-	public function getActivity(UserId $userId, GroupId $groupId, $activityId, SecurityToken $token)
+	public function getActivity(UserId $userId, $groupId, $activityId, $first, $max, SecurityToken $token)
 	{
-		$activities = $this->getActivities($userId, $groupId, $token);
+		$activities = $this->getActivities($userId, $groupId, $first, $max, $token);
 		$activities = $activities->getResponse();
 		if ($activities instanceof RestFulCollection) {
 			$activities = $activities->getEntry();
@@ -34,10 +34,11 @@ class PartuzaActivitiesService extends ActivitiesService {
 		return new ResponseItem(NOT_FOUND, "Activity not found", null);
 	}
 	
-	public function getActivities(UserId $userId, GroupId $groupId, SecurityToken $token)
+	public function getActivities(UserId $userId, $groupId, $first, $max, SecurityToken $token)
 	{
 		$ids = array();
-		switch ($groupId->getType()) {
+		$type = is_object($groupId) ? $groupId->getType() : 'self';
+		switch ($type) {
 			case 'all':
 			case 'friends':
 				$friendIds = PartuzaDbFetcher::get()->getFriendIds($userId->getUserId($token));
@@ -49,7 +50,7 @@ class PartuzaActivitiesService extends ActivitiesService {
         		$ids[] = $userId->getUserId($token);
         		break;
     	}
-		$activities = PartuzaDbFetcher::get()->getActivities($ids);
+		$activities = PartuzaDbFetcher::get()->getActivities($ids, $first, $max);
 		// TODO: Sort them
 		return new ResponseItem(null, null, RestfulCollection::createFromEntry($activities));
 	}

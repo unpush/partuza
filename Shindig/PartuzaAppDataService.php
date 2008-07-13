@@ -60,7 +60,8 @@ class PartuzaAppDataService extends AppDataService {
 				return new ResponseItem(NOT_IMPLEMENTED, "We don't support fetching data in batches yet", null);		
 				break;
 		}
-		$data = PartuzaDbFetcher::get()->getAppData($ids, $fields, $token->getAppId());
+		//FIXME should we restrict $appId == $token->getAppId() and user ids?
+		$data = PartuzaDbFetcher::get()->getAppData($ids, $fields, $appId);
 		return new ResponseItem(null, null, RestFulCollection::createFromEntry($data));
 	}
 

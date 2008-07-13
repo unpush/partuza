@@ -97,7 +97,7 @@ class PartuzaDbFetcher {
 		return true;
 	}
 
-	public function load_getActivities($ids)
+	public function load_getActivities($ids, $first = false, $max = false)
 	{
 		$this->checkDb();
 		$activities = array();
@@ -105,7 +105,15 @@ class PartuzaDbFetcher {
 			$ids[$key] = mysqli_real_escape_string($this->db, $val);
 			$this->add_dependency('activities', $ids[$key]);
 		}
-		$res = mysqli_query($this->db, "
+		/*
+		$res = mysqli_query($this->db, "select count(*) from  activities where activities.person_id in (" . implode(',', $ids) . ") order by created desc");
+		$count = 0;
+		if ($res && mysqli_num_rows($res)) {
+			list($count) = mysqli_fetch_row($res);
+		}
+		//$activities['totalSize'] = $count;
+		*/
+		$query = "
 			select 
 				activities.person_id as person_id,
 				activities.id as activity_id,
@@ -118,7 +126,11 @@ class PartuzaDbFetcher {
 				activities.person_id in (" . implode(',', $ids) . ")
 			order by 
 				created desc
-			");
+			";
+		if ($first !== false && $max !== false && is_numeric($first) && is_numeric($max) && $first >= 0 && $max > 0) {
+			$query .= " limit $first, $max";
+		}
+		$res = mysqli_query($this->db, $query);
 		while ($row = @mysqli_fetch_array($res, MYSQLI_ASSOC)) {
 			$activity = new Activity($row['activity_id'], $row['person_id']);
 			$activity->setStreamTitle('activities');
@@ -186,6 +198,9 @@ class PartuzaDbFetcher {
 		foreach ($ids as $key => $val) {
 			$ids[$key] = mysqli_real_escape_string($this->db, $val);
 		}
+		if (!isset($keys[0])) {
+			$keys[0] = '*';
+		}
 		if ($keys[0] == '*') {
 			$keys = '';
 		} else {
@@ -204,17 +219,19 @@ class PartuzaDbFetcher {
 		}
 		return $data;
 	}
-
-	public function load_getPeople($ids, $profileDetails)
+	
+	public function load_getPeople($ids, $profileDetails, $first = false, $max = false)
 	{
 		$this->checkDb();
 		$ret = array();
-		//TODO select * is damn expensive considering most of the time we don't
-		// need all fields, so strains the DB and IO way to much.
-		// Add a more subtle select where it only selects the requested profileDetails	
+		$res = mysqli_query($this->db, "select count(*) from persons where id in (" . implode(',', $ids) . ")");
+		list($count) = mysqli_fetch_row($res);
+		$ret['totalSize'] = $count;
 		
-		// ps don't pay attention to the -funroll-loops style coding, it's meant to be quick and dirty :)
-		$query = "select * from persons where id in (" . implode(',', $ids) . ")";
+		$query = "select * from persons where id in (" . implode(',', $ids) . ") order by id ";
+		if ($first !== false && $max !== false && is_numeric($first) && is_numeric($max) && $first >= 0 && $max > 0) {
+			$query .= " limit $first, $max";
+		}
 		$res = mysqli_query($this->db, $query);
 		if ($res) {
 			while ($row = @mysqli_fetch_array($res, MYSQLI_ASSOC)) {
@@ -413,9 +430,7 @@ class PartuzaDbFetcher {
 					}
 					$person->setJobs($organizations);
 				}
-				
 				//TODO languagesSpoken, currently missing the languages / countries tables so can't do this yet
-				
 
 				if (isset($profileDetails['movies'])) {
 					$strings = array();
@@ -553,7 +568,12 @@ class PartuzaDbFetcher {
 	// Model Classes override this and list the function names that can be cached
 	// if a function name is not in this array, it won't be cached
 	// (useful for things that would be inefficient to cache like searches etc)
-	public  $cachable = array();
+	public  $cachable = array(
+		/*'getActivities',
+		'getFriendIds',
+		'getAppData',
+		'getPeople'*/
+	);
 	
 	public function __destruct()
 	{

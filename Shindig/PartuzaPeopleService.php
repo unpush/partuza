@@ -33,9 +33,11 @@ class PartuzaPeopleService extends PeopleService {
 	{
 		$person = $this->getPeople($userId, $groupId, null, null, null, null, $profileDetails, $token);
 		// return of getPeople is a ResponseItem(RestfulCollection(ArrayOfPeople)), disassemble to return just one person
-		$person = $person->getResponse()->getEntry();
-		if (is_array($person) && count($person) == 1) {
-			return new ResponseItem(null, null, $person[0]);
+		if (is_object($person->getResponse())) {
+			$person = $person->getResponse()->getEntry();
+			if (is_array($person) && count($person) == 1) {
+				return new ResponseItem(null, null, array_pop($person));
+			}
 		}
 		return new ResponseItem(NOT_FOUND, "Person not found", null);
 	}
@@ -56,7 +58,8 @@ class PartuzaPeopleService extends PeopleService {
 				$ids[] = $userId->getUserId($token);
 				break;
 		}
-		$allPeople = PartuzaDbFetcher::get()->getPeople($ids, $profileDetails);
+		$allPeople = PartuzaDbFetcher::get()->getPeople($ids, $profileDetails, $first, $max);
+		$totalSize = $allPeople['totalSize'];
 		$people = array();
 		foreach ($ids as $id) {
 			$person = null;
@@ -73,6 +76,11 @@ class PartuzaPeopleService extends PeopleService {
 					$newPerson['isOwner'] = $person->isOwner;
 					$newPerson['isViewer'] = $person->isViewer;
 					$newPerson['name'] = $person->name;
+					// force these fields to be present, without it the results are useless
+					$profileDetails[] = 'id';
+					$profileDetails[] = 'name';
+					$profileDetails[] = 'thumbnailUrl';
+					$profileDetails[] = 'profileUrl';
 					foreach ($profileDetails as $field) {
 						if (isset($person->$field) && ! isset($newPerson[$field])) {
 							$newPerson[$field] = $person->$field;
@@ -80,18 +88,11 @@ class PartuzaPeopleService extends PeopleService {
 					}
 					$person = $newPerson;
 				}
-				$people[] = $person;
+				$people[$id] = $person;
 			}
 		}
 		if ($sortOrder == 'name') {
 			usort($people, array($this, 'comparator'));
-		}
-		//TODO: The samplecontainer doesn't support any filters yet. We should fix this.
-		$totalSize = count($people);
-		$last = $first + $max;
-		$last = min($last, $totalSize);
-		if ($first !== false && $first != null && $last) {
-			$people = array_slice($people, $first, $last);
 		}
 		$collection = new RestfulCollection($people, $first, $totalSize);
 		return new ResponseItem(null, null, $collection);
