@@ -18,5 +18,6 @@ $xrds =
     </XRD>
 </XRDS>';
 
+header("Content-Type: application/xrds+xml");
 // output the XRDS document with the correct URL to our gadget server filled in
 echo str_replace('{url}', Config::get('gadget_server'), $xrds);

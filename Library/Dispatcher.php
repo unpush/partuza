@@ -45,6 +45,8 @@ class Dispatcher {
 		// in cache (if-modified-since or etag matching) then send a 304 : not modified instead of the whole page
 		//return;
 		if (!$this->_no_headers) {
+			// Promote our XRDS location
+			header("X-XRDS-Location: http://{$_SERVER['HTTP_HOST']}/xrds");
 			// first send all the headers that help the browser understand this page, length, content type, charset, etc
 			header("Content-Type: $this->content_type; charset={$this->charset}");
 			header('Connection: Keep-Alive');

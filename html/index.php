@@ -21,7 +21,7 @@
 require "config.php";
 
 // An "Accept : application/xrds+xml" header means they want our XRDS document (and nothing else) 
-if (strpos(strtolower($_SERVER['HTTP_ACCEPT']), 'application/xrds+xml') !== false) {
+if (strpos(strtolower($_SERVER['HTTP_ACCEPT']), 'application/xrds+xml') !== false || $_SERVER["REQUEST_URI"] == '/xrds') {
 	require Config::get('library_root')."/XRDS.php";
 	die();
 }
