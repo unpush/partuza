@@ -569,10 +569,10 @@ class PartuzaDbFetcher {
 	// if a function name is not in this array, it won't be cached
 	// (useful for things that would be inefficient to cache like searches etc)
 	public  $cachable = array(
-		/*'getActivities',
+		'getActivities',
 		'getFriendIds',
 		'getAppData',
-		'getPeople'*/
+		'getPeople'
 	);
 	
 	public function __destruct()
