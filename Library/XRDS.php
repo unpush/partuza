@@ -1,6 +1,5 @@
 <?php
-$xrds = 
-'<XRDS xmlns="xri://$xrds">
+$xrds = '<XRDS xmlns="xri://$xrds">
     <XRD xmlns:simple="http://xrds-simple.net/core/1.0" xmlns="xri://$XRD*($v*2.0)" xmlns:os="http://ns.opensocial.org/" version="2.0">
         <Type>xri://$xrds*simple</Type>
         <Service>
@@ -14,6 +13,10 @@ $xrds =
         <Service>
           <Type>http://ns.opensocial.org/appdata/0.8</Type>
           <os:URI-Template>{url}/social/rest/appdata/{guid}/{selector}?format=atom</URI-Template>
+        </Service>
+        <Service>
+          <Type>http://ns.opensocial.org/batch-proxy/0.8</Type>
+          <URI simple:method="POST">{url}/social/rest/batchProxy?format=atom</URI>
         </Service>
     </XRD>
 </XRDS>';

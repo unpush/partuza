@@ -75,7 +75,7 @@ class PartuzaAppDataService extends AppDataService {
 		switch($groupId->getType()) {
 			case 'self':
 				foreach ($fields as $key) {
-					$value = isset($values->$key) ? $values->$key : (@isset($values[$key]) ? @$values[$key] : null);
+					$value = isset($values[$key]) ? $values[$key] : null;
 					if (!PartuzaDbFetcher::get()->setAppData($userId->getUserId($token), $key, $value, $token->getAppId())) {
 						return new ResponseItem(INTERNAL_ERROR, "Internal server error", null);
 					}
