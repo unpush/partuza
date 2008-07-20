@@ -58,17 +58,17 @@ class PartuzaPeopleService extends PeopleService {
 				$ids[] = $userId->getUserId($token);
 				break;
 		}
-		$allPeople = PartuzaDbFetcher::get()->getPeople($ids, $profileDetails, $first, $max);
+		$allPeople = PartuzaDbFetcher::get()->getPeople($ids, $profileDetails, $filter, $first, $max);
 		$totalSize = $allPeople['totalSize'];
 		$people = array();
 		foreach ($ids as $id) {
 			$person = null;
 			if (is_array($allPeople) && isset($allPeople[$id])) {
 				$person = $allPeople[$id];
-				if ($id == $token->getViewerId()) {
+				if (!$token->isAnonymous() && $id == $token->getViewerId()) {
 					$person->setIsViewer(true);
 				}
-				if ($id == $token->getOwnerId()) {
+				if (!$token->isAnonymous() && $id == $token->getOwnerId()) {
 					$person->setIsOwner(true);
 				}
 				if (is_array($profileDetails) && count($profileDetails) && !in_array('all', $profileDetails)) {

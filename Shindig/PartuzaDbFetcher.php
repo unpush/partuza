@@ -224,11 +224,12 @@ class PartuzaDbFetcher {
 		return $data;
 	}
 	
-	public function load_getPeople($ids, $profileDetails, $first = false, $max = false)
+	public function load_getPeople($ids, $profileDetails, $filter, $first = false, $max = false)
 	{
 		$this->checkDb();
 		$ret = array();
 		$ret['totalSize'] = '0';
+		// $filter == 'hasApp', 'topFriends', 'isFriendsWith'
 		if (($res = mysqli_query($this->db, "select count(*) from persons where id in (" . implode(',', $ids) . ")")) !== false) {
 			list($count) = mysqli_fetch_row($res);
 			$ret['totalSize'] = $count;
