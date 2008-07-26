@@ -31,7 +31,7 @@ class PartuzaPeopleService extends PeopleService {
 
 	public function getPerson($userId, $groupId, $profileDetails, SecurityToken $token)
 	{
-		$person = $this->getPeople($userId, $groupId, null, null, null, null, $profileDetails, $token);
+		$person = $this->getPeople($userId, $groupId, null, null, null, null, $profileDetails, null, $token);
 		// return of getPeople is a ResponseItem(RestfulCollection(ArrayOfPeople)), disassemble to return just one person
 		if (is_object($person->getResponse())) {
 			$person = $person->getResponse()->getEntry();
@@ -42,7 +42,7 @@ class PartuzaPeopleService extends PeopleService {
 		return new ResponseItem(NOT_FOUND, "Person not found", null);
 	}
 
-	public function getPeople($userId, $groupId, $sortOrder, $filter, $first, $max, $profileDetails, SecurityToken $token)
+	public function getPeople($userId, $groupId, $sortOrder, $filter, $first, $max, $profileDetails, $networkDistance, SecurityToken $token)
 	{
 		$ids = array();
 		switch ($groupId->getType()) {
@@ -88,7 +88,7 @@ class PartuzaPeopleService extends PeopleService {
 					}
 					$person = $newPerson;
 				}
-				$people[$id] = $person;
+				array_push($people, $person);
 			}
 		}
 		if ($sortOrder == 'name') {
