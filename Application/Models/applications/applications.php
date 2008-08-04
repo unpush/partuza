@@ -174,6 +174,9 @@ class applicationsModel extends Model {
 					$info['author_email'] = isset($gadget->authorEmail) ? $gadget->authorEmail : '';
 					$info['description'] = isset($gadget->description) ? $gadget->description : '';
 					$info['settings'] = isset($gadget->userPrefs) ? serialize($gadget->userPrefs) : '';
+					if ($gadget->scrolling == 'true') {
+						$gadget->scrolling = 1;
+					}
 					$info['scrolling'] = !empty($gadget->scrolling) ? $gadget->scrolling : '0';
 					$info['height'] = !empty($gadget->height) ? $gadget->height : '0';
 					// extract the version from the iframe url
