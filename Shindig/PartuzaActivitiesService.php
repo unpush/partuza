@@ -57,8 +57,11 @@ class PartuzaActivitiesService implements ActivitiesService {
 
 	public function createActivity(UserId $userId, $activity, SecurityToken $token)
 	{
-		// TODO: Validate the activity and do any template expanding
-		PartuzaDbFetcher::get()->createActivity($userId->getUserId($token), $activity, $token->getAppId());
-		return new ResponseItem(null, null, array());
+		try {
+			PartuzaDbFetcher::get()->createActivity($userId->getUserId($token), $activity, $token->getAppId());
+			return new ResponseItem(null, null, array());
+		} catch (Exception $e) {
+			return new ResponseItem(BAD_REQUEST, "Invalid activity");
+		}
 	}
 }

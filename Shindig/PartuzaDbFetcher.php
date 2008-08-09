@@ -69,7 +69,10 @@ class PartuzaDbFetcher {
 		$this->checkDb();
 		$app_id = mysqli_real_escape_string($this->db, $app_id);
 		$person_id = mysqli_real_escape_string($this->db, $person_id);
-		$title = isset($activity['title']) ? $activity['title'] : '';
+		$title = trim(isset($activity['title']) ? $activity['title'] : '');
+		if (empty($title)) {
+			throw new Exception("Invalid activity: empty title");
+		}
 		$body = isset($activity['body']) ? $activity['body'] : '';
 		$title = mysqli_real_escape_string($this->db, $title);
 		$body = mysqli_real_escape_string($this->db, $body);
