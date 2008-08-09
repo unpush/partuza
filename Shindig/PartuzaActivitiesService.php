@@ -17,7 +17,7 @@
  * specific language governing permissions and limitations under the License.
  */
 
-class PartuzaActivitiesService extends ActivitiesService {
+class PartuzaActivitiesService implements ActivitiesService {
 
 	public function getActivity(UserId $userId, $groupId, $activityId, $first, $max, SecurityToken $token)
 	{

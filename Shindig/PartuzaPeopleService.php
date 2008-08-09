@@ -17,7 +17,7 @@
  * specific language governing permissions and limitations under the License.
  */
 
-class PartuzaPeopleService extends PeopleService {
+class PartuzaPeopleService implements PeopleService {
 
 	private function comparator($person, $person1)
 	{
