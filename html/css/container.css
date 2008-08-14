@@ -1,5 +1,5 @@
 @CHARSET "UTF-8";
-body {
+body, td {
 	background-color:#ffffff;
 	font-family		: arial, sans-serif;
 	padding			: 0px;
@@ -18,8 +18,9 @@ a:hover {
 	text-decoration	: underline;
 }
 
-div {
-	text-align		 : left;	
+div, td {
+	text-align		: left;
+	vertical-align	: top;	
 }
 
 input, select {
@@ -246,7 +247,7 @@ form#register div .label {
 }
 
 .gadgets-gadget-title-bar {
-	margin-bottom	: 6px;
+  margin-bottom	: 6px;
   padding			: 2px 4px;
   background-color	: #e5ecf9;
 }
