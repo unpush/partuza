@@ -27,7 +27,7 @@
 		?>	
 	</div>
 	<span id="headerLogo">
-		<a href="/home">Partuza!</a>
+		<a href="<?php echo Config::get("web_prefix")?>/home">Partuza!</a>
 	</span>
 </div>
 <div id="contentDiv">

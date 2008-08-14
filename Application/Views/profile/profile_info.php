@@ -11,12 +11,12 @@ $thumb = Image::by_size($thumb, 128, 128);
 	</div>
 	<div class="header">
 		<? if ($vars['is_owner']) {
-			echo "<div class=\"gadgets-gadget-title-button-bar\"><a href=\"/profile/edit\">edit</a></div>";
+			echo "<div class=\"gadgets-gadget-title-button-bar\"><a href=\"".Config::get("web_prefix")."/profile/edit\">edit</a></div>";
 		}?>
 		<a href="<?=Config::get('web_prefix')?>/profile/<?=$vars['person']['id']?>" rel="me"><?=$vars['person']['first_name'].' '.$vars['person']['last_name']?></a>
 	</div>
 </div>
-<a href="/profile/friends/<?=$vars['person']['id']?>">View <?=$vars['is_owner']?'my':$vars['person']['first_name']."'s"?> friends</a><br />
+<a href="<?php echo Config::get("web_prefix")?>/profile/friends/<?=$vars['person']['id']?>">View <?=$vars['is_owner']?'my':$vars['person']['first_name']."'s"?> friends</a><br />
 <?
 if ($vars['is_owner']) {
 	$this->template('profile/profile_info_owner.php', $vars);

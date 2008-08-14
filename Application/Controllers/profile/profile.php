@@ -19,7 +19,7 @@
  */
 
 class profileController extends baseController {
-	
+
 	public function index($params)
 	{
 		$id = isset($params[2]) && is_numeric($params[2]) ? $params[2] : false;
@@ -37,12 +37,16 @@ class profileController extends baseController {
 		$friend_requests = isset($_SESSION['id']) && $_SESSION['id'] == $id ? $people->get_friend_requests($_SESSION['id']) : array();
 		$apps = $this->model('applications');
 		$applications = $apps->get_person_applications($id);
-		$this->template('profile/profile.php', array('activities' => $person_activities, 'applications' => $applications, 'person' => $person, 'friend_requests' => $friend_requests, 'friends' => $friends, 'is_friend' => $is_friend, 'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $id) : false));
+		$this->template('profile/profile.php', array('activities' => $person_activities, 
+				'applications' => $applications, 'person' => $person, 
+				'friend_requests' => $friend_requests, 'friends' => $friends, 
+				'is_friend' => $is_friend, 
+				'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $id) : false));
 	}
-	
+
 	public function friends($params)
 	{
-		if (!isset($params[3]) || !is_numeric($params[3])) {
+		if (! isset($params[3]) || ! is_numeric($params[3])) {
 			header("Location: /");
 			die();
 		}
@@ -51,22 +55,23 @@ class profileController extends baseController {
 		$friends = $people->get_friends($params[3]);
 		$apps = $this->model('applications');
 		$applications = isset($_SESSION['id']) ? $apps->get_person_applications($params[3]) : array();
-		$this->template('profile/profile_showfriends.php', array('friends' => $friends, 'applications' => $applications, 'person' => $person, 'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $params[3]) : false));
+		$this->template('profile/profile_showfriends.php', array('friends' => $friends, 
+				'applications' => $applications, 'person' => $person, 
+				'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $params[3]) : false));
 	}
-	
+
 	public function edit($params)
 	{
-		if (!isset($_SESSION['id'])) {
+		if (! isset($_SESSION['id'])) {
 			header("Location: /");
 		}
 		$message = '';
 		$people = $this->model('people');
 		if (count($_POST)) {
-			if (!empty($_POST['date_of_birth_month']) && !empty($_POST['date_of_birth_day']) && !empty($_POST['date_of_birth_year']) &&
-			    is_numeric($_POST['date_of_birth_month']) && is_numeric($_POST['date_of_birth_day']) && is_numeric($_POST['date_of_birth_year'])) {
-				$_POST['date_of_birth'] = mktime(0,0,1,$_POST['date_of_birth_month'], $_POST['date_of_birth_day'], $_POST['date_of_birth_year']);
+			if (! empty($_POST['date_of_birth_month']) && ! empty($_POST['date_of_birth_day']) && ! empty($_POST['date_of_birth_year']) && is_numeric($_POST['date_of_birth_month']) && is_numeric($_POST['date_of_birth_day']) && is_numeric($_POST['date_of_birth_year'])) {
+				$_POST['date_of_birth'] = mktime(0, 0, 1, $_POST['date_of_birth_month'], $_POST['date_of_birth_day'], $_POST['date_of_birth_year']);
 			}
-			if (isset($_FILES['profile_photo']) && !empty($_FILES['profile_photo']['name'])) {
+			if (isset($_FILES['profile_photo']) && ! empty($_FILES['profile_photo']['name'])) {
 				//TODO quick and dirty profile photo support, should really seperate this out and make a proper one
 				$file = $_FILES['profile_photo'];
 				// make sure the browser thought this was an image
@@ -75,11 +80,11 @@ class profileController extends baseController {
 					// it's a file extention that we accept too (not that means anything really)
 					$accepted = array('gif', 'jpg', 'jpeg', 'png');
 					if (in_array($ext, $accepted)) {
-						if (!move_uploaded_file($file['tmp_name'], Config::get('site_root').'/images/people/'.$_SESSION['id'].'.'.$ext)) {
+						if (! move_uploaded_file($file['tmp_name'], Config::get('site_root') . '/images/people/' . $_SESSION['id'] . '.' . $ext)) {
 							die("no permission to images/people dir, or possible file upload attack, aborting");
 						}
 						// thumbnail the image to 96x96 format (keeping the original)
-						$thumbnail_url = Image::by_size(Config::get('site_root').'/images/people/'.$_SESSION['id'].'.'.$ext, 96, 96, true);
+						$thumbnail_url = Image::by_size(Config::get('site_root') . '/images/people/' . $_SESSION['id'] . '.' . $ext, 96, 96, true);
 						$people->set_profile_photo($_SESSION['id'], $thumbnail_url);
 					}
 				}
@@ -88,18 +93,19 @@ class profileController extends baseController {
 				$people->save_person($_SESSION['id'], $_POST);
 				$message = 'Saved information';
 			} catch (DBException $e) {
-				$message = 'Error saving information ('.$e->getMessage().')';
+				$message = 'Error saving information (' . $e->getMessage() . ')';
 			}
 		}
 		$person = $people->get_person($_SESSION['id'], true);
 		$apps = $this->model('applications');
 		$applications = $apps->get_person_applications($_SESSION['id']);
-		$this->template('profile/profile_edit.php', array('message' => $message, 'applications' => $applications, 'person' => $person, 'is_owner' => true));
+		$this->template('profile/profile_edit.php', array('message' => $message, 
+				'applications' => $applications, 'person' => $person, 'is_owner' => true));
 	}
-	
+
 	public function preview($params)
 	{
-		if (!isset($params[3]) || !is_numeric($params[3])) {
+		if (! isset($params[3]) || ! is_numeric($params[3])) {
 			header("Location: /");
 			die();
 		}
@@ -109,9 +115,11 @@ class profileController extends baseController {
 		$apps = $this->model('applications');
 		$application = $apps->get_application_by_id($app_id);
 		$applications = isset($_SESSION['id']) ? $apps->get_person_applications($_SESSION['id']) : array();
-		$this->template('applications/application_preview.php', array('applications' => $applications, 'application' => $application, 'person' => $person, 'is_owner' => true));
+		$this->template('applications/application_preview.php', array(
+				'applications' => $applications, 'application' => $application, 
+				'person' => $person, 'is_owner' => true));
 	}
-	
+
 	public function application($params)
 	{
 		$id = isset($params[3]) && is_numeric($params[3]) ? $params[3] : false;
@@ -127,10 +135,12 @@ class profileController extends baseController {
 		$friend_requests = isset($_SESSION['id']) ? $people->get_friend_requests($_SESSION['id']) : array();
 		$apps = $this->model('applications');
 		$application = $apps->get_person_application($id, $app_id, $mod_id);
-		$this->template('applications/application_canvas.php', array('application' => $application, 'person' => $person, 'friend_requests' => $friend_requests, 'friends' => $friends, 'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $id) : false));
+		$this->template('applications/application_canvas.php', array('application' => $application, 
+				'person' => $person, 'friend_requests' => $friend_requests, 
+				'friends' => $friends, 
+				'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $id) : false));
 	}
 
-	
 	public function myapps($param)
 	{
 		if (! isset($_SESSION['id'])) {
@@ -141,9 +151,10 @@ class profileController extends baseController {
 		$apps = $this->model('applications');
 		$applications = $apps->get_person_applications($_SESSION['id']);
 		$person = $people->get_person($id, true);
-		$this->template('applications/applications_manage.php', array('person' => $person, 'is_owner' => true, 'applications' => $applications));
+		$this->template('applications/applications_manage.php', array('person' => $person, 
+				'is_owner' => true, 'applications' => $applications));
 	}
-	
+
 	public function appgallery($params)
 	{
 		if (! isset($_SESSION['id'])) {
@@ -155,9 +166,11 @@ class profileController extends baseController {
 		$app_gallery = $apps->get_all_applications();
 		$applications = $apps->get_person_applications($_SESSION['id']);
 		$person = $people->get_person($id, true);
-		$this->template('applications/applications_gallery.php', array('person' => $person, 'is_owner' => true, 'applications' => $applications, 'app_gallery' => $app_gallery));
+		$this->template('applications/applications_gallery.php', array('person' => $person, 
+				'is_owner' => true, 'applications' => $applications, 
+				'app_gallery' => $app_gallery));
 	}
-	
+
 	public function addapp($params)
 	{
 		if (! isset($_SESSION['id']) || ! isset($_GET['appUrl'])) {
@@ -168,7 +181,7 @@ class profileController extends baseController {
 		$ret = $apps->add_application($_SESSION['id'], $url);
 		if ($ret['app_id'] && $ret['mod_id'] && ! $ret['error']) {
 			// App added ok, goto app settings
-			header("Location: /profile/application/{$_SESSION['id']}/{$ret['app_id']}/{$ret['mod_id']}");
+			header("Location: " . Config::get("web_prefix") . "/profile/application/{$_SESSION['id']}/{$ret['app_id']}/{$ret['mod_id']}");
 		} else {
 			// Using the home controller to display the error on the person's home page
 			include_once Config::get('controllers_root') . "/home/home.php";
@@ -177,7 +190,7 @@ class profileController extends baseController {
 			$homeController->index($params, $message);
 		}
 	}
-	
+
 	public function removeapp($params)
 	{
 		if (! isset($_SESSION['id']) || (! isset($params[3]) || ! is_numeric($params[3])) || (! isset($params[4]) || ! is_numeric($params[4]))) {
@@ -193,7 +206,7 @@ class profileController extends baseController {
 		}
 		header("Location: /profile/myapps");
 	}
-	
+
 	public function appsettings($params)
 	{
 		if (! isset($_SESSION['id']) || (! isset($params[3]) || ! is_numeric($params[3])) || (! isset($params[4]) || ! is_numeric($params[4]))) {
@@ -207,7 +220,7 @@ class profileController extends baseController {
 		$friends = $people->get_friends($_SESSION['id']);
 		$friend_requests = isset($_SESSION['id']) ? $people->get_friend_requests($_SESSION['id']) : array();
 		$app = $apps->get_person_application($_SESSION['id'], $app_id, $mod_id);
-		$applications = $apps->get_person_applications($_SESSION['id']);		
+		$applications = $apps->get_person_applications($_SESSION['id']);
 		if (count($_POST)) {
 			$settings = unserialize($app['settings']);
 			if (is_object($settings)) {
@@ -218,9 +231,11 @@ class profileController extends baseController {
 					}
 				}
 			}
-			header("Location:/profile/application/{$_SESSION['id']}/$app_id/$mod_id");
+			header("Location: " . Config::get("web_prefix") . "/profile/application/{$_SESSION['id']}/$app_id/$mod_id");
 			die();
 		}
-		$this->template('applications/application_settings.php', array('applications' => $applications, 'application' => $app, 'person' => $person, 'friend_requests' => $friend_requests, 'friends' => $friends, 'is_owner' => true));
+		$this->template('applications/application_settings.php', array(
+				'applications' => $applications, 'application' => $app, 'person' => $person, 
+				'friend_requests' => $friend_requests, 'friends' => $friends, 'is_owner' => true));
 	}
 }

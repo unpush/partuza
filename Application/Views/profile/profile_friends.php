@@ -1,7 +1,7 @@
 <div id="profileRight">
 	<div class="gadgets-gadget-chrome">
 		<div class="gadgets-gadget-title-bar">
-			<div class="gadgets-gadget-title-button-bar"><a href="/profile/friends/<?=$vars['person']['id']?>">View all</a></div>
+			<div class="gadgets-gadget-title-button-bar"><a href="<?php echo Config::get("web_prefix")?>/profile/friends/<?=$vars['person']['id']?>">View all</a></div>
 			<span class="gadgets-gadget-title"><?=$vars['person']['first_name']?>'s friends (<?=count($vars['friends'])?>)</span>
 		</div>
 		<?php
