@@ -19,18 +19,19 @@
  */
 
 class baseController extends Controller {
+
 	public function __construct()
 	{
 		@session_start();
 		// allow logins anywhere in the site
-		if (!empty($_POST['email']) && !empty($_POST['password'])) {
+		if (! empty($_POST['email']) && ! empty($_POST['password'])) {
 			if ($this->authenticate($_POST['email'], $_POST['password'])) {
 				// redirect to self, but without post to prevent posting if the user refreshes the page
 				header("Location: {$_SERVER['REQUEST_URI']}");
 				die();
 			}
 		}
-		if (!isset($_SESSION['username']) && isset($_COOKIE['authenticated'])) {
+		if (! isset($_SESSION['username']) && isset($_COOKIE['authenticated'])) {
 			// user is not logged in yet, but we do have a authenticated cookie, see if it's valid
 			// and if so setup the session
 			$login = $this->model('login');
@@ -39,7 +40,7 @@ class baseController extends Controller {
 			}
 		}
 	}
-	
+
 	public function authenticate($email, $password)
 	{
 		$login = $this->model('login');
@@ -47,22 +48,22 @@ class baseController extends Controller {
 			// setup the session
 			$this->set_session($user);
 			// and set a cookie and store the authenticated state in the authenticated table
-			$hash = sha1($email.$password);
+			$hash = sha1($email . $password);
 			$login->add_authenticated($user['id'], $hash);
 			// remeber cookie for 30 days, after which we'd like the user to authenticate again
-			setcookie("authenticated", $hash, time() + (30 * 24 * 60 * 60), '/');			
+			setcookie("authenticated", $hash, time() + (30 * 24 * 60 * 60), '/');
 			return true;
 		}
 		return false;
 	}
-	
+
 	private function set_session($user)
 	{
 		$_SESSION['id'] = $user['id'];
-		$_SESSION['username'] = $user['first_name'].' '.$user['last_name'];
+		$_SESSION['username'] = $user['first_name'] . ' ' . $user['last_name'];
 		$_SESSION['first_name'] = $user['first_name'];
 		$_SESSION['last_name'] = $user['last_name'];
-		$_SESSION['email'] = $user['email'];		
+		$_SESSION['email'] = $user['email'];
 	}
-	
+
 }

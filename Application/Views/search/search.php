@@ -14,13 +14,13 @@ if ($vars['error']) {
 			echo "<a href=\"" . Config::get('web_prefix') . "/home/removefriend/{$result['id']}\">Remove friend</a><br />";
 		} else {
 			echo "<a href=\"" . Config::get('web_prefix') . "/home/addfriend/{$result['id']}\">Add as friend</a><br />";
-					
+		
 		}
 		echo "		<a href=\"" . Config::get('web_prefix') . "/profile/{$result['id']}\">View Profile</a>
 				</div>	
 			<a href=\"" . Config::get('web_prefix') . "/profile/{$result['id']}\">{$result['first_name']} {$result['last_name']}</a>
 		</div>";
 	}
-} 
+}
 $this->template('/common/footer.php');
 ?>

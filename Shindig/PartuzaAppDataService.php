@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
@@ -18,7 +19,7 @@
  */
 
 class PartuzaAppDataService implements AppDataService {
-	
+
 	public function deletePersonData(UserId $userId, GroupId $groupId, $fields, $appId, SecurityToken $token)
 	{
 		foreach ($fields as $key) {
@@ -26,26 +27,26 @@ class PartuzaAppDataService implements AppDataService {
 				return new ResponseItem(BAD_REQUEST, "The person app data key had invalid characters", null);
 			}
 		}
-		switch($groupId->getType()) {
+		switch ($groupId->getType()) {
 			case 'self':
 				foreach ($fields as $key) {
 					//FIXME setting value to null == delete, should make a proper function for this though
-					if (!PartuzaDbFetcher::get()->setAppData($userId->getUserId($token), $key, null, $token->getAppId())) {
+					if (! PartuzaDbFetcher::get()->setAppData($userId->getUserId($token), $key, null, $token->getAppId())) {
 						return new ResponseItem(INTERNAL_ERROR, "Internal server error", null);
 					}
 				}
 				break;
 			default:
-				return new ResponseItem(NOT_IMPLEMENTED, "We don't support deleting data in batches yet", null);		
+				return new ResponseItem(NOT_IMPLEMENTED, "We don't support deleting data in batches yet", null);
 				break;
 		}
 		return new ResponseItem(null, null, array());
 	}
-	
+
 	public function getPersonData(UserId $userId, GroupId $groupId, $fields, $appId, SecurityToken $token)
 	{
 		$ids = array();
-		switch($groupId->getType()) {
+		switch ($groupId->getType()) {
 			case 'self':
 				$ids[] = $userId->getUserId($token);
 				break;
@@ -57,7 +58,7 @@ class PartuzaAppDataService implements AppDataService {
 				}
 				break;
 			default:
-				return new ResponseItem(NOT_IMPLEMENTED, "We don't support fetching data in batches yet", null);		
+				return new ResponseItem(NOT_IMPLEMENTED, "We don't support fetching data in batches yet", null);
 				break;
 		}
 		//FIXME should we restrict $appId == $token->getAppId() and user ids?
@@ -70,19 +71,19 @@ class PartuzaAppDataService implements AppDataService {
 		foreach ($fields as $key) {
 			if (! PartuzaAppDataService::isValidKey($key)) {
 				return new ResponseItem(BAD_REQUEST, "The person app data key had invalid characters", null);
-			}			
+			}
 		}
-		switch($groupId->getType()) {
+		switch ($groupId->getType()) {
 			case 'self':
 				foreach ($fields as $key) {
 					$value = isset($values[$key]) ? $values[$key] : null;
-					if (!PartuzaDbFetcher::get()->setAppData($userId->getUserId($token), $key, $value, $token->getAppId())) {
+					if (! PartuzaDbFetcher::get()->setAppData($userId->getUserId($token), $key, $value, $token->getAppId())) {
 						return new ResponseItem(INTERNAL_ERROR, "Internal server error", null);
 					}
 				}
 				break;
 			default:
-				return new ResponseItem(NOT_IMPLEMENTED, "We don't support updating data in batches yet", null);		
+				return new ResponseItem(NOT_IMPLEMENTED, "We don't support updating data in batches yet", null);
 				break;
 		}
 		return new ResponseItem(null, null, array());

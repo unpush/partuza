@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
@@ -19,6 +20,7 @@
  */
 
 class Controller {
+
 	// Input and output filtering to prevent SQL injection and XSS where required
 	public function filter_output($string)
 	{
@@ -52,7 +54,7 @@ class Controller {
 
 	public function model($model)
 	{
-		include_once Config::get('models_root')."/$model/$model.php";
+		include_once Config::get('models_root') . "/$model/$model.php";
 		$model = "{$model}Model";
 		return new $model();
 	}
@@ -61,7 +63,7 @@ class Controller {
 	{
 		// We also poke the modified time to when this template was changed, so that even
 		// for 'static content' the last-modified time is always correct
-		$this->set_modified(filemtime(Config::get('views_root')."/$template"));
-		include Config::get('views_root')."/$template";
+		$this->set_modified(filemtime(Config::get('views_root') . "/$template"));
+		include Config::get('views_root') . "/$template";
 	}
 }

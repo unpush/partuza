@@ -19,6 +19,7 @@
  */
 
 class loginModel extends Model {
+
 	public function authenticate($email, $password)
 	{
 		global $db;
@@ -31,7 +32,7 @@ class loginModel extends Model {
 			return false;
 		}
 	}
-	
+
 	public function add_authenticated($id, $hash)
 	{
 		global $db;
@@ -39,7 +40,7 @@ class loginModel extends Model {
 		$hash = $db->addslashes($hash);
 		$db->query("insert into authenticated (person_id, hash) values ($id, '$hash') on duplicate key update hash = '$hash'");
 	}
-	
+
 	public function get_authenticated($hash)
 	{
 		global $db;

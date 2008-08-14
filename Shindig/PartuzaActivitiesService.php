@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
@@ -33,7 +34,7 @@ class PartuzaActivitiesService implements ActivitiesService {
 		}
 		return new ResponseItem(NOT_FOUND, "Activity not found", null);
 	}
-	
+
 	public function getActivities(UserId $userId, $groupId, $first, $max, SecurityToken $token)
 	{
 		$ids = array();
@@ -47,9 +48,9 @@ class PartuzaActivitiesService implements ActivitiesService {
 				}
 				break;
 			case 'self':
-        		$ids[] = $userId->getUserId($token);
-        		break;
-    	}
+				$ids[] = $userId->getUserId($token);
+				break;
+		}
 		$activities = PartuzaDbFetcher::get()->getActivities($ids, $first, $max);
 		// TODO: Sort them
 		return new ResponseItem(null, null, RestfulCollection::createFromEntry($activities));

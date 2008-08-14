@@ -19,6 +19,7 @@
  */
 
 class registerModel extends Model {
+
 	function register($email, $passwd, $first_name, $last_name, $gender, $date_of_birth)
 	{
 		global $db;

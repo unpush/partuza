@@ -19,15 +19,10 @@
  */
 
 class applicationsModel extends Model {
-	public $cachable = array(
-	'get_person_applications',
-	'get_all_applications',
-	'get_application_prefs',
-	'get_person_application',
-	'get_application_by_id',
-	'get_application'
-	);
-	
+	public $cachable = array('get_person_applications', 'get_all_applications', 
+			'get_application_prefs', 'get_person_application', 'get_application_by_id', 
+			'get_application');
+
 	public function load_get_person_applications($id)
 	{
 		global $db;
@@ -36,27 +31,27 @@ class applicationsModel extends Model {
 		$ret = array();
 		$id = $db->addslashes($id);
 		$res = $db->query("select applications.*, person_applications.id as mod_id from person_applications, applications where person_applications.person_id = $id and applications.id = person_applications.application_id");
-		while ( $row = $db->fetch_array($res, MYSQLI_ASSOC) ) {
+		while ($row = $db->fetch_array($res, MYSQLI_ASSOC)) {
 			$this->add_dependency('applications', $row['id']);
 			$row['user_prefs'] = $this->get_application_prefs($id, $row['id'], $row['mod_id']);
 			$ret[] = $row;
 		}
 		return $ret;
 	}
-	
+
 	public function load_get_all_applications()
 	{
 		global $db;
 		$ret = array();
 		$res = $db->query("select * from applications order by directory_title, title");
-		while ( $row = $db->fetch_array($res, MYSQLI_ASSOC) ) {
+		while ($row = $db->fetch_array($res, MYSQLI_ASSOC)) {
 			$this->add_dependency('applications', $row['id']);
 			$row['user_prefs'] = array();
 			$ret[] = $row;
 		}
-		return $ret;	
+		return $ret;
 	}
-	
+
 	public function set_application_pref($person_id, $app_id, $key, $value)
 	{
 		global $db;
@@ -68,7 +63,7 @@ class applicationsModel extends Model {
 		$db->query("insert into application_settings (application_id, person_id, name, value) values ($app_id, $person_id, '$key', '$value') 
 					on duplicate key update value = '$value'");
 	}
-	
+
 	public function load_get_application_prefs($person_id, $app_id)
 	{
 		global $db;
@@ -82,7 +77,7 @@ class applicationsModel extends Model {
 		}
 		return $prefs;
 	}
-	
+
 	public function load_get_person_application($person_id, $app_id, $mod_id)
 	{
 		global $db;
@@ -102,10 +97,13 @@ class applicationsModel extends Model {
 		}
 		return $ret;
 	}
-	
+
 	private function fetch_gadget_metadata($app_url)
 	{
-		$request = json_encode(array('context' => array('country' => 'US', 'language' => 'en', 'view' => 'default', 'container' => 'partuza'), 'gadgets' => array(array('url' => $app_url, 'moduleId' => '1'))));
+		$request = json_encode(array(
+				'context' => array('country' => 'US', 'language' => 'en', 'view' => 'default', 
+						'container' => 'partuza'), 
+				'gadgets' => array(array('url' => $app_url, 'moduleId' => '1'))));
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, Config::get('gadget_server') . '/gadgets/metadata');
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
@@ -119,7 +117,7 @@ class applicationsModel extends Model {
 		$content = @curl_exec($ch);
 		return json_decode($content);
 	}
-	
+
 	public function load_get_application_by_id($id)
 	{
 		global $db;
@@ -133,7 +131,7 @@ class applicationsModel extends Model {
 		}
 		return false;
 	}
-	
+
 	// This function either returns a valid applications record or
 	// the error (string) that occured in ['error'].
 	// After this function you can assume there is a valid, and up to date gadget metadata
@@ -177,8 +175,8 @@ class applicationsModel extends Model {
 					if ($gadget->scrolling == 'true') {
 						$gadget->scrolling = 1;
 					}
-					$info['scrolling'] = !empty($gadget->scrolling) ? $gadget->scrolling : '0';
-					$info['height'] = !empty($gadget->height) ? $gadget->height : '0';
+					$info['scrolling'] = ! empty($gadget->scrolling) ? $gadget->scrolling : '0';
+					$info['height'] = ! empty($gadget->height) ? $gadget->height : '0';
 					// extract the version from the iframe url
 					$iframe_url = $gadget->iframeUrl;
 					$iframe_params = array();
@@ -220,7 +218,7 @@ class applicationsModel extends Model {
 									modified = '" . $db->addslashes($info['modified']) . "'
 								");
 					$res = $db->query("select id from applications where url = '" . $db->addslashes($info['url']) . "'");
-					if (!$db->num_rows($res)) {
+					if (! $db->num_rows($res)) {
 						$error = "Could not store application in registry";
 					} else {
 						list($id) = $db->fetch_row($res);
@@ -230,18 +228,18 @@ class applicationsModel extends Model {
 				}
 			}
 		}
-		if (!$error) {
+		if (! $error) {
 			
 			$this->add_dependency('applications', $info['id']);
 		}
 		$info['error'] = $error;
 		return $info;
 	}
-	
+
 	public function add_application($person_id, $app_url)
 	{
 		global $db;
-		$mod_id = false;	
+		$mod_id = false;
 		$app = $this->get_application($app_url);
 		$app_id = isset($app['id']) ? $app['id'] : false;
 		$error = $app['error'];
@@ -258,7 +256,7 @@ class applicationsModel extends Model {
 		}
 		return array('app_id' => $app_id, 'mod_id' => $mod_id, 'error' => $app['error']);
 	}
-	
+
 	public function remove_application($person_id, $app_id, $mod_id)
 	{
 		global $db;

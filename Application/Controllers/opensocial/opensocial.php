@@ -18,11 +18,12 @@
  * 
  */
 
-class opensocialController extends baseController {	
+class opensocialController extends baseController {
+
 	public function certificates($params)
 	{
 		if ($params[3] == 'xoauth_public_keyvalue') {
-			readfile(Config::get('gadget_server').'/public.crt');			
+			readfile(Config::get('gadget_server') . '/public.crt');
 		}
-	}	
+	}
 }

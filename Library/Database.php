@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
@@ -31,12 +32,12 @@ class DB {
 
 	public function __construct($host, $port, $user, $password, $database, $socket)
 	{
-		$this->host     = $host;
-		$this->port		= $port;
-		$this->user     = $user;
+		$this->host = $host;
+		$this->port = $port;
+		$this->user = $user;
 		$this->password = $password;
 		$this->database = $database;
-		$this->socket   = $socket;
+		$this->socket = $socket;
 	}
 
 	public function __destruct()
@@ -48,7 +49,7 @@ class DB {
 
 	public function check()
 	{
-		if (!(isset($this->db) && is_object($this->db))) {
+		if (! (isset($this->db) && is_object($this->db))) {
 			$this->connect();
 		}
 	}
@@ -83,8 +84,8 @@ class DB {
 		if ($this->db && is_object($this->db)) {
 			$this->close();
 		}
-		if (!$this->db = mysqli_connect($this->host, $this->user, $this->password, $this->database, $this->port, $this->socket)) {
-			throw new DBException("Could not connect to DB Host: ".mysqli_connect_error());
+		if (! $this->db = mysqli_connect($this->host, $this->user, $this->password, $this->database, $this->port, $this->socket)) {
+			throw new DBException("Could not connect to DB Host: " . mysqli_connect_error());
 		}
 		return true;
 	}
@@ -101,10 +102,10 @@ class DB {
 	public function change_user($user, $password)
 	{
 		$this->check();
-		$this->user     = $user;
+		$this->user = $user;
 		$this->password = $password;
-		if (!@mysqli_change_user($user, $password)) {
-			elog(LWARNING,"Error in DB Change User user: $user, MySql Error: ".mysqli_error($this->db));
+		if (! @mysqli_change_user($user, $password)) {
+			elog(LWARNING, "Error in DB Change User user: $user, MySql Error: " . mysqli_error($this->db));
 			return false;
 		}
 		return true;
@@ -113,8 +114,8 @@ class DB {
 	public function select_db($db)
 	{
 		$this->check();
-		if (!@mysqli_select_db($db, $this->db)) {
-			throw new DBException("Could not Select DB: $db. MySql Error: ".$this->error());
+		if (! @mysqli_select_db($db, $this->db)) {
+			throw new DBException("Could not Select DB: $db. MySql Error: " . $this->error());
 		}
 		return true;
 	}
@@ -127,16 +128,16 @@ class DB {
 	public function prepare($statement)
 	{
 		$this->check();
-		if (!$ret = @mysqli_prepare($this->db, $statement)) {
-			throw new DBException("Error in Prepare statement on db {$this->database}, MySql Error: ".mysqli_error($this->db)."<br>Statement: $statement<br>");
+		if (! $ret = @mysqli_prepare($this->db, $statement)) {
+			throw new DBException("Error in Prepare statement on db {$this->database}, MySql Error: " . mysqli_error($this->db) . "<br>Statement: $statement<br>");
 		}
 		return $ret;
 	}
 
 	public function execute($res)
 	{
-		if (!$ret = @mysqli_stmt_execute($res)) {
-			throw new DBException("Error in Execute statement on db {$this->database}, MySql Error: ".mysqli_error($this->db));
+		if (! $ret = @mysqli_stmt_execute($res)) {
+			throw new DBException("Error in Execute statement on db {$this->database}, MySql Error: " . mysqli_error($this->db));
 		}
 		return $ret;
 	}
@@ -144,8 +145,8 @@ class DB {
 	public function query($query)
 	{
 		$this->check();
-		if (!$ret = @mysqli_query($this->db, $query)) {
-			throw new DBException("Error in Query on db {$this->database}, MySql Error: ".mysqli_error($this->db)."<br>Query: $query<br>");
+		if (! $ret = @mysqli_query($this->db, $query)) {
+			throw new DBException("Error in Query on db {$this->database}, MySql Error: " . mysqli_error($this->db) . "<br>Query: $query<br>");
 		}
 		return $ret;
 	}
@@ -177,8 +178,8 @@ class DB {
 
 	public function insert_id()
 	{
-		if (!$ret = mysqli_insert_id($this->db)) {
-			throw new DBException("Error in insert_id, MySql Error: ".$this->error());
+		if (! $ret = mysqli_insert_id($this->db)) {
+			throw new DBException("Error in insert_id, MySql Error: " . $this->error());
 		}
 		return $ret;
 	}
@@ -228,8 +229,8 @@ class DB {
 
 	public function seek($res, $pos)
 	{
-		if (!$ret = @mysqli_data_seek($res, $pos)) {
-			throw new DBException("Error in Seek, MySql Error: ".$this->error());
+		if (! $ret = @mysqli_data_seek($res, $pos)) {
+			throw new DBException("Error in Seek, MySql Error: " . $this->error());
 		}
 		return $ret;
 	}
@@ -248,16 +249,16 @@ class DB {
 	public function drop_db($db)
 	{
 		$this->check();
-		elog(LNOTICE,"Droping DB: $db");
+		elog(LNOTICE, "Droping DB: $db");
 		return @mysqli_drop_db($db, $this->db);
 	}
 
 	public function create_db($db)
 	{
 		$this->check();
-		elog(LNOTICE,"Creating DB: $db");
+		elog(LNOTICE, "Creating DB: $db");
 		$ret = mysqli_create_db($db, $this->db);
 		return $ret;
-
+	
 	}
 }

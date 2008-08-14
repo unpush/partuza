@@ -19,7 +19,7 @@
  */
 
 class homeController extends baseController {
-	
+
 	public function index($params)
 	{
 		if (isset($_SESSION['id'])) {
@@ -32,12 +32,15 @@ class homeController extends baseController {
 			$applications = $apps->get_person_applications($_SESSION['id']);
 			$friend_activities = $activities->get_friend_activities($_SESSION['id'], 10);
 			//TODO add activities here and parse in template..
-			$this->template('profile/home.php', array('activities' => $friend_activities, 'applications' => $applications, 'person' => $person, 'friend_requests' => $friend_requests, 'friends' => $friends, 'is_owner' => true));
+			$this->template('profile/home.php', array(
+					'activities' => $friend_activities, 'applications' => $applications, 
+					'person' => $person, 'friend_requests' => $friend_requests, 
+					'friends' => $friends, 'is_owner' => true));
 		} else {
 			$this->template('home/home.php');
 		}
 	}
-	
+
 	public function removefriend($params)
 	{
 		$message = 'Friend removed';
@@ -50,7 +53,7 @@ class homeController extends baseController {
 		$_SESSION['message'] = $message;
 		header("Location: {$_SERVER['HTTP_REFERER']}");
 	}
-	
+
 	public function addfriend($params)
 	{
 		$message = '';
@@ -58,7 +61,7 @@ class homeController extends baseController {
 		if (isset($params[3]) && is_numeric($params[3]) && isset($_SESSION['id'])) {
 			if ($people->add_friend_request($_SESSION['id'], $params[3])) {
 				$info = $people->get_person_info($params[3]);
-				$message = 'Send friend request to '.$info['first_name'].' '.$info['last_name'];
+				$message = 'Send friend request to ' . $info['first_name'] . ' ' . $info['last_name'];
 			} else {
 				$message = 'Could not send friend request, request already pending';
 			}
@@ -68,7 +71,7 @@ class homeController extends baseController {
 		$_SESSION['message'] = $message;
 		header("Location: {$_SERVER['HTTP_REFERER']}");
 	}
-	
+
 	public function acceptfriend($params)
 	{
 		$message = '';
@@ -86,7 +89,7 @@ class homeController extends baseController {
 		$_SESSION['message'] = $message;
 		header("Location: {$_SERVER['HTTP_REFERER']}");
 	}
-	
+
 	public function rejectfriend($params)
 	{
 		$message = '';

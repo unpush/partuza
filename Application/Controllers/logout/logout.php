@@ -19,6 +19,7 @@
  */
 
 class logoutController extends baseController {
+
 	public function index($params)
 	{
 		session_destroy();

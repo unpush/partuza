@@ -1,25 +1,29 @@
-<? $this->template('/common/header.php'); ?>
+<?
+$this->template('/common/header.php');
+?>
 
 <div id="profileInfo" class="blue">
-	<? $this->template('profile/profile_info.php', $vars); ?>
+	<?
+	$this->template('profile/profile_info.php', $vars);
+	?>
 </div>
 
 <div id="profileContentWide">
-	<div class="gadgets-gadget-chrome" style="width:790px">
-		<div class="gadgets-gadget-title-bar">
-			Application Settings for <?=!empty($vars['application']['directory_title']) ? $vars['application']['directory_title']:$vars['application']['title']?>
+<div class="gadgets-gadget-chrome" style="width: 790px">
+<div class="gadgets-gadget-title-bar">
+			Application Settings for <?=! empty($vars['application']['directory_title']) ? $vars['application']['directory_title'] : $vars['application']['title']?>
 		</div>
-		<div style="padding:12px">
-		<form method="post">
-		<? 
-		if (!empty($vars['application']['settings'])) {
+<div style="padding: 12px">
+<form method="post">
+		<?
+		if (! empty($vars['application']['settings'])) {
 			$settings = unserialize($vars['application']['settings']);
 			foreach ($settings as $key => $setting) {
-				$name = !empty($setting->displayName) ? $setting->displayName : $key;
+				$name = ! empty($setting->displayName) ? $setting->displayName : $key;
 				$default = isset($setting->default) ? $setting->default : '';
 				$value = isset($vars['application']['user_prefs'][$key]) ? $vars['application']['user_prefs'][$key] : $default;
 				echo "<div><div class=\"settings_label\">$name</div>";
-				switch ($setting->type) {				
+				switch ($setting->type) {
 					case 'ENUM':
 						echo "<select name=\"$key\">\n";
 						foreach ($setting->enumValues as $k => $v) {
@@ -48,9 +52,13 @@
 			}
 			echo "<br /><input type=\"submit\" value=\"Save\" />\n</form>\n";
 		}
-	?>
-	</div>
-</div>
-<div style="clear:both"></div>
+		?>
+	
 
-<? $this->template('/common/footer.php'); ?>
+</div>
+</div>
+<div style="clear: both"></div>
+
+<?
+$this->template('/common/footer.php');
+?>

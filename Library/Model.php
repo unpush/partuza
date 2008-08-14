@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
@@ -18,7 +19,8 @@
  * 
  */
 
-class ModelException extends Exception {};
+class ModelException extends Exception {}
+;
 
 /**
  * The Model abstraction. This impliments a transparent caching and cache dependency
@@ -51,8 +53,8 @@ class Model {
 	// Model Classes override this and list the function names that can be cached
 	// if a function name is not in this array, it won't be cached
 	// (useful for things that would be inefficient to cache like searches etc)
-	public  $cachable = array();
-	
+	public $cachable = array();
+
 	public function __destruct()
 	{
 		global $cache;
@@ -61,7 +63,7 @@ class Model {
 			// retrieve the most uptodate map and merge them with our results
 			if (($existing_deps = $cache->get($key)) !== false) {
 				foreach ($existing_deps as $existing_dep) {
-					if (!in_array($existing_dep, $new_deps)) {
+					if (! in_array($existing_dep, $new_deps)) {
 						$new_deps[] = $existing_dep;
 					}
 				}
@@ -69,7 +71,7 @@ class Model {
 			$cache->set(md5($key), $new_deps);
 		}
 	}
-	
+
 	/**
 	 * Invalidate (remove) the cache a certain type-id relationship
 	 *
@@ -79,7 +81,7 @@ class Model {
 	public function invalidate_dependency($type, $id)
 	{
 		global $cache;
-		$key = $type.'_deps:'.$id;
+		$key = $type . '_deps:' . $id;
 		if (($data = $cache->get(md5($key))) !== false) {
 			try {
 				$cache->delete($key);
@@ -87,11 +89,11 @@ class Model {
 			foreach ($data as $dep) {
 				try {
 					$cache->delete($dep);
-				} catch (CacheException $e) {} 
+				} catch (CacheException $e) {}
 			}
 		}
 	}
-	
+
 	/**
 	 * Adds a dependency to your dependency chain, call this using $type = 'data_type', $id = id of the entity:
 	 *	$this->add_dependency('people', '$user_id);
@@ -107,9 +109,9 @@ class Model {
 	public function add_dependency($type, $id)
 	{
 		global $cache;
-		$key = $type.'_deps:'.$id;
+		$key = $type . '_deps:' . $id;
 		// only load the dep map once per key, lazy loading style
-		if (!isset($this->dep_map[$key])) {
+		if (! isset($this->dep_map[$key])) {
 			if (($deps = $cache->get(md5($key))) !== false) {
 				$this->dep_map[$key] = $deps;
 			} else {
@@ -118,12 +120,12 @@ class Model {
 		}
 		// add depedency relationship for the entire call stack (catches recursive dependencies)
 		foreach ($this->call_stack as $request) {
-			if (!in_array($request, $this->dep_map[$key])) {
+			if (! in_array($request, $this->dep_map[$key])) {
 				$this->dep_map[$key][] = $request;
 			}
 		}
 	}
-	
+
 	/**
 	 * Returns the current top level request
 	 *
@@ -143,7 +145,7 @@ class Model {
 	{
 		$this->call_stack[count($this->call_stack)] = $key;
 	}
-	
+
 	/**
 	 * Removes the most recent request from the top of the stack
 	 *
@@ -152,7 +154,7 @@ class Model {
 	{
 		unset($this->call_stack[count($this->call_stack) - 1]);
 	}
-	
+
 	/**
 	 * Magic __call function that is called for each unknown function, which checks if
 	 * load_{$method_name} exists, and wraps caching around it
@@ -165,7 +167,7 @@ class Model {
 	public function __call($method, $arguments)
 	{
 		global $cache;
-		$key = md5($method.serialize($arguments));
+		$key = md5($method . serialize($arguments));
 		// prevent double-loading of data
 		if (isset($this->local_cache[$key])) {
 			return $this->local_cache[$key];
@@ -175,7 +177,7 @@ class Model {
 			if ($data !== false) {
 				return $data;
 			} else {
-				$function  = "load_{$method}";
+				$function = "load_{$method}";
 				if (is_callable(array($this, $function))) {
 					// cache operations might call other cache operations again, so for dep tracking we need a call stack (LIFO style)
 					$this->push_request($key);
@@ -190,7 +192,7 @@ class Model {
 			}
 		} else {
 			// non cachable information, always do a plain load
-			$function  = "load_{$method}";
+			$function = "load_{$method}";
 			if (is_callable(array($this, $function))) {
 				$data = call_user_func_array(array($this, $function), $arguments);
 				$this->local_cache[$key] = $data;

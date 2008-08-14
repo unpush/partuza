@@ -19,18 +19,20 @@
  */
 
 class searchController extends baseController {
+
 	public function index($params)
 	{
 		$error = false;
 		$results = array();
 		$friends = array();
-		if (!empty($_GET['q'])) {
+		if (! empty($_GET['q'])) {
 			$people = $this->model('people');
 			$friends = $people->get_friends($_SESSION['id']);
 			$results = $people->search($_GET['q']);
 		} else {
 			$error = 'no search phrase given';
 		}
-		$this->template('search/search.php', array('results' => $results, 'friends' => $friends, 'error' => $error));
+		$this->template('search/search.php', array('results' => $results, 'friends' => $friends, 
+				'error' => $error));
 	}
 }

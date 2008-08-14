@@ -18,10 +18,11 @@
  * 
  */
 
-class prefsController extends baseController {	
+class prefsController extends baseController {
+
 	public function set($params)
 	{
-		if (empty($_GET['st']) || empty($_GET['name']) || !isset($_GET['value'])) {
+		if (empty($_GET['st']) || empty($_GET['name']) || ! isset($_GET['value'])) {
 			header("HTTP/1.0 400 Bad Request", true);
 			echo "<html><body><h1>400 - Bad Request</h1></body></html>";
 		} else {
@@ -36,9 +37,9 @@ class prefsController extends baseController {
 				$apps->set_application_pref($viewer, $app_id, $key, $value);
 			} catch (Exception $e) {
 				header("HTTP/1.0 400 Bad Request", true);
-				echo "<html><body><h1>400 - Bad Request</h1>".$e->getMessage()."</body></html>";
+				echo "<html><body><h1>400 - Bad Request</h1>" . $e->getMessage() . "</body></html>";
 			}
 		}
 		die();
-	}	
+	}
 }

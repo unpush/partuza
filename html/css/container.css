@@ -1,44 +1,45 @@
 @CHARSET "UTF-8";
-body, td {
-	background-color:#ffffff;
-	font-family		: arial, sans-serif;
-	padding			: 0px;
-	margin			: 0px;
-	font-size		: 12px;
-	color			: #000000;
+
+body,td {
+	background-color: #ffffff;
+	font-family: arial, sans-serif;
+	padding: 0px;
+	margin: 0px;
+	font-size: 12px;
+	color: #000000;
 }
 
-a, a:visited {
-	color			: #3366CC;
-	text-decoration	: none;
+a,a:visited {
+	color: #3366CC;
+	text-decoration: none;
 }
 
 a:hover {
-	color			: #3366CC;
-	text-decoration	: underline;
+	color: #3366CC;
+	text-decoration: underline;
 }
 
-div, td {
-	text-align		: left;
-	vertical-align	: top;	
+div,td {
+	text-align: left;
+	vertical-align: top;
 }
 
-input, select {
-	border			: 1px solid #bdc7d8;
-	font-size		: 11px;
-	padding			: 3px;
+input,select {
+	border: 1px solid #bdc7d8;
+	font-size: 11px;
+	padding: 3px;
 }
 
 img {
-	border			: none;
+	border: none;
 }
 
-.submit, .button {
-	padding			: 2px 15px 3px 15px;
-	border			: 1px solid #3366CC;
-	color			: #3366CC;
-	font-size		: 11px;
-	text-align		: center;
+.submit,.button {
+	padding: 2px 15px 3px 15px;
+	border: 1px solid #3366CC;
+	color: #3366CC;
+	font-size: 11px;
+	text-align: center;
 }
 
 .submit {
@@ -46,353 +47,354 @@ img {
 }
 
 textarea {
-	border			: 1px solid #bdc7d8;
-	padding			: 3px;
-	font-size		: 11px;
+	border: 1px solid #bdc7d8;
+	padding: 3px;
+	font-size: 11px;
 }
 
 #headerDiv {
 	background-color: #e5ecf9;
-	color			: #3366CC;
-	line-height		: 42px;
-	font-weight		: bold;
-	height			: 42px;
-	width			: 960px;
-	margin			: auto;
-	margin-bottom	: 12px;
-	margin-top		: 12px;
+	color: #3366CC;
+	line-height: 42px;
+	font-weight: bold;
+	height: 42px;
+	width: 960px;
+	margin: auto;
+	margin-bottom: 12px;
+	margin-top: 12px;
 }
 
 #headerDiv #headerLogo {
-	font-size		: 22px;
-	font-weight		: bold;
-	padding-left	: 12px;	
+	font-size: 22px;
+	font-weight: bold;
+	padding-left: 12px;
 }
 
 #headerDiv #searchDiv {
-	float			: right;
-	margin-right	: 12px;
+	float: right;
+	margin-right: 12px;
 }
 
 #headerDiv #userMenuDiv {
-	float			: right;
+	float: right;
 }
 
 #contentDiv {
-	min-height		: 400px;
-	margin			: auto;
-	width			: 960px;
+	min-height: 400px;
+	margin: auto;
+	width: 960px;
 }
 
 form#register div {
-	font-size		: 12px;
-	line-height		: 18px;
-	margin-bottom	: 12px;
+	font-size: 12px;
+	line-height: 18px;
+	margin-bottom: 12px;
 }
 
 form#register div .label {
-	width			: 120px;
-	float			: left;
+	width: 120px;
+	float: left;
 }
 
-.blue, .borderBlue {
+.blue,.borderBlue {
 	background-color: #e5ecf9;
-	padding			: 12px;
+	padding: 12px;
 }
 
 .borderBlue {
-	border			: 1px solid #3366cc;
+	border: 1px solid #3366cc;
 }
 
 #profileInfo {
-	min-height		: 180px;
-	width			: 132px;
-	float			: left;
+	min-height: 180px;
+	width: 132px;
+	float: left;
 }
 
-#profileContent, #profileContentWide {
-	padding-left	: 12px;
-	width			: 502px;
-	float			: left;
+#profileContent,#profileContentWide {
+	padding-left: 12px;
+	width: 502px;
+	float: left;
 }
 
 #profileContentWide {
-	width			: 790px;
+	width: 790px;
 }
 
 #profileRight {
-	width			: 288px;
-	float			: left;
+	width: 288px;
+	float: left;
 }
 
 #profileRight .gadgets-gadget-chrome {
-	width			: 288px;
+	width: 288px;
 }
 
 #profileRight .form_entry {
-	min-height		: 18px;
-	line-height		: 18px;
-	color			: #7aa5d6;
+	min-height: 18px;
+	line-height: 18px;
+	color: #7aa5d6;
 }
 
 #profileRight .form_label {
-	color			: #000;
-	width			: 100px;
-	line-height		: 18px;
-	min-height		: 18px;
+	color: #000;
+	width: 100px;
+	line-height: 18px;
+	min-height: 18px;
 }
 
 .header {
-	font-size		: 12px;
-	font-weight		: bold;
-	border-bottom	: 1px solid #7aa5d6; 	
-	margin-top		: 12px;
-	margin-bottom	: 3px;
-	padding-bottom	: 3px;
-	color			: #3366CC;
+	font-size: 12px;
+	font-weight: bold;
+	border-bottom: 1px solid #7aa5d6;
+	margin-top: 12px;
+	margin-bottom: 3px;
+	padding-bottom: 3px;
+	color: #3366CC;
 }
 
 .searchResult {
 	background-color: #e5ecf9;
-	height			: 36px;
-	padding			: 12px;
+	height: 36px;
+	padding: 12px;
 }
 
 .searchResult .menu {
-	float			: right;
-	text-align		: right;
+	float: right;
+	text-align: right;
 }
 
 #friendRequests {
-	border			: 1px solid #7aa5d6;
-	margin-right	: 12px;
-	margin-bottom	: 12px;
-	padding			: 12px;
+	border: 1px solid #7aa5d6;
+	margin-right: 12px;
+	margin-bottom: 12px;
+	padding: 12px;
 }
 
 .friend {
-	background-color:#f0f0f0;
-	float			: left;
-	width			: 84px;
-	margin-right	: 6px;
-	margin-bottom	: 6px;
-	overflow		: hidden;
+	background-color: #f0f0f0;
+	float: left;
+	width: 84px;
+	margin-right: 6px;
+	margin-bottom: 6px;
+	overflow: hidden;
 }
 
 .friend .thumb {
-	height			: 64px;
-	overflow		: hidden;
-	text-align		: center;
-	margin-top		: 6px;
+	height: 64px;
+	overflow: hidden;
+	text-align: center;
+	margin-top: 6px;
 }
 
 .friend .uname {
-	font-size		: 11px;
-	line-height		: 12px;
-	text-align		: center;
-	padding			: 0 3px 3px;
+	font-size: 11px;
+	line-height: 12px;
+	text-align: center;
+	padding: 0 3px 3px;
 }
 
 .app {
 	background-color: #e5ecf9;
-	padding			: 12px;
-	height			: 60px;	
-	margin-bottom	: 6px;
-	overflow		: hidden;
+	padding: 12px;
+	height: 60px;
+	margin-bottom: 6px;
+	overflow: hidden;
 }
 
 .app .app_thumbnail {
-	overflow		: hidden;
-	float 			: left;
-	width			: 120px;
-	height			: 60px;
-	margin-right	: 6px;	
+	overflow: hidden;
+	float: left;
+	width: 120px;
+	height: 60px;
+	margin-right: 6px;
 }
 
 .app .options {
-	float			: right;
-	padding			: 6px;
-	width			: 100px;	
-	height			: 60px;
-	text-align		: right;
+	float: right;
+	padding: 6px;
+	width: 100px;
+	height: 60px;
+	text-align: right;
 }
 
 .application_link {
-	_font-size		: smaller;
-	width			: 110px;
-	height			: 14px;
-	line-height		: 14px;
-	overflow		: hidden;
+	_font-size: smaller;
+	width: 110px;
+	height: 14px;
+	line-height: 14px;
+	overflow: hidden;
 }
 
 .settings_label {
-	float			: left;
-	width			: 180px;
-	font-weight		: bold;
-	color			: #3366CC;
+	float: left;
+	width: 180px;
+	font-weight: bold;
+	color: #3366CC;
 }
 
 .settings_input {
-	width			: 220px;	
+	width: 220px;
 }
 
 .gadgets-gadget-chrome {
-  margin-bottom		: 12px;
-  border-top		: 1px solid #7aa5d6;
-  width				: 488px;
+	margin-bottom: 12px;
+	border-top: 1px solid #7aa5d6;
+	width: 488px;
 }
 
 .gadgets-gadget {
-  border			: none;
+	border: none;
 }
 
 .gadgets-gadget-title-bar {
-  margin-bottom	: 6px;
-  padding			: 2px 4px;
-  background-color	: #e5ecf9;
+	margin-bottom: 6px;
+	padding: 2px 4px;
+	background-color: #e5ecf9;
 }
 
 .gadgets-gadget-title {
-  font-weight		: bold;
-  color				: #3366cc;
+	font-weight: bold;
+	color: #3366cc;
 }
 
 .gadgets-gadget-title-button-bar {
-  font-size			: smaller;
-  float				: right;
+	font-size: smaller;
+	float: right;
 }
 
 .gadgets-gadget-user-prefs-dialog {
-  background-color	: #e5ecf9;
+	background-color: #e5ecf9;
 }
 
 .gadgets-gadget-user-prefs-dialog-action-bar {
-  text-align		: center;
-  padding-bottom	: 4px;
+	text-align: center;
+	padding-bottom: 4px;
 }
 
 .gadgets-gadget-title-button {
-	margin-right	: 6px;
+	margin-right: 6px;
 }
 
 .gadgets-gadget-content {
-  padding			: 4px;
+	padding: 4px;
 }
 
 .gadgets-log-entry {
+	
 }
 
 .activities_title {
-	_color			: #3366CC;
-	font-size		: 12px;
-	margin-bottom	: 6px;
-	font-weight		: bold;
+	_color: #3366CC;
+	font-size: 12px;
+	margin-bottom: 6px;
+	font-weight: bold;
 }
 
 .activity {
-	padding			: 3px;
-	width			: 482px;
-	border-top		: 1px solid #e5ecf9;
-	min-height		: 36px;
-	clear			: both;
+	padding: 3px;
+	width: 482px;
+	border-top: 1px solid #e5ecf9;
+	min-height: 36px;
+	clear: both;
 }
 
 .activity.first {
-	border-top		: none;
+	border-top: none;
 }
 
 .preview_thumbnail {
-	width			: 288px;
-	height			: 120px;
-	overflow		: hidden;
-	text-align		: center;
+	width: 288px;
+	height: 120px;
+	overflow: hidden;
+	text-align: center;
 }
 
 .preview_section {
-	margin-top		: 6px;
-	padding-top		: 6px;
-	border-top		: 1px solid #e5ecf9;
+	margin-top: 6px;
+	padding-top: 6px;
+	border-top: 1px solid #e5ecf9;
 }
 
 .preview_add {
-	border			: 1px solid #3366cc;
-	width			: 200px;
-	height			: 32px;
-	line-height		: 32px;
-	text-align		: center;
+	border: 1px solid #3366cc;
+	width: 200px;
+	height: 32px;
+	line-height: 32px;
+	text-align: center;
 	background-color: #e5ecf9;
 }
 
 .form_entry {
-	min-height		: 24px;
-	line-height		: 24px;
-	clear			: both;
+	min-height: 24px;
+	line-height: 24px;
+	clear: both;
 }
 
 .form_label {
-	width			: 144px;
-	text-align		: left;
-	float			: left;
-	color			: #3366CC;
-	line-height		: 21px;
-	min-height		: 21px;
+	width: 144px;
+	text-align: left;
+	float: left;
+	color: #3366CC;
+	line-height: 21px;
+	min-height: 21px;
 }
 
-.form_entry input, .form_entry select, .form_entry textarea {
-	width			: 264px;
+.form_entry input,.form_entry select,.form_entry textarea {
+	width: 264px;
 }
 
 .form_entry textarea {
-	height			: 80px;
+	height: 80px;
 }
 
 .form_header {
-	font-size		: 14px;
-	font-weight		: bold;
-	color			: #3366CC;
-	margin-bottom	: 12px;
-	margin-top		: 12px;
-	border-bottom	: 1px solid #e5ecf9;
+	font-size: 14px;
+	font-weight: bold;
+	color: #3366CC;
+	margin-bottom: 12px;
+	margin-top: 12px;
+	border-bottom: 1px solid #e5ecf9;
 }
 
 ul.subsection_tabs {
-	list-style		: none;
-	margin			: 0;
-	margin-bottom	: 12px;
-	padding			: 0;
-	clear			: both;
-	border-bottom	: 1px solid #e5ecf9;
-	height			: 24px;
-	clear			: both;
+	list-style: none;
+	margin: 0;
+	margin-bottom: 12px;
+	padding: 0;
+	clear: both;
+	border-bottom: 1px solid #e5ecf9;
+	height: 24px;
+	clear: both;
 }
 
 ul.subsection_tabs li {
-	float			: left;
-	margin-right	: 7px;
-	text-align		: center;
+	float: left;
+	margin-right: 7px;
+	text-align: center;
 }
 
 ul.subsection_tabs li a {
-	display			: block;
-	height			: 24px;
-	line-height		: 24px;
-	padding			: 0 6px 0 6px;
+	display: block;
+	height: 24px;
+	line-height: 24px;
+	padding: 0 6px 0 6px;
 	background-color: #fff;
-	color			: #3366CC;
-	width			: 80px;
+	color: #3366CC;
+	width: 80px;
 }
 
 ul.subsection_tabs li a:hover {
-	color			: #3366CC;
+	color: #3366CC;
 }
 
 ul.subsection_tabs li a.active {
 	background-color: #e5ecf9;
-	color			: #3366CC;
+	color: #3366CC;
 }
 
 .info_detail {
-	float			: right;
-	width			: 180px;
-	color:#000;
+	float: right;
+	width: 180px;
+	color: #000;
 }

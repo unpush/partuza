@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -18,8 +19,7 @@
  * under the License.
  */
 
-class BlobCrypterException extends Exception {
-}
+class BlobCrypterException extends Exception {}
 
 /**
  * Utility interface for managing signed, encrypted, and time stamped blobs.
@@ -28,7 +28,7 @@ class BlobCrypterException extends Exception {
  * 
  */
 abstract class BlobCrypter {
-	
+
 	/**
 	 * Time stamps, encrypts, and signs a blob.
 	 * 
@@ -38,7 +38,7 @@ abstract class BlobCrypter {
 	 * @throws BlobCrypterException
 	 */
 	abstract public function wrap(Array $in);
-	
+
 	/**
 	 * Unwraps a blob.
 	 * 
