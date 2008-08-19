@@ -23,9 +23,9 @@ Container.prototype = {
 	_parseIframeUrl: function(url) {
 		// parse the iframe url to extract the key = value pairs from it
 		var ret = new Object();
-		var hashParams = url.split('&');
+		var hashParams = url.replace(/#.*$/, '').split('&');
 		var param = key = val = '';
-		for (i = 0 ; i < hashParams.length - 1 ; i++) {
+		for (i = 0 ; i < hashParams.length; i++) {
 			param = hashParams[i];
 			key = param.substr(0, param.indexOf('='));
 			val = param.substr(param.indexOf('=') + 1);
