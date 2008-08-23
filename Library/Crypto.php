@@ -92,14 +92,19 @@ final class Crypto {
 	{
 		/* Open the cipher */
 		$td = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', MCRYPT_MODE_CBC, '');
-		if (! $td) {
-			throw new GeneralSecurityException('Invalid mcrypt cipher, check your libmcrypt library and php-mcrypt extention');
+		if (is_callable('mb_substr')) {
+			$iv = mb_substr($encrypted_text, 0, Crypto::$CIPHER_BLOCK_SIZE, 'latin1');
+		} else {
+			$iv = substr($encrypted_text, 0, Crypto::$CIPHER_BLOCK_SIZE);
 		}
-		$iv = substr($encrypted_text, 0, Crypto::$CIPHER_BLOCK_SIZE);
 		/* Initialize encryption module for decryption */
 		mcrypt_generic_init($td, $key, $iv);
 		/* Decrypt encrypted string */
-		$encrypted = substr($encrypted_text, Crypto::$CIPHER_BLOCK_SIZE);
+		if (is_callable('mb_substr')) {
+			$encrypted = mb_substr($encrypted_text, Crypto::$CIPHER_BLOCK_SIZE, mb_strlen($encrypted_text, 'latin1'), 'latin1');
+		} else {
+			$encrypted = substr($encrypted_text, Crypto::$CIPHER_BLOCK_SIZE);
+		}
 		$decrypted = mdecrypt_generic($td, $encrypted);
 		/* Terminate decryption handle and close module */
 		mcrypt_generic_deinit($td);
