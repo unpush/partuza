@@ -112,14 +112,6 @@ class PartuzaDbFetcher {
 			$ids[$key] = mysqli_real_escape_string($this->db, $val);
 			$this->add_dependency('activities', $ids[$key]);
 		}
-		/*
-		$res = mysqli_query($this->db, "select count(*) from  activities where activities.person_id in (" . implode(',', $ids) . ") order by created desc");
-		$count = 0;
-		if ($res && mysqli_num_rows($res)) {
-			list($count) = mysqli_fetch_row($res);
-		}
-		//$activities['totalSize'] = $count;
-		*/
 		$query = "
 			select 
 				activities.person_id as person_id,
@@ -138,16 +130,20 @@ class PartuzaDbFetcher {
 			$query .= " limit $first, $max";
 		}
 		$res = mysqli_query($this->db, $query);
-		while ($row = @mysqli_fetch_array($res, MYSQLI_ASSOC)) {
-			$activity = new Activity($row['activity_id'], $row['person_id']);
-			$activity->setStreamTitle('activities');
-			$activity->setTitle($row['activity_title']);
-			$activity->setBody($row['activity_body']);
-			$activity->setPostedTime($row['created']);
-			$activity->setMediaItems($this->getMediaItems($row['activity_id']));
-			$activities[] = $activity;
+		if (mysqli_num_rows($res)) {
+			while ($row = @mysqli_fetch_array($res, MYSQLI_ASSOC)) {
+				$activity = new Activity($row['activity_id'], $row['person_id']);
+				$activity->setStreamTitle('activities');
+				$activity->setTitle($row['activity_title']);
+				$activity->setBody($row['activity_body']);
+				$activity->setPostedTime($row['created']);
+				$activity->setMediaItems($this->getMediaItems($row['activity_id']));
+				$activities[] = $activity;
+			}
+			return $activities;
+		} else {
+			return false;
 		}
-		return $activities;
 	}
 
 	private function getMediaItems($activity_id)

@@ -23,12 +23,14 @@ class PartuzaActivitiesService implements ActivitiesService {
 	public function getActivity(UserId $userId, $groupId, $activityId, $first, $max, SecurityToken $token)
 	{
 		$activities = $this->getActivities($userId, $groupId, $first, $max, $token);
-		$activities = $activities->getResponse();
-		if ($activities instanceof RestFulCollection) {
-			$activities = $activities->getEntry();
-			foreach ($activities as $activity) {
-				if ($activity->getId() == $activityId) {
-					return new ResponseItem(null, null, $activity);
+		if (!$activities->getError()) {
+			$activities = $activities->getResponse();
+			if ($activities instanceof RestFulCollection) {
+				$activities = $activities->getEntry();
+				foreach ($activities as $activity) {
+					if ($activity->getId() == $activityId) {
+						return new ResponseItem(null, null, $activity);
+					}
 				}
 			}
 		}
@@ -51,9 +53,12 @@ class PartuzaActivitiesService implements ActivitiesService {
 				$ids[] = $userId->getUserId($token);
 				break;
 		}
-		$activities = PartuzaDbFetcher::get()->getActivities($ids, $first, $max);
-		// TODO: Sort them
-		return new ResponseItem(null, null, RestfulCollection::createFromEntry($activities));
+		if ($activities = PartuzaDbFetcher::get()->getActivities($ids, $first, $max)) {
+			// TODO: Sort them
+			return new ResponseItem(null, null, RestfulCollection::createFromEntry($activities));
+		} else {
+			return new ResponseItem(NOT_FOUND, "Invalid activity");
+		}
 	}
 
 	public function createActivity(UserId $userId, $activity, SecurityToken $token)
