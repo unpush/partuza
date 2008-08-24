@@ -130,7 +130,7 @@ class PartuzaDbFetcher {
 			$query .= " limit $first, $max";
 		}
 		$res = mysqli_query($this->db, $query);
-		if (mysqli_num_rows($res)) {
+		if ($res && mysqli_num_rows($res)) {
 			while ($row = @mysqli_fetch_array($res, MYSQLI_ASSOC)) {
 				$activity = new Activity($row['activity_id'], $row['person_id']);
 				$activity->setStreamTitle('activities');
