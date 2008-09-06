@@ -59,12 +59,12 @@ class peopleModel extends Model {
 		global $db;
 		$this->invalidate_dependency('people', $id);
 		$id = $db->addslashes($id);
-		$supported_fields = array('about_me', 'children', 'date_of_birth', 'drinker', 'ethnicity', 
+		$supported_fields = array('about_me', 'children', 'birthday', 'drinker', 'ethnicity', 
 				'fashion', 'gender', 'happiest_when', 'humor', 'job_interests', 
 				'living_arrangement', 'looking_for', 'nickname', 'pets', 'political_views', 
 				'profile_song', 'profile_video', 'relationship_status', 'religion', 'romance', 
-				'scared_of', 'sexual_orientation', 'smoker', 'status', 'time_zone', 'first_name', 
-				'last_name');
+				'scared_of', 'sexual_orientation', 'smoker', 'status', 'utc_offset', 
+				'first_name', 'last_name');
 		foreach ($person as $key => $val) {
 			if (in_array($key, $supported_fields)) {
 				if ($val == '-') {
@@ -252,5 +252,4 @@ class peopleModel extends Model {
 		}
 		return $ret;
 	}
-
 }

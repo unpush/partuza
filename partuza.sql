@@ -202,6 +202,22 @@ CREATE TABLE `organizations` (
 SET character_set_client = @saved_cs_client;
 
 --
+-- Table structure for table `person_accounts`
+--
+
+DROP TABLE IF EXISTS `person_accounts`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `person_accounts` (
+  `person_id` int(11) NOT NULL,
+  `domain` char(128) default NULL,
+  `userid` char(128) default NULL,
+  `username` char(128) default NULL,
+  KEY `person_id` (`person_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+SET character_set_client = @saved_cs_client;
+
+--
 -- Table structure for table `person_activities`
 --
 
@@ -345,6 +361,21 @@ SET character_set_client = utf8;
 CREATE TABLE `person_heroes` (
   `person_id` int(11) NOT NULL,
   `hero` char(128) NOT NULL,
+  KEY `person_id` (`person_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `person_ims`
+--
+
+DROP TABLE IF EXISTS `person_ims`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `person_ims` (
+  `person_id` int(11) NOT NULL,
+  `value` char(128) default NULL,
+  `value_type` char(128) default NULL,
   KEY `person_id` (`person_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;

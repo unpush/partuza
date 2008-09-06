@@ -172,7 +172,8 @@ class Model {
 		if (isset($this->local_cache[$key])) {
 			return $this->local_cache[$key];
 		}
-		if (in_array($method, $this->cachable)) {
+  		if (in_array($method, $this->cachable)) {
+		  //if (in_array($method, $this->cachable) && false) { // use this line instead to disable caching
 			$data = $cache->get($key);
 			if ($data !== false) {
 				return $data;
