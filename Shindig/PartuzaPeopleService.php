@@ -1,5 +1,4 @@
 <?php
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
@@ -22,28 +21,31 @@ class PartuzaPeopleService implements PeopleService {
 
 	private function comparator($person, $person1)
 	{
-		$name = $person['name']->getUnstructured();
-		$name1 = $person1['name']->getUnstructured();
-		if ($name == $name1) {
-			return 0;
-		}
-		return ($name < $name1) ? - 1 : 1;
+		$name = ($person instanceof Person ? $person->getDisplayName() : $person['displayName']);
+		$name1 = ($person1 instanceof Person ? $person1->getDisplayName() : $person1['displayName']);
+		return strnatcasecmp($name, $name1);
 	}
 
-	public function getPerson($userId, $groupId, $profileDetails, SecurityToken $token)
+	public function getPerson($userId, $groupId, $fields, SecurityToken $token)
 	{
-		$person = $this->getPeople($userId, $groupId, null, null, null, null, $profileDetails, null, $token);
+		if (! is_object($groupId)) {
+			// request is for an optionalPersonId, so fetch that person and ignore the group
+			// FIXME: cleaner way to do this (this seems to be how the data is passed in java)
+			$userId = new UserId('userId', $groupId);
+			$groupId = new GroupId(null, $groupId);
+		}
+		$person = $this->getPeople($userId, $groupId, new CollectionOptions(), $fields, $token);
 		// return of getPeople is a ResponseItem(RestfulCollection(ArrayOfPeople)), disassemble to return just one person
 		if (is_object($person->getResponse())) {
 			$person = $person->getResponse()->getEntry();
 			if (is_array($person) && count($person) == 1) {
-				return new ResponseItem(null, null, array_pop($person));
+				return new ResponseItem(null, null, array("entry" => array_pop($person)));
 			}
 		}
 		return new ResponseItem(NOT_FOUND, "Person not found", null);
 	}
 
-	public function getPeople($userId, $groupId, $sortOrder, $filter, $first, $max, $profileDetails, $networkDistance, SecurityToken $token)
+	public function getPeople($userId, $groupId, CollectionOptions $options, $fields, SecurityToken $token)
 	{
 		$ids = array();
 		switch ($groupId->getType()) {
@@ -59,7 +61,7 @@ class PartuzaPeopleService implements PeopleService {
 				$ids[] = $userId->getUserId($token);
 				break;
 		}
-		$allPeople = PartuzaDbFetcher::get()->getPeople($ids, $profileDetails, $filter, $first, $max);
+		$allPeople = PartuzaDbFetcher::get()->getPeople($ids, $fields, $options);
 		$totalSize = $allPeople['totalSize'];
 		$people = array();
 		foreach ($ids as $id) {
@@ -72,17 +74,17 @@ class PartuzaPeopleService implements PeopleService {
 				if (! $token->isAnonymous() && $id == $token->getOwnerId()) {
 					$person->setIsOwner(true);
 				}
-				if (is_array($profileDetails) && count($profileDetails) && ! in_array('all', $profileDetails)) {
+				if (! isset($fields['@all'])) {
 					$newPerson = array();
 					$newPerson['isOwner'] = $person->isOwner;
 					$newPerson['isViewer'] = $person->isViewer;
-					$newPerson['name'] = $person->name;
+					$newPerson['displayName'] = $person->displayName;
 					// force these fields to be present, without it the results are useless
-					$profileDetails[] = 'id';
-					$profileDetails[] = 'name';
-					$profileDetails[] = 'thumbnailUrl';
-					$profileDetails[] = 'profileUrl';
-					foreach ($profileDetails as $field) {
+					$fields['id'] = 1;
+					$fields['displayName'] = 1;
+					$fields['thumbnailUrl'] = 1;
+					$fields['profileUrl'] = 1;
+					foreach ($fields as $field => $present) {
 						if (isset($person->$field) && ! isset($newPerson[$field])) {
 							$newPerson[$field] = $person->$field;
 						}
@@ -92,11 +94,31 @@ class PartuzaPeopleService implements PeopleService {
 				array_push($people, $person);
 			}
 		}
-		if ($sortOrder == 'name') {
-			usort($people, array($this, 'comparator'));
+		$sorted = $this->sortResults($people, $options);
+		$collection = new RestfulCollection($people, $options->getStartIndex(), $totalSize);
+		if (! $sorted) {
+			$collection->setSorted(false); // record that we couldn't sort as requested
 		}
-		$collection = new RestfulCollection($people, $first, $totalSize);
+		if ($options->getUpdatedSince()) {
+			$collection->setUpdatedSince(false); // we can never process an updatedSince request
+		}
 		return new ResponseItem(null, null, $collection);
 	}
 
+	private function sortResults(&$people, $options)
+	{
+		if (! $options->getSortBy())
+			return true; // trivially sorted
+		
+
+		// for now, partuza can only sort by displayName, which also demonstrates returning sorted: false
+		if ($options->getSortBy() != 'displayName')
+			return false;
+		
+		usort($people, array($this, 'comparator'));
+		if ($options->getSortOrder() != CollectionOptions::SORT_ORDER_ASCENDING) {
+			$people = array_reverse($people);
+		}
+		return true;
+	}
 }
