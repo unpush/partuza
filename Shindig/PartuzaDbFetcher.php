@@ -222,7 +222,7 @@ class PartuzaDbFetcher {
 		return $data;
 	}
 
-	public function getPeople($ids, $fields, $options)
+	public function load_getPeople($ids, $fields, $options)
 	{
 		$first = $options->getStartIndex();
 		$max = $options->getCount();
