@@ -222,7 +222,7 @@ class PartuzaDbFetcher {
 		return $data;
 	}
 
-	public function load_getPeople($ids, $fields, $options)
+	public function getPeople($ids, $fields, $options)
 	{
 		$first = $options->getStartIndex();
 		$max = $options->getCount();
@@ -298,7 +298,7 @@ class PartuzaDbFetcher {
 				}
 				if (isset($fields['addresses']) || isset($fields['@all'])) {
 					$addresses = array();
-					$res2 = mysqli_query($this->db, "select address.* from person_addresses, addresses where address.id = person_addresses.address_id and person_addresses.person_id = " . $person_id);
+					$res2 = mysqli_query($this->db, "select addresses.* from person_addresses, addresses where addresses.id = person_addresses.address_id and person_addresses.person_id = " . $person_id);
 					while ($row = @mysqli_fetch_array($res2, MYSQLI_ASSOC)) {
 						if (empty($row['unstructured_address'])) {
 							$row['unstructured_address'] = trim($row['street_address'] . " " . $row['region'] . " " . $row['country']);
@@ -312,6 +312,8 @@ class PartuzaDbFetcher {
 						$addres->setRegion($row['region']);
 						$addres->setStreetAddress($row['street_address']);
 						$addres->setType($row['address_type']);
+						//FIXME quick and dirty hack to demo PC
+						$addres->setPrimary(true);
 						$addresses[] = $addres;
 					}
 					$person->setAddresses($addresses);
