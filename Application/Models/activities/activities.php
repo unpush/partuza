@@ -38,7 +38,8 @@ class activitiesModel extends Model {
 			applications.id as app_id, 
 			applications.title as app_title,
 			applications.directory_title as app_directory_title,
-			applications.url as app_url
+			applications.url as app_url,
+            activities.id as activity_id
 		from ( activities, persons )
 		left join applications on applications.id = activities.app_id
 		where 
@@ -51,6 +52,27 @@ class activitiesModel extends Model {
 		");
 		while ($row = $db->fetch_array($res, MYSQLI_ASSOC)) {
 			$this->add_dependency('activities', $row['person_id']);
+			$row['media_items'] = $this->load_media_items($row['activity_id']);
+			$ret[] = $row;
+		}
+		return $ret;
+	}
+
+	public function load_media_items($activity_id)
+	{
+		global $db;
+		$activity_id = $db->addslashes($activity_id);
+		$ret = array();
+		$res = $db->query("
+		select
+			mime_type,
+			media_type,
+			url
+		from activity_media_items
+		where
+			activity_id = $activity_id
+		");
+		while ($row = $db->fetch_array($res, MYSQLI_ASSOC)) {
 			$ret[] = $row;
 		}
 		return $ret;
@@ -73,7 +95,8 @@ class activitiesModel extends Model {
 			applications.id as app_id, 
 			applications.title as app_title,
 			applications.directory_title as app_directory_title,
-			applications.url as app_url
+			applications.url as app_url,
+			activities.id as activity_id
 		from ( activities, persons )
 		left join applications on applications.id = activities.app_id
 		where 
@@ -94,6 +117,7 @@ class activitiesModel extends Model {
 		
 		while ($row = $db->fetch_array($res, MYSQLI_ASSOC)) {
 			$this->add_dependency('activities', $row['person_id']);
+			$row['media_items'] = $this->load_media_items($row['activity_id']);
 			$ret[] = $row;
 		}
 		return $ret;
