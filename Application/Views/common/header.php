@@ -35,7 +35,7 @@
 		if (isset($_SESSION['username'])) {
 			echo "<a href=\"" . Config::get('web_prefix') . "/home\">home</a> | <a href=\"" . Config::get('web_prefix') . "/profile/{$_SESSION['id']}\">profile</a> | <a href=\"" . Config::get('web_prefix') . "/logout\">logout</a>&nbsp;";
 		} else {
-			echo "<form method=\"post\" action=\"{$_SERVER['REQUEST_URI']}\"><a href=\"" . Config::get('web_prefix') . "/register\" >register</a>, or login with <label for=\"email\">e-mail</label> <input type=\"text\" name=\"email\" id=\"email\" /> and <label for=\"password\">password</label> <input type=\"password\" name=\"password\" id=\"password\" /> <input class=\"button\" type=\"submit\" value=\"Go\" /></form>&nbsp;\n";
+			echo "<form method=\"post\" action=\"{$_SERVER['REQUEST_URI']}\"><a style=\"text-decoration:underline\" href=\"" . Config::get('web_prefix') . "/register\" ><span style=\"text-decoration:underline\">register</span></a>, or login with <label for=\"email\">e-mail</label> <input type=\"text\" name=\"email\" id=\"email\" /> and <label for=\"password\">password</label> <input type=\"password\" name=\"password\" id=\"password\" /> <input class=\"button\" type=\"submit\" value=\"Go\" /></form>&nbsp;\n";
 		}
 		?>	
 	</div>
