@@ -5,9 +5,23 @@ if (! empty($vars['gadget']['error'])) {
 	$width = $vars['width'];
 	$gadget = $vars['gadget'];
 	$view = $vars['view'];
+	$user_prefs = $gadget['user_prefs'];
 	
 	$prefs = '';
-	foreach ($gadget['user_prefs'] as $name => $value) {
+	$settings = !empty($gadget['settings']) ? unserialize($gadget['settings']) : array();
+	foreach ($settings as $key => $setting) {
+		if (!empty($key)) {
+			$value = isset($user_prefs[$key]) ? $user_prefs[$key] : (isset($setting->default) ? $setting->default : null);
+			if (isset($user_prefs[$key])) {
+				unset($user_prefs[$key]);
+			}
+			$prefs .= '&up_' . urlencode($key) . '=' . urlencode($value);
+		}
+	}
+		
+	foreach ($user_prefs as $name => $value) {
+		// if some keys _are_ set in the db, but not in the gadget metadata, we still parse them on the url
+		// (the above loop unsets the entries that matched  
 		if (! empty($value) && ! isset($appParams[$name])) {
 			$prefs .= '&up_' . urlencode($name) . '=' . urlencode($value);
 		}
