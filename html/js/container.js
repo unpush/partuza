@@ -12,6 +12,8 @@ Container.prototype = {
 	
 	setHeight: function(height) {
 		if ($(this.f) != undefined) {
+			// compensate for margin/padding offsets in some browsers (ugly hack but functional)
+			height += 28;
 			// change the height of the gadget iframe, limit to maxHeight height
 			if (height > gadgets.container.maxHeight) {
 				height = gadgets.container.maxHeight;
