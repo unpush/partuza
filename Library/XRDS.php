@@ -18,10 +18,7 @@ $xrds = '<XRDS xmlns="xri://$xrds">
           <Type>http://ns.opensocial.org/messages/0.8</Type>
           <os:URI-Template>{url}/social/rest/messages/{guid}/outbox/{msgid}</URI-Template>
         </Service>
-        <Service>
-          <Type>http://ns.opensocial.org/batch-proxy/0.8</Type>
-          <URI simple:method="POST">{url}/social/rest/batchProxy?format=atom</URI>
-        </Service>
+
     </XRD>
 </XRDS>';
 
