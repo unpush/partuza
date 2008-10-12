@@ -169,7 +169,6 @@ class PartuzaDbFetcher {
 
 	public function setAppData($person_id, $key, $value, $app_id)
 	{
-		syslog(5,"[setAppData] ($person_id, $key, $value, $app_id)");
 		$this->checkDb();
 		$person_id = mysqli_real_escape_string($this->db, $person_id);
 		$key = mysqli_real_escape_string($this->db, $key);
@@ -190,7 +189,6 @@ class PartuzaDbFetcher {
 
 	public function deleteAppData($person_id, $key, $app_id)
 	{
-		syslog(5,"[deleteAppData] ($person_id, $key, $app_id)");
 		$this->checkDb();
 		$person_id = mysqli_real_escape_string($this->db, $person_id);
 		$key = mysqli_real_escape_string($this->db, $key);
@@ -224,7 +222,6 @@ class PartuzaDbFetcher {
 			$keys = '';
 		}
 		$res = mysqli_query($this->db, "select person_id, name, value from application_settings where application_id = $app_id and person_id in (" . implode(',', $ids) . ") $keys");
-		syslog(5,"[getAppData] select person_id, name, value from application_settings where application_id = $app_id and person_id in (" . implode(',', $ids) . ") $keys");
 		while (list($person_id, $key, $value) = @mysqli_fetch_row($res)) {
 			if (! isset($data[$person_id])) {
 				$data[$person_id] = array();

@@ -131,7 +131,6 @@ class PartuzaService implements ActivityService, PersonService, AppDataService {
 			case 'self':
 				foreach ($fields as $key) {
 					$value = isset($values[$key]) ? $values[$key] : null;
-					syslog(5, "[updatePersonData] $key = $value");
 					if (! PartuzaDbFetcher::get()->setAppData($userId->getUserId($token), $key, $value, $token->getAppId())) {
 						throw new SocialSpiException("Internal server error", ResponseError::$INTERNAL_ERROR);
 					}
