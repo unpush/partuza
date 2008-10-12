@@ -102,13 +102,26 @@ class PartuzaDbFetcher {
 		return true;
 	}
 
-	public function getActivities($ids, $first = false, $max = false)
+	public function getActivities($ids, $appId, $sortBy, $filterBy, $startIndex, $count, $fields)
 	{
 		$this->checkDb();
 		$activities = array();
 		foreach ($ids as $key => $val) {
 			$ids[$key] = mysqli_real_escape_string($this->db, $val);
 		}
+		$ids = implode(',', $ids);
+		// return a proper totalResults count
+		$res = mysqli_query($this->db, "select count(id) from activities where activities.person_id in ($ids)");
+		if ($res !== false) {
+			list($totalResults) = mysqli_fetch_row($res);
+		} else {
+			$totalResults = '0';
+		}
+		$startIndex = (!is_null($startIndex) && $startIndex !== false && is_numeric($startIndex)) ? intval($startIndex) : '0';
+		$count = (!is_null($count) && $count !== false && is_numeric($count)) ? intval($count) : '20';
+		$activities['totalResults'] = $totalResults;
+		$activities['startIndex'] = $startIndex;
+		$activities['count'] = $count;
 		$query = "
 			select 
 				activities.person_id as person_id,
@@ -119,13 +132,12 @@ class PartuzaDbFetcher {
 			from 
 				activities
 			where
-				activities.person_id in (" . implode(',', $ids) . ")
+				activities.person_id in ($ids)
 			order by 
 				created desc
+			limit 
+				$startIndex, $count
 			";
-		if ($first !== false && $max !== false && is_numeric($first) && is_numeric($max) && $first >= 0 && $max > 0) {
-			$query .= " limit $first, $max";
-		}
 		$res = mysqli_query($this->db, $query);
 		if ($res && mysqli_num_rows($res)) {
 			while ($row = @mysqli_fetch_array($res, MYSQLI_ASSOC)) {

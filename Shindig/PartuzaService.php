@@ -78,6 +78,7 @@ class PartuzaService implements ActivityService, PersonService, AppDataService {
 		}
 		$sorted = $this->sortPersonResults($people, $options);
 		$collection = new RestfulCollection($people, $options->getStartIndex(), $totalSize);
+		$collection->setItemsPerPage($options->getCount());
 		if (! $sorted) {
 			$collection->setSorted(false); // record that we couldn't sort as requested
 		}
@@ -115,7 +116,7 @@ class PartuzaService implements ActivityService, PersonService, AppDataService {
 		$data = PartuzaDbFetcher::get()->getAppData($ids, $fields, $appId);
 		if (!count($data)) {
 			// if the data array is empty, the key was not found, raise a not found error
-			throw new SocialSpiException("Unknown person app data key", ResponseError::$NOT_FOUND);
+			throw new SocialSpiException("Unknown person app data key".print_r($appId, true), ResponseError::$NOT_FOUND);
 		}
 		return new DataCollection($data);
 	}
@@ -143,9 +144,9 @@ class PartuzaService implements ActivityService, PersonService, AppDataService {
 		return null;
 	}
 
-	public function getActivity($userId, $groupId, $activityId, $first, $max, SecurityToken $token)
+	public function getActivity($userId, $groupId, $appdId, $fields, $activityId, SecurityToken $token)
 	{
-		$activities = $this->getActivities($userId, $groupId, $first, $max, $token);
+		$activities = $this->getActivities($userId, $groupId, $appdId, null, null, 0, 20, $fields, $token);
 		if ($activities instanceof RestFulCollection) {
 			$activities = $activities->getEntry();
 			foreach ($activities as $activity) {
@@ -157,22 +158,28 @@ class PartuzaService implements ActivityService, PersonService, AppDataService {
 		throw new SocialSpiException("Activity not found", ResponseError::$NOT_FOUND);
 	}
 
-	public function getActivities($userId, $groupId, $first, $max, SecurityToken $token)
+	public function getActivities($userIds, $groupId, $appId, $sortBy, $filterBy, $startIndex, $count, $fields, $token)
 	{
-		$ids = $this->getIdSet($userId, $groupId, $token);
-		if ($activities = PartuzaDbFetcher::get()->getActivities($ids, $first, $max)) {
-			// TODO: Sort them
-			return RestfulCollection::createFromEntry($activities);
+		$ids = $this->getIdSet($userIds, $groupId, $token);
+		if ($activities = PartuzaDbFetcher::get()->getActivities($ids, $appId, $sortBy, $filterBy, $startIndex, $count, $fields)) {
+			$totalResults = $activities['totalResults'];
+			$startIndex = $activities['startIndex'];
+			$count = $activities['count'];
+			unset($activities['totalResults']);
+			unset($activities['startIndex']);
+			unset($activities['count']);
+			$ret = new RestfulCollection($activities, $startIndex, $totalResults);
+			$ret->setItemsPerPage($count);
+			return $ret;
 		} else {
 			throw new SocialSpiException("Invalid activity", ResponseError::$NOT_FOUND);
 		}
 	}
 
-	public function createActivity($userId, $activity, SecurityToken $token)
+	public function createActivity($userId, $groupId, $appId, $fields, $activity, SecurityToken $token)
 	{
 		try {
 			PartuzaDbFetcher::get()->createActivity($userId->getUserId($token), $activity, $token->getAppId());
-			return null;
 		} catch (Exception $e) {
 			throw new SocialSpiException("Invalid create activity request: ".$e->getMessage(), ResponseError::$INTERNAL_ERROR);
 		}
