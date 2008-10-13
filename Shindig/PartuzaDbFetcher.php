@@ -154,6 +154,19 @@ class PartuzaDbFetcher {
 			return false;
 		}
 	}
+	
+	public function deleteActivities($userId, $appId, $activityIds)
+	{
+		$this->checkDb();
+		foreach ($activityIds as $key => $val) {
+			$activityIds[$key] = mysqli_real_escape_string($this->db, $val);
+		}
+		$activityIds = implode(',', $activityIds);
+		$userId = mysqli_real_escape_string($this->db, $userId);
+		$appId = mysqli_real_escape_string($this->db, $appId);
+		mysqli_query($this->db, "delete from activities where person_id = $userId and app_id = $appId and id in ($activityIds)");
+		return (mysqli_affected_rows($this->db) != 0);
+	}
 
 	private function getMediaItems($activity_id)
 	{

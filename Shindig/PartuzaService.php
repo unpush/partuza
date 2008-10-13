@@ -184,6 +184,17 @@ class PartuzaService implements ActivityService, PersonService, AppDataService {
 			throw new SocialSpiException("Invalid create activity request: ".$e->getMessage(), ResponseError::$INTERNAL_ERROR);
 		}
 	}
+	
+	public function deleteActivities($userId, $groupId, $appId, $activityIds, SecurityToken $token)
+	{
+		$ids = $this->getIdSet($userId, $groupId, $token);
+		if (count($ids) < 1 || count($ids) > 1) {
+			throw new SocialSpiException("Invalid user id or count", ResponseError::$BAD_REQUEST);
+		}
+		if (!PartuzaDbFetcher::get()->deleteActivities($ids[0], $appId, $activityIds)) {
+			throw new SocialSpiException("Invalid activity id(s)", ResponseError::$NOT_FOUND);
+		}
+	}
 
 	/**
 	 * Get the set of user id's from a user or collection of users, and group
