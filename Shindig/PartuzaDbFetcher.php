@@ -218,7 +218,7 @@ class PartuzaDbFetcher {
 		$person_id = mysqli_real_escape_string($this->db, $person_id);
 		$key = mysqli_real_escape_string($this->db, $key);
 		$app_id = mysqli_real_escape_string($this->db, $app_id);
-		if (! @mysqli_query($this->db, "delete from application_settings where application_id = $app_id and person_id = $person_id and name = $key")) {
+		if (! @mysqli_query($this->db, "delete from application_settings where application_id = $app_id and person_id = $person_id and name = '$key'")) {
 			return false;
 		}
 		return true;

@@ -91,23 +91,23 @@ class PartuzaService implements ActivityService, PersonService, AppDataService {
 	public function deletePersonData($userId, GroupId $groupId, $appId, $fields, SecurityToken $token)
 	{
 		foreach ($fields as $key) {
-			if (! PartuzaAppDataService::isValidKey($key)) {
+			if (! self::isValidKey($key)) {
 				throw new SocialSpiException("The person app data key had invalid characters", ResponseError::$BAD_REQUEST);
 			}
 		}
-		switch ($groupId->getType()) {
-			case 'self':
-				foreach ($fields as $key) {
-					if (! PartuzaDbFetcher::get()->deleteAppData($userId, $key, $token->getAppId())) {
-						throw new SocialSpiException("Internal server error", ResponseError::$INTERNAL_ERROR);
-					}
-				}
-				break;
-			default:
-				throw new SocialSpiException("We don't support deleting data for groups of user id's", ResponseError::$NOT_IMPLEMENTED);
-				break;
+		$ids = $this->getIdSet($userId, $groupId, $token);
+		if (count($ids) < 1) {
+			throw new InvalidArgumentException("No userId specified");
+		} elseif (count($ids) > 1) {
+			throw new InvalidArgumentException("Multiple userIds not supported");
 		}
-		return null;
+		$userId = $ids[0];
+		$appId = $token->getAppId();
+		foreach ($fields as $key) {
+			if (! PartuzaDbFetcher::get()->deleteAppData($userId, $key, $appId)) {
+				throw new SocialSpiException("Internal server error", ResponseError::$INTERNAL_ERROR);
+			}
+		}
 	}
 
 	public function getPersonData($userId, GroupId $groupId, $appId, $fields, SecurityToken $token)
@@ -116,7 +116,7 @@ class PartuzaService implements ActivityService, PersonService, AppDataService {
 		$data = PartuzaDbFetcher::get()->getAppData($ids, $fields, $appId);
 		if (!count($data)) {
 			// if the data array is empty, the key was not found, raise a not found error
-			throw new SocialSpiException("Unknown person app data key".print_r($appId, true), ResponseError::$NOT_FOUND);
+			throw new SocialSpiException("Unknown person app data key(s): ".implode(', ', $fields), ResponseError::$NOT_FOUND);
 		}
 		return new DataCollection($data);
 	}
@@ -141,7 +141,6 @@ class PartuzaService implements ActivityService, PersonService, AppDataService {
 				throw new SocialSpiException("We don't support updating data in batches yet", ResponseError::$NOT_IMPLEMENTED);
 				break;
 		}
-		return null;
 	}
 
 	public function getActivity($userId, $groupId, $appdId, $fields, $activityId, SecurityToken $token)
