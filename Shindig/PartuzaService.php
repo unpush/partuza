@@ -194,6 +194,11 @@ class PartuzaService implements ActivityService, PersonService, AppDataService {
 			throw new SocialSpiException("Invalid activity id(s)", ResponseError::$NOT_FOUND);
 		}
 	}
+	
+	public function createMessage($userId, $appId, $message, $optionalMessageId, SecurityToken $token)
+	{
+		throw new SocialSpiException("Not implemented", ResponseError::$NOT_IMPLEMENTED);
+	}
 
 	/**
 	 * Get the set of user id's from a user or collection of users, and group
