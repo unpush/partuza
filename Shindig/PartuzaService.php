@@ -20,7 +20,7 @@
 /**
  * Implementation of supported services backed using Partuza's DB Fetcher
  */
-class PartuzaService implements ActivityService, PersonService, AppDataService {
+class PartuzaService implements ActivityService, PersonService, AppDataService, MessagesService {
 
 	public function getPerson($userId, $groupId, $fields, SecurityToken $token)
 	{
