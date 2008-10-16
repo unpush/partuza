@@ -1,5 +1,5 @@
 The goal of Partuza is to enable gadget developers to develop on their own system or private network,
-and to server as an example / starting point for websites who want to learn how to use php-shindig
+and to serve as an example / starting point for websites who want to learn how to use php-shindig
 to become OpenSocial containers.
 
 To make sure this code can serve the later purpose, I'm licensing the code under 3 different Open Source
