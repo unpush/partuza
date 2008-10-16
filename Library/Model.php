@@ -59,16 +59,18 @@ class Model {
 	{
 		global $cache;
 		// dep_map holds only modified entries, so store each entry
-		foreach ($this->dep_map as $key => $new_deps) {
-			// retrieve the most uptodate map and merge them with our results
-			if (($existing_deps = $cache->get($key)) !== false) {
-				foreach ($existing_deps as $existing_dep) {
-					if (! in_array($existing_dep, $new_deps)) {
-						$new_deps[] = $existing_dep;
+		if (is_object($cache)) {
+			foreach ($this->dep_map as $key => $new_deps) {
+				// retrieve the most uptodate map and merge them with our results
+				if (($existing_deps = $cache->get($key)) !== false) {
+					foreach ($existing_deps as $existing_dep) {
+						if (! in_array($existing_dep, $new_deps)) {
+							$new_deps[] = $existing_dep;
+						}
 					}
 				}
+				$cache->set(md5($key), $new_deps);
 			}
-			$cache->set(md5($key), $new_deps);
 		}
 	}
 

@@ -2,6 +2,10 @@
 $xrds = '<XRDS xmlns="xri://$xrds">
     <XRD xmlns:simple="http://xrds-simple.net/core/1.0" xmlns="xri://$XRD*($v*2.0)" xmlns:os="http://ns.opensocial.org/" version="2.0">
         <Type>xri://$xrds*simple</Type>
+    	<Service>
+      	<Type>http://portablecontacts.net/spec/1.0</Type>
+    	  <URI>{url}/social/rest/people/</URI>
+	    </Service>
         <Service>
           <Type>http://ns.opensocial.org/people/0.8</Type>
           <os:URI-Template>{url}/social/rest/people/{guid}/{selector}{-prefix|/|pid}?format=atom</URI-Template>
@@ -18,7 +22,6 @@ $xrds = '<XRDS xmlns="xri://$xrds">
           <Type>http://ns.opensocial.org/messages/0.8</Type>
           <os:URI-Template>{url}/social/rest/messages/{guid}/outbox/{msgid}</URI-Template>
         </Service>
-
     </XRD>
 </XRDS>';
 

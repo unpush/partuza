@@ -142,7 +142,7 @@ class applicationsModel extends Model {
 		$error = false;
 		$info = array();
 		// see if we have up-to-date info in our db. Cut-off time is 1 day (aka refresh module info once a day)
-		$time = time() - (24 * 60 * 60);
+		$time = time() - (24  * 60 * 60);
 		$url = $db->addslashes($app_url);
 		$res = $db->query("select * from applications where url = '$url' and modified > $time");
 		if ($db->num_rows($res)) {
@@ -172,6 +172,7 @@ class applicationsModel extends Model {
 					$info['author_email'] = isset($gadget->authorEmail) ? $gadget->authorEmail : '';
 					$info['description'] = isset($gadget->description) ? $gadget->description : '';
 					$info['settings'] = isset($gadget->userPrefs) ? serialize($gadget->userPrefs) : '';
+					$info['views'] = isset($gadget->views) ? serialize($gadget->views) : '';
 					if ($gadget->scrolling == 'true') {
 						$gadget->scrolling = 1;
 					}
@@ -185,7 +186,7 @@ class applicationsModel extends Model {
 					$info['modified'] = time();
 					// Insert new application into our db, or if it exists (but had expired info) update the meta data
 					$db->query("insert into applications
-								(id, url, title, directory_title, screenshot, thumbnail, author, author_email, description, settings, version, height, scrolling, modified)
+								(id, url, title, directory_title, screenshot, thumbnail, author, author_email, description, settings, views, version, height, scrolling, modified)
 								values
 								(
 									0,
@@ -198,6 +199,7 @@ class applicationsModel extends Model {
 									'" . $db->addslashes($info['author_email']) . "',
 									'" . $db->addslashes($info['description']) . "',
 									'" . $db->addslashes($info['settings']) . "',
+									'" . $db->addslashes($info['views']) . "',
 									'" . $db->addslashes($info['version']) . "',
 									'" . $db->addslashes($info['height']) . "',
 									'" . $db->addslashes($info['scrolling']) . "',
@@ -212,6 +214,7 @@ class applicationsModel extends Model {
 									author_email = '" . $db->addslashes($info['author_email']) . "',
 									description = '" . $db->addslashes($info['description']) . "',
 									settings = '" . $db->addslashes($info['settings']) . "',
+									views = '" . $db->addslashes($info['views']) . "',
 									version = '" . $db->addslashes($info['version']) . "',
 									height = '" . $db->addslashes($info['height']) . "',
 									scrolling = '" . $db->addslashes($info['scrolling']) . "',
@@ -229,7 +232,6 @@ class applicationsModel extends Model {
 			}
 		}
 		if (! $error) {
-			
 			$this->add_dependency('applications', $info['id']);
 		}
 		$info['error'] = $error;
