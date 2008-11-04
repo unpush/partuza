@@ -44,7 +44,7 @@ $config = array(
 	'token_hmac_key' => 'INSECURE_DEFAULT_KEY',
 
 	// MySql server settings
-	'db_host'          => 'localhost',
+	'db_host'          => '127.0.0.1',
 	'db_user'          => 'root',
 	'db_passwd'        => '',
 	'db_database'      => 'partuza',
