@@ -19,68 +19,117 @@
  */
 
 /**
- * Primitive OAuth backing store that doesn't do much.
+ * Partuza's implementation of the OAuthDataStore
  */
 class PartuzaOAuthDataStore extends OAuthDataStore {
+	private $db;
 
 	function __construct()
 	{
+		global $db;
+		// this class is used in 2 different contexts, either through partuza where we have a Db class
+		// or through Shindig's social API, in which case we have to create our own db handle 
+		if (isset($db) && $db instanceof DB) {
+			// running in partuza's context
+			$this->db = $db->get_handle();
+		} else {
+			// running in shindig's context
+			// one of the class paths should point to partuza's document root, abuse that fact to find our config
+			$extension_class_paths = Config::get('extension_class_paths');
+			foreach (explode(',', $extension_class_paths) as $path) {
+				if (file_exists($path . "/PartuzaDbFetcher.php")) {
+					$configFile = $path . '/../html/config.php';
+					if (file_exists($configFile)) {
+						//NOTE: since $config is not in the $global scope, this inclusion won't overwrite any global $config's
+						include $configFile;
+						break;
+					}
+				}
+			}
+			if (! isset($config)) {
+				throw new Exception("Could not locate partuza's configuration file while scanning extension_class_paths ({$extension_class_paths})");
+			}
+			$this->db = mysqli_connect($config['db_host'], $config['db_user'], $config['db_passwd'], $config['db_database']);
+			mysqli_select_db($this->db, $config['db_database']);
+		}
 	}
 
 	function lookup_consumer($consumer_key)
 	{
-		// TODO: generate and store secret per-application to hand out?
-		$secret = "fake-consumer-secret";
-		return new OAuthConsumer($consumer_key, $secret);
+		$consumer_key = mysqli_real_escape_string($this->db, $consumer_key);
+		$res = mysqli_query($this->db, "select * from oauth_consumer where consumer_key = '$consumer_key'");
+		if (mysqli_num_rows($res)) {
+			$ret = mysqli_fetch_array($res, MYSQLI_ASSOC);
+			return new OAuthConsumer($ret['consumer_key'], $ret['consumer_secret']);
+		}
+		return null;
 	}
 
 	function lookup_token($consumer, $token_type, $token)
 	{
-		if ($token_type == "request") {
-			// TODO: look up secret given token
-			$secret = "fake-request-secret";
-			return new OAuthToken($token, $secret);
-		} else { 
-			if ($token_type == "access") {
-				// TODO: look up secret given token
-				$secret = "fake-access-secret";
-				return new OAuthToken($token, $secret);
-			} else {
-				throw new OAuthException("unexpected token type: $token_type");
-			}
+		$token_type = mysqli_real_escape_string($this->db, $token_type);
+		$consumer_key = mysqli_real_escape_string($this->db, $consumer->key);
+		$token = mysqli_real_escape_string($this->db, $token);
+		$res = mysqli_query($this->db, "select * from oauth_token where type = '$token_type' and consumer_key = '{$consumer_key}' and token_key = '$token'");
+		if (mysqli_num_rows($res)) {
+			$ret = mysqli_fetch_array($res, MYSQLI_ASSOC);
+			return new OAuthToken($ret['token_key'], $ret['token_secret']);
 		}
+		throw new OAuthException("Unexpected token type ($token_type) or unknown token");
 	}
 
 	function lookup_nonce($consumer, $token, $nonce, $timestamp)
 	{
-		// TODO: lookup nonce, return true if found; store nonce, at least temporarily
-		return false; // pretend we've always never seen this nonce 
+		$timestamp = mysqli_real_escape_string($this->db, $timestamp);
+		$res = mysqli_select($this->db, "select nonce from oauth_nonce where nonce_timestamp = $timestamp");
+		if (!mysqli_num_rows($this->db)) {
+			$nonce = mysqli_real_escape_string($this->db, $nonce);
+			mysqli_query("insert into oauth_nonce (nonce, nonce_timestamp) values ('$nonce', $timestamp)");
+			return null;
+		}
+		$ret = mysqli_fetch_array($res, MYSQLI_ASSOC);
+		return $ret['nonce'];
 	}
 
 	function new_request_token($consumer)
 	{
-		//$token = "token-".genGUID();
-		//$secret = "secret-".genGUID();
-		$token = "fake-request-token";
-		$secret = "fake-request-secret";
-		// TODO: store these values (cache? db?)
-		return new OAuthToken($token, $secret);
+		$consumer_key = mysqli_real_escape_string($this->db, $consumer->key);
+		$res = mysqli_query($this->db, "select uid from oauth_consumer where consumer_key = '$consumer_key'");
+		if (mysqli_num_rows($res)) {
+			$ret = mysqli_fetch_array($res, MYSQLI_ASSOC);
+			$user_id = $ret['uid'];
+			new OAuthToken("fake-request-token", "fake-request-secret");
+			//$token = new OAuthToken(user_password(32), user_password(32));
+			$token_key = mysqli_real_escape_string($this->db, $token->key);
+			$token_secret = mysqli_real_escape_string($this->db, $token->secret);
+			mysqli_query($this->db, "insert into oauth_token (consumer_key, token_key, token_secret, uid) values ('$consumer_key', 'request', '$token_key', '$token_secret', '$user_id')");
+		} else {
+			throw new OAuthException("Invalid consumer key ($consumer_key)");
+		}
+		return $token;
 	}
 
 	function new_access_token($oauthToken, $consumer)
 	{
-		// TODO: validate that request token was previously authorized (fetch it and look)
-		//$token = "token-".genGUID();
-		//$secret = "secret-".genGUID();
-		$token = "fake-access-token";
-		$secret = "fake-access-secret";
-		// TODO: store these values in db
-		return new OAuthToken($token, $secret);
+		die("in new access token, globals:\n".print_r($GLOBALS, true));
+		$res = mysqli_query("select * from oauth_token where type = 'request' and token_key = 'SOMETHING'");
+		if (mysqli_num_rows($res)) {
+			$ret = mysqli_fetch_array($res, MYSQLI_ASSOC);
+			if ($ret['authorized']) {
+				//$token = new OAuthToken(user_password(32), user_password(32));
+				//global $user;
+				//db_query("INSERT INTO {oauth_token} (consumer_key, type, token_key, token_secret, uid) VALUES ('%s', '%s', '%s', '%s', %d)", $consumer->key, 'access', $token->key, $token->secret, $user->uid);
+				//db_query("DELETE FROM {oauth_token} WHERE type='request' AND token_key='%s'", $request_token->key);
+				return $token;
+			}
+		}
+		return null;
 	}
 
 	function authorize_request_token($token)
 	{
-		// TODO: mark the given request token as having been authorized by the user
+		$token = mysqli_real_escape_string($this->db, $token);
+		mysqli_query($this->db, "update oauth_token set authorized = 1 where token_key = '$token'");
 	}
 
 }
