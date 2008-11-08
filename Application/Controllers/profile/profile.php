@@ -25,7 +25,7 @@ class profileController extends baseController {
 		$id = isset($params[2]) && is_numeric($params[2]) ? $params[2] : false;
 		if (! $id) {
 			//TODO add a proper 404 / profile not found here
-			header("Location: " . Config::get('web_prefix') . "/");
+			header("Location: " . PartuzaConfig::get('web_prefix') . "/");
 			die();
 		}
 		$people = $this->model('people');
@@ -80,11 +80,11 @@ class profileController extends baseController {
 					// it's a file extention that we accept too (not that means anything really)
 					$accepted = array('gif', 'jpg', 'jpeg', 'png');
 					if (in_array($ext, $accepted)) {
-						if (! move_uploaded_file($file['tmp_name'], Config::get('site_root') . '/images/people/' . $_SESSION['id'] . '.' . $ext)) {
+						if (! move_uploaded_file($file['tmp_name'], PartuzaConfig::get('site_root') . '/images/people/' . $_SESSION['id'] . '.' . $ext)) {
 							die("no permission to images/people dir, or possible file upload attack, aborting");
 						}
 						// thumbnail the image to 96x96 format (keeping the original)
-						$thumbnail_url = Image::by_size(Config::get('site_root') . '/images/people/' . $_SESSION['id'] . '.' . $ext, 96, 96, true);
+						$thumbnail_url = Image::by_size(PartuzaConfig::get('site_root') . '/images/people/' . $_SESSION['id'] . '.' . $ext, 96, 96, true);
 						$people->set_profile_photo($_SESSION['id'], $thumbnail_url);
 					}
 				}
@@ -181,10 +181,10 @@ class profileController extends baseController {
 		$ret = $apps->add_application($_SESSION['id'], $url);
 		if ($ret['app_id'] && $ret['mod_id'] && ! $ret['error']) {
 			// App added ok, goto app settings
-			header("Location: " . Config::get("web_prefix") . "/profile/application/{$_SESSION['id']}/{$ret['app_id']}/{$ret['mod_id']}");
+			header("Location: " . PartuzaConfig::get("web_prefix") . "/profile/application/{$_SESSION['id']}/{$ret['app_id']}/{$ret['mod_id']}");
 		} else {
 			// Using the home controller to display the error on the person's home page
-			include_once Config::get('controllers_root') . "/home/home.php";
+			include_once PartuzaConfig::get('controllers_root') . "/home/home.php";
 			$homeController = new homeController();
 			$message = "Could not add application: {$ret['error']}";
 			$homeController->index($params, $message);
@@ -231,7 +231,7 @@ class profileController extends baseController {
 					}
 				}
 			}
-			header("Location: " . Config::get("web_prefix") . "/profile/application/{$_SESSION['id']}/$app_id/$mod_id");
+			header("Location: " . PartuzaConfig::get("web_prefix") . "/profile/application/{$_SESSION['id']}/$app_id/$mod_id");
 			die();
 		}
 		$this->template('applications/application_settings.php', array(

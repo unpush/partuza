@@ -1,30 +1,30 @@
 <div>
 <div style="text-align: center">
 <?php
-$thumb = Config::get('site_root') . '/images/people/' . $vars['person']['id'] . '.jpg';
+$thumb = PartuzaConfig::get('site_root') . '/images/people/' . $vars['person']['id'] . '.jpg';
 if (! file_exists($thumb)) {
-	$thumb = Config::get('site_root') . '/images/people/nophoto.gif';
+	$thumb = PartuzaConfig::get('site_root') . '/images/people/nophoto.gif';
 }
 $thumb = Image::by_size($thumb, 128, 128);
 ?>
 		<a
-	href="<?=Config::get('web_prefix')?>/profile/<?=$vars['person']['id']?>"
+	href="<?=PartuzaConfig::get('web_prefix')?>/profile/<?=$vars['person']['id']?>"
 	rel="me"><img src="<?=$thumb?>" /></a><br />
 </div>
 <div class="header">
 		<?
 		if ($vars['is_owner']) {
-			echo "<div class=\"gadgets-gadget-title-button-bar\"><a href=\"" . Config::get("web_prefix") . "/profile/edit\">edit</a></div>";
+			echo "<div class=\"gadgets-gadget-title-button-bar\"><a href=\"" . PartuzaConfig::get("web_prefix") . "/profile/edit\">edit</a></div>";
 		}
 		?>
 		<a
-	href="<?=Config::get('web_prefix')?>/profile/<?=$vars['person']['id']?>"
+	href="<?=PartuzaConfig::get('web_prefix')?>/profile/<?=$vars['person']['id']?>"
 	rel="me"><?=$vars['person']['first_name'] . ' ' . $vars['person']['last_name']?></a>
 </div>
 </div>
 <a
 	href="<?php
-	echo Config::get("web_prefix")?>/profile/friends/<?=$vars['person']['id']?>">View <?=$vars['is_owner'] ? 'my' : $vars['person']['first_name'] . "'s"?> friends</a>
+	echo PartuzaConfig::get("web_prefix")?>/profile/friends/<?=$vars['person']['id']?>">View <?=$vars['is_owner'] ? 'my' : $vars['person']['first_name'] . "'s"?> friends</a>
 <br />
 <?
 if ($vars['is_owner']) {
@@ -39,8 +39,8 @@ if ($vars['is_owner']) {
 if ($vars['is_owner']) {
 	?>
 	<div class="gadgets-gadget-title-button-bar"><a
-	href="<?=Config::get('web_prefix')?>/profile/myapps">edit</a></div>
-<a href="<?=Config::get('web_prefix')?>/profile/myapps">
+	href="<?=PartuzaConfig::get('web_prefix')?>/profile/myapps">edit</a></div>
+<a href="<?=PartuzaConfig::get('web_prefix')?>/profile/myapps">
 <?
 }
 ?>
@@ -57,7 +57,7 @@ if ($vars['is_owner']) {
 <?
 if (isset($vars['applications']) && count($vars['applications'])) {
 	foreach ($vars['applications'] as $app) {
-		echo "<div class=\"application_link\"><a href=\"" . Config::get('web_prefix') . "/profile/application/{$vars['person']['id']}/{$app['id']}/{$app['mod_id']}\">" . (! empty($app['directory_title']) ? $app['directory_title'] : $app['title']) . "</a></div>";
+		echo "<div class=\"application_link\"><a href=\"" . PartuzaConfig::get('web_prefix') . "/profile/application/{$vars['person']['id']}/{$app['id']}/{$app['mod_id']}\">" . (! empty($app['directory_title']) ? $app['directory_title'] : $app['title']) . "</a></div>";
 	}
 }
 ?>

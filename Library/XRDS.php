@@ -65,6 +65,6 @@ $xrds = '<XRDS xmlns="xri://$xrds">
 header("Content-Type: application/xrds+xml");
 //header("Content-Type: text/xml"); // turn this on and comment out the previous line to view it easily in a browser
 // output the XRDS document with the correct URL to our gadget server filled in
-$xrds = str_replace('{url}', Config::get('gadget_server'), $xrds);
+$xrds = str_replace('{url}', PartuzaConfig::get('gadget_server'), $xrds);
 $xrds = str_replace('{host}', 'http://'.$_SERVER['HTTP_HOST'], $xrds);
 echo $xrds;

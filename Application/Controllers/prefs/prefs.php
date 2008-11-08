@@ -30,7 +30,7 @@ class prefsController extends baseController {
 				$st = urldecode(base64_decode($_GET['st']));
 				$key = urldecode($_GET['name']);
 				$value = urldecode($_GET['value']);
-				$token = BasicSecurityToken::createFromToken($st, Config::get('st_max_age'));
+				$token = BasicSecurityToken::createFromToken($st, PartuzaConfig::get('st_max_age'));
 				$app_id = $token->getAppId();
 				$viewer = $token->getViewerId();
 				$apps = $this->model('applications');

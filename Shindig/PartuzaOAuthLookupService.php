@@ -19,39 +19,44 @@
  */
 
 /**
- * Basic implementation of OAuthLookupService using BasicOAuthDataStore.
+ * Basic implementation of OAuthLookupService based on BasicOAuthDataStore.
  */
 class PartuzaOAuthLookupService extends OAuthLookupService {
-  public function thirdPartyHasAccessToUser($oauthRequest, $appUrl, $userId) {
-    $appId = $this->getAppId($appUrl);
-    return $this->hasValidSignature($oauthRequest, $appUrl, $appId) 
-           && $this->userHasAppInstalled($userId, $appId);
-  }
 
-  private function hasValidSignature($oauthRequest, $appUrl, $appId) {
-    try {
-      $server = new OAuthServer(new PartuzaOAuthDataStore());
-      $server->add_signature_method(new OAuthSignatureMethod_HMAC_SHA1());
-      $server->add_signature_method(new OAuthSignatureMethod_PLAINTEXT());
-      list($consumer, $token) = $server->verify_request($oauthRequest);
-      return true;
-    } catch (OAuthException $e) {
-      //echo "OAuthException: ".$e->getMessage();
-    }
-    return false;
-  }
+	public function thirdPartyHasAccessToUser($oauthRequest, $appUrl, $userId)
+	{
+		$appId = $this->getAppId($appUrl);
+		return $this->hasValidSignature($oauthRequest, $appUrl, $appId) && $this->userHasAppInstalled($userId, $appId);
+	}
 
-  private function userHasAppInstalled($userId, $appId) {
-    //TODO: SQL: select count(1) from person_applications where person_id = $userId and application_id $appId
-    return true; // a real implementation would look this up
-  }
+	private function hasValidSignature($oauthRequest, $appUrl, $appId)
+	{
+		try {
+			$server = new OAuthServer(new PartuzaOAuthDataStore());
+			$server->add_signature_method(new OAuthSignatureMethod_HMAC_SHA1());
+			$server->add_signature_method(new OAuthSignatureMethod_PLAINTEXT());
+			list($consumer, $token) = $server->verify_request($oauthRequest);
+			return true;
+		} catch (OAuthException $e) {	
+			echo "OAuthException: ".$e->getMessage();
+		}
+		return false;
+	}
 
-  public function getSecurityToken($appUrl, $userId) {
-    return new OAuthSecurityToken($userId, $appUrl, $this->getAppId($appUrl), "partuza");
-  }
+	private function userHasAppInstalled($userId, $appId)
+	{
+		//TODO: SQL: select count(1) from person_applications where person_id = $userId and application_id $appId
+		return true; // a real implementation would look this up
+	}
 
-  private function getAppId($appUrl) { 
-    // TODO: SQL: select id from applications where url = $appUrl
-    return 0; // a real implementation would look this up
-  }
+	public function getSecurityToken($appUrl, $userId)
+	{
+		return new OAuthSecurityToken($userId, $appUrl, $this->getAppId($appUrl), "partuza");
+	}
+
+	private function getAppId($appUrl)
+	{
+		// TODO: SQL: select id from applications where url = $appUrl
+		return 0; // a real implementation would look this up
+	}
 }

@@ -17,7 +17,7 @@ Get in touch with your friends and share the fun.</div>
 		}
 		?>
 		
-	<form action="<?=Config::get('web_prefix');?>/register" method="post"
+	<form action="<?=PartuzaConfig::get('web_prefix');?>/register" method="post"
 	id="register">
 <div class="form_header">Account information</div>
 

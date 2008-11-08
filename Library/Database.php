@@ -46,7 +46,7 @@ class DB {
 			mysqli_close($this->db);
 		}
 	}
-
+	
 	public function check()
 	{
 		if (! (isset($this->db) && is_object($this->db))) {

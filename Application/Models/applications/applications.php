@@ -105,7 +105,7 @@ class applicationsModel extends Model {
 						'container' => 'partuza'), 
 				'gadgets' => array(array('url' => $app_url, 'moduleId' => '1'))));
 		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, Config::get('gadget_server') . '/gadgets/metadata');
+		curl_setopt($ch, CURLOPT_URL, PartuzaConfig::get('gadget_server') . '/gadgets/metadata');
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_AUTOREFERER, 1);

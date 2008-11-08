@@ -56,6 +56,7 @@ class PartuzaOAuthDataStore extends OAuthDataStore {
 
 	function lookup_consumer($consumer_key)
 	{
+		syslog(5,"[lookup consumer] $consumer_key");
 		$consumer_key = mysqli_real_escape_string($this->db, $consumer_key);
 		$res = mysqli_query($this->db, "select * from oauth_consumer where consumer_key = '$consumer_key'");
 		if (mysqli_num_rows($res)) {
@@ -67,6 +68,7 @@ class PartuzaOAuthDataStore extends OAuthDataStore {
 
 	function lookup_token($consumer, $token_type, $token)
 	{
+		syslog(5,"[lookup_token] ".print_r($consumer, true),", $token_type, $token");
 		$token_type = mysqli_real_escape_string($this->db, $token_type);
 		$consumer_key = mysqli_real_escape_string($this->db, $consumer->key);
 		$token = mysqli_real_escape_string($this->db, $token);
@@ -80,6 +82,7 @@ class PartuzaOAuthDataStore extends OAuthDataStore {
 
 	function lookup_nonce($consumer, $token, $nonce, $timestamp)
 	{
+		syslog(5, "[lookup nonce] $consumer, $token, $nonce, $timestamp");
 		$timestamp = mysqli_real_escape_string($this->db, $timestamp);
 		$res = mysqli_select($this->db, "select nonce from oauth_nonce where nonce_timestamp = $timestamp");
 		if (!mysqli_num_rows($this->db)) {
@@ -93,12 +96,13 @@ class PartuzaOAuthDataStore extends OAuthDataStore {
 
 	function new_request_token($consumer)
 	{
+		syslog(5,"[new_request_token] ".print_r($consumer, true));
 		$consumer_key = mysqli_real_escape_string($this->db, $consumer->key);
 		$res = mysqli_query($this->db, "select uid from oauth_consumer where consumer_key = '$consumer_key'");
 		if (mysqli_num_rows($res)) {
 			$ret = mysqli_fetch_array($res, MYSQLI_ASSOC);
 			$user_id = $ret['uid'];
-			new OAuthToken("fake-request-token", "fake-request-secret");
+			$token = new OAuthToken("fake-request-token", "fake-request-secret");
 			//$token = new OAuthToken(user_password(32), user_password(32));
 			$token_key = mysqli_real_escape_string($this->db, $token->key);
 			$token_secret = mysqli_real_escape_string($this->db, $token->secret);
@@ -111,7 +115,7 @@ class PartuzaOAuthDataStore extends OAuthDataStore {
 
 	function new_access_token($oauthToken, $consumer)
 	{
-		die("in new access token, globals:\n".print_r($GLOBALS, true));
+		syslog(5,"[new_access_token] $oauthToken, ".print_r($consumer, true));
 		$res = mysqli_query("select * from oauth_token where type = 'request' and token_key = 'SOMETHING'");
 		if (mysqli_num_rows($res)) {
 			$ret = mysqli_fetch_array($res, MYSQLI_ASSOC);
@@ -128,6 +132,7 @@ class PartuzaOAuthDataStore extends OAuthDataStore {
 
 	function authorize_request_token($token)
 	{
+		syslog(5,"[authorize_request_token] $token");
 		$token = mysqli_real_escape_string($this->db, $token);
 		mysqli_query($this->db, "update oauth_token set authorized = 1 where token_key = '$token'");
 	}

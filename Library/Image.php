@@ -49,7 +49,7 @@ class Image {
 				return false;
 			}
 		}
-		return str_replace(Config::get('site_root'), '', $file);
+		return str_replace(PartuzaConfig::get('site_root'), '', $file);
 	}
 
 	static public function thumbnail($file_path, $suffix = 'thumbnail', $desired_width = 96, $desired_height = 96)

@@ -33,7 +33,7 @@ $config = array(
 	//'container' => 'partuza',
 
 	// gadget server url
-	'gadget_server'    => 'http://shindig',
+	'gadget_server'    => 'http://shindig-home.chabotc.com',
 
 	// Max age of a security token, defaults to one hour
 	'st_max_age' => 60 * 60,
@@ -69,15 +69,3 @@ $config = array(
 	'controllers_root' => realpath(dirname(__FILE__)."/../Application/Controllers")
 );
 
-/**
- * Abstracts how to retrieve configuration values so we can replace the
- * not so pretty $config array some day.
- *
- */
-class Config {
-	static function get($key)
-	{
-		global $config;
-		return $config[$key];
-	}
-}

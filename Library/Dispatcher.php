@@ -99,7 +99,7 @@ class Dispatcher {
 		global $controller;
 		// To do etag etc support, we need output buffering, try to use compressed output where possible
 		ob_start();
-		$params = explode('/', str_replace(Config::get('web_prefix'), '', $this->url));
+		$params = explode('/', str_replace(PartuzaConfig::get('web_prefix'), '', $this->url));
 		// Run the application, dispatch the control to the correct Controller (or default to Home if no URL is given)
 		if (! empty($params[1])) {
 			$action = $params[1];
@@ -108,8 +108,8 @@ class Dispatcher {
 			$action = 'home';
 		}
 		$show404 = true;
-		if (file_exists(Config::get('controllers_root') . "/$action/{$action}.php")) {
-			include_once Config::get('controllers_root') . "/$action/{$action}.php";
+		if (file_exists(PartuzaConfig::get('controllers_root') . "/$action/{$action}.php")) {
+			include_once PartuzaConfig::get('controllers_root') . "/$action/{$action}.php";
 			$controller = $action . 'Controller';
 			if (class_exists($controller, false)) {
 				$controller = new $controller($params);

@@ -49,9 +49,9 @@ class BasicBlobCrypter extends BlobCrypter {
 
 	public function __construct()
 	{
-		$this->cipherKey = Config::get('token_cipher_key');
-		$this->hmacKey = Config::get('token_hmac_key');
-		$this->allowPlaintextToken = Config::get('allow_plaintext_token');
+		$this->cipherKey = PartuzaConfig::get('token_cipher_key');
+		$this->hmacKey = PartuzaConfig::get('token_hmac_key');
+		$this->allowPlaintextToken = PartuzaConfig::get('allow_plaintext_token');
 	}
 
 	/**

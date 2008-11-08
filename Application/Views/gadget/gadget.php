@@ -30,7 +30,7 @@ if (! empty($vars['gadget']['error'])) {
 	$securityToken = BasicSecurityToken::createFromValues(isset($vars['person']['id']) ? $vars['person']['id'] : '0', // owner
 (isset($_SESSION['id']) ? $_SESSION['id'] : '0'), // viewer
 $gadget['id'], // app id
-Config::get('container'), // domain key, shindig will check for php/config/<domain>.php for container specific configuration
+PartuzaConfig::get('container'), // domain key, shindig will check for php/config/<domain>.php for container specific configuration
 urlencode($gadget['url']), // app url
 $gadget['mod_id'])// mod id
 ;
@@ -38,7 +38,7 @@ $gadget['mod_id'])// mod id
 	$gadget_url_params = array();
 	parse_str(parse_url($gadget['url'], PHP_URL_QUERY), $gadget_url_params);
 	
-	$iframe_url = Config::get('gadget_server') . '/gadgets/ifr?' . "synd=" . Config::get('container') . "&container=" . Config::get('container') . "&viewer=" . (isset($_SESSION['id']) ? $_SESSION['id'] : '0') . "&owner=" . (isset($vars['person']['id']) ? $vars['person']['id'] : '0') . "&aid=" . $gadget['id'] . "&mid=" . $gadget['mod_id'] . ((isset($_GET['nocache']) && $_GET['nocache'] == '1') || (isset($gadget_url_params['nocache']) && intval($gadget_url_params['nocache']) == 1) || isset($_GET['bpc']) && $_GET['bpc'] == '1' ? "&nocache=1" : '') . "&country=US" . "&lang=en" . "&view=" . $view . "&parent=" . urlencode("http://" . $_SERVER['HTTP_HOST']) . $prefs . (isset($_GET['appParams']) ? '&view-params=' . urlencode($_GET['appParams']) : '') . "&st=" . urlencode(base64_encode($securityToken->toSerialForm())) . "&v=" . $gadget['version'] . "&url=" . urlencode($gadget['url']) . "#rpctoken=" . rand(0, getrandmax());
+	$iframe_url = PartuzaConfig::get('gadget_server') . '/gadgets/ifr?' . "synd=" . PartuzaConfig::get('container') . "&container=" . PartuzaConfig::get('container') . "&viewer=" . (isset($_SESSION['id']) ? $_SESSION['id'] : '0') . "&owner=" . (isset($vars['person']['id']) ? $vars['person']['id'] : '0') . "&aid=" . $gadget['id'] . "&mid=" . $gadget['mod_id'] . ((isset($_GET['nocache']) && $_GET['nocache'] == '1') || (isset($gadget_url_params['nocache']) && intval($gadget_url_params['nocache']) == 1) || isset($_GET['bpc']) && $_GET['bpc'] == '1' ? "&nocache=1" : '') . "&country=US" . "&lang=en" . "&view=" . $view . "&parent=" . urlencode("http://" . $_SERVER['HTTP_HOST']) . $prefs . (isset($_GET['appParams']) ? '&view-params=' . urlencode($_GET['appParams']) : '') . "&st=" . urlencode(base64_encode($securityToken->toSerialForm())) . "&v=" . $gadget['version'] . "&url=" . urlencode($gadget['url']) . "#rpctoken=" . rand(0, getrandmax());
 	
 	?><div class="gadgets-gadget-chrome" style="width:<?=$width?>px">
 <div id="gadgets-gadget-title-bar-<?=$gadget['mod_id']?>"
@@ -49,14 +49,14 @@ $gadget['mod_id'])// mod id
 		if (is_object(unserialize($gadget['settings']))) {
 			?>
 			<a
-	href="<?=Config::get('web_prefix');?>/profile/appsettings/<?=$gadget['id']?>/<?=$gadget['mod_id']?>"
+	href="<?=PartuzaConfig::get('web_prefix');?>/profile/appsettings/<?=$gadget['id']?>/<?=$gadget['mod_id']?>"
 	class="gadgets-gadget-title-button">Settings</a>
 		<?
 		}
 	} else {
 		?>
 			<a
-	href="<?=Config::get('web_prefix');?>/profile/addapp?appUrl=<?=urlencode($gadget['url'])?>"
+	href="<?=PartuzaConfig::get('web_prefix');?>/profile/addapp?appUrl=<?=urlencode($gadget['url'])?>"
 	class="gadgets-gadget-title-button">Add application to your profile</a>
 		<?
 	}

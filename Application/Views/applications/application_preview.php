@@ -39,7 +39,7 @@ if (! empty($gadget['thumbnail'])) {
 	</div>
 <div class="preview_section"><br />
 <div class="preview_add"><a
-	href="<?=Config::get('web_prefix');?>/profile/addapp?appUrl=<?=urlencode($gadget['url'])?>">Add
+	href="<?=PartuzaConfig::get('web_prefix');?>/profile/addapp?appUrl=<?=urlencode($gadget['url'])?>">Add
 to my profile</a></div>
 <br />
 <small>Note: By installing this application you will be allowing it to

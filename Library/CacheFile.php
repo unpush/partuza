@@ -80,7 +80,7 @@ class CacheFile extends Cache {
 		// use the first 2 characters of the hash as a directory prefix
 		// this should prevent slowdowns due to huge directory listings
 		// and thus give some basic amount of scalability
-		return Config::get('cache_root') . '/' . substr($hash, 0, 2);
+		return PartuzaConfig::get('cache_root') . '/' . substr($hash, 0, 2);
 	}
 
 	private function getCacheFile($hash)
@@ -92,7 +92,7 @@ class CacheFile extends Cache {
 	{
 		if (! $expiration) {
 			// if no expiration time was given, fall back on the global config
-			$expiration = Config::get('cache_time');
+			$expiration = PartuzaConfig::get('cache_time');
 		}
 		$cacheFile = $this->getCacheFile($key);
 		// See if this cache file is locked, if so we wait upto 5 seconds for the lock owning process to
@@ -103,7 +103,7 @@ class CacheFile extends Cache {
 		}
 		if (file_exists($cacheFile) && is_readable($cacheFile)) {
 			$now = time();
-			if (($mtime = filemtime($cacheFile)) !== false && ($now - $mtime) < Config::get('cache_time')) {
+			if (($mtime = filemtime($cacheFile)) !== false && ($now - $mtime) < PartuzaConfig::get('cache_time')) {
 				if (($data = @file_get_contents($cacheFile)) !== false) {
 					$data = unserialize($data);
 					return $data;

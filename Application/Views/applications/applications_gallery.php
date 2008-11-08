@@ -21,14 +21,14 @@ $this->template('/common/header.php');
 					$app['directory_title'] = $app['title'];
 				}
 				echo "<div class=\"app\">
-				<div class=\"options\"><a href=\"" . Config::get('web_prefix') . "/profile/preview/{$app['id']}\">Preview</a></div>
+				<div class=\"options\"><a href=\"" . PartuzaConfig::get('web_prefix') . "/profile/preview/{$app['id']}\">Preview</a></div>
 				<div class=\"app_thumbnail\">";
 				if (! empty($app['thumbnail'])) {
 					// ugly hack to make it work with iGoogle images
 					if (substr($app['thumbnail'], 0, strlen('/ig/')) == '/ig/') {
 						$app['thumbnail'] = 'http://www.google.com' . $app['thumbnail'];
 					}
-					echo "<img src=\"" . Config::get('gadget_server') . "/gadgets/proxy?url=" . urlencode($app['thumbnail']) . "\" />";
+					echo "<img src=\"" . PartuzaConfig::get('gadget_server') . "/gadgets/proxy?url=" . urlencode($app['thumbnail']) . "\" />";
 				}
 				echo "</div><b>{$app['directory_title']}</b><br />{$app['description']}<br />";
 				echo "</div>";

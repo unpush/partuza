@@ -3,7 +3,7 @@
 <div class="gadgets-gadget-title-bar">
 <div class="gadgets-gadget-title-button-bar"><a
 	href="<?php
-	echo Config::get("web_prefix")?>/profile/friends/<?=$vars['person']['id']?>">View
+	echo PartuzaConfig::get("web_prefix")?>/profile/friends/<?=$vars['person']['id']?>">View
 all</a></div>
 <span class="gadgets-gadget-title"><?=$vars['person']['first_name']?>'s friends (<?=count($vars['friends'])?>)</span>
 </div>
@@ -11,21 +11,21 @@ all</a></div>
 		
 		$cnt = 0;
 		foreach ($vars['friends'] as $friend) {
-			$thumb = Config::get('site_root') . '/images/people/' . $friend['id'] . '.jpg';
+			$thumb = PartuzaConfig::get('site_root') . '/images/people/' . $friend['id'] . '.jpg';
 			if (! file_exists($thumb)) {
-				$thumb = Config::get('site_root') . '/images/people/nophoto.gif';
+				$thumb = PartuzaConfig::get('site_root') . '/images/people/nophoto.gif';
 			}
 			$thumb = Image::by_size($thumb, 64, 64);
 			echo "<div class=\"friend\">
 					<div class=\"thumb\">
 						<center>
-							<a href=\"" . Config::get('web_prefix') . "/profile/{$friend['id']}\" rel=\"friend\" >
+							<a href=\"" . PartuzaConfig::get('web_prefix') . "/profile/{$friend['id']}\" rel=\"friend\" >
 								<img src=\"$thumb\" alt=\"{$friend['first_name']} {$friend['last_name']}\" title=\"{$friend['first_name']} {$friend['last_name']}\" />
 							</a>
 						</center>
 					</div>
 					<p class=\"uname\">
-						<a href=\"" . Config::get('web_prefix') . "/profile/{$friend['id']}\" rel=\"friend\">{$friend['first_name']}</a>
+						<a href=\"" . PartuzaConfig::get('web_prefix') . "/profile/{$friend['id']}\" rel=\"friend\">{$friend['first_name']}</a>
 					</p>
 			</div>";
 			$cnt ++;
@@ -41,7 +41,7 @@ all</a></div>
 <div class="gadgets-gadget-title-bar">
 		<?
 		if ($vars['is_owner']) {
-			echo "<div class=\"gadgets-gadget-title-button-bar\"><a href=\"" . Config::get('web_prefix') . "/profile/edit\">edit</a></div>";
+			echo "<div class=\"gadgets-gadget-title-button-bar\"><a href=\"" . PartuzaConfig::get('web_prefix') . "/profile/edit\">edit</a></div>";
 		}
 		?>
 			<span class="gadgets-gadget-title">Information</span></div>

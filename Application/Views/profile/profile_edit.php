@@ -230,7 +230,7 @@
 			<div id="picture" style="display:none">
 				<div>
 					<div class="friend" style="margin-right:12px">
-						<div class="thumb"><center><img src="<?=Image::by_size(Config::get('site_root').(!empty($vars['person']['thumbnail_url'])?$vars['person']['thumbnail_url']:'/images/people/nophoto.gif'), 64, 64)?>" /></center></div>
+						<div class="thumb"><center><img src="<?=Image::by_size(PartuzaConfig::get('site_root').(!empty($vars['person']['thumbnail_url'])?$vars['person']['thumbnail_url']:'/images/people/nophoto.gif'), 64, 64)?>" /></center></div>
 						<p class="uname">Current profile photo</p>
 					</div>
 					Select a new photo to upload<br />

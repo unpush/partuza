@@ -18,12 +18,15 @@
  * 
  */
 
-class opensocialController extends baseController {
-
-	public function certificates($params)
+/**
+ * Abstracts how to retrieve configuration values so we can replace the
+ * not so pretty $config array some day.
+ *
+ */
+class PartuzaConfig {
+	static function get($key)
 	{
-		if ($params[3] == 'xoauth_public_keyvalue') {
-			readfile(PartuzaConfig::get('gadget_server') . '/public.crt');
-		}
+		global $config;
+		return $config[$key];
 	}
 }

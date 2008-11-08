@@ -28,10 +28,22 @@ class PartuzaDbFetcher {
 
 	private function connectDb()
 	{
-		//TODO move these to PartuzaConfig.php, this is uglaaaaaayyyy!
-		// enter your db config here
-		$this->db = mysqli_connect('localhost', 'root', '', 'partuza');
-		mysqli_select_db($this->db, 'partuza');
+		// one of the class paths should point to partuza's document root, abuse that fact to find our config
+		$extension_class_paths = Config::get('extension_class_paths');
+		foreach (explode(',', $extension_class_paths) as $path) {
+			if (file_exists($path."/PartuzaDbFetcher.php")) {
+				$configFile = $path.'/../html/config.php';
+				if (file_exists($configFile)) {
+					include $configFile;
+					break;
+				}
+			}
+		}
+		if (!isset($config)) {
+			throw new Exception("Could not locate partuza's configuration file while scanning extension_class_paths ({$extension_class_paths})");
+		}
+		$this->db = mysqli_connect($config['db_host'], $config['db_user'], $config['db_passwd'], $config['db_database']);
+		mysqli_select_db($this->db, $config['db_database']);
 	}
 
 	private function __construct()

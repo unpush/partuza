@@ -10,13 +10,13 @@ $this->template('/common/header.php');
 
 <div id="profileContentWide">
 <p><b>Manage Applications</b></p>
-<a href="<?=Config::get('web_prefix');?>/profile/appgallery">Browse the
+<a href="<?=PartuzaConfig::get('web_prefix');?>/profile/appgallery">Browse the
 application directory >></a> <br />
 <br />
 
 Or add an application by url:<br />
 <form method="get"
-	action="<?=Config::get('web_prefix');?>/profile/addapp"><input
+	action="<?=PartuzaConfig::get('web_prefix');?>/profile/addapp"><input
 	type="text" name="appUrl" size="35" /> <input class="submit"
 	type="submit" value="Add Application" /></form>
 <hr>
@@ -34,16 +34,16 @@ Or add an application by url:<br />
 				}
 				echo "<div class=\"app\"><div class=\"options\">";
 				if (is_object(unserialize($app['settings']))) {
-					echo "<a href=\"" . Config::get('web_prefix') . "/profile/appsettings/{$app['id']}/{$app['mod_id']}\">Settings</a><br />";
+					echo "<a href=\"" . PartuzaConfig::get('web_prefix') . "/profile/appsettings/{$app['id']}/{$app['mod_id']}\">Settings</a><br />";
 				}
-				echo "<a href=\"" . Config::get('web_prefix') . "/profile/removeapp/{$app['id']}/{$app['mod_id']}\">Remove</a></div>
+				echo "<a href=\"" . PartuzaConfig::get('web_prefix') . "/profile/removeapp/{$app['id']}/{$app['mod_id']}\">Remove</a></div>
 				<div class=\"app_thumbnail\">";
 				if (! empty($app['thumbnail'])) {
 					// ugly hack to make it work with iGoogle images
 					if (substr($app['thumbnail'], 0, strlen('/ig/')) == '/ig/') {
 						$app['thumbnail'] = 'http://www.google.com' . $app['thumbnail'];
 					}
-					echo "<img src=\"" . Config::get('gadget_server') . "/gadgets/proxy?url=" . urlencode($app['thumbnail']) . "\" />";
+					echo "<img src=\"" . PartuzaConfig::get('gadget_server') . "/gadgets/proxy?url=" . urlencode($app['thumbnail']) . "\" />";
 				}
 				echo "</div><b>{$app['directory_title']}</b><br />{$app['description']}<br />";
 				if (! empty($app['author_email'])) {
