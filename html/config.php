@@ -40,8 +40,8 @@ $config = array(
 	'allow_plaintext_token' => true,
 
 	// Security token keys
-	'token_cipher_key' => '',
-	'token_hmac_key' => '',
+	'token_cipher_key' => 'INSECURE_DEFAULT_KEY',
+	'token_hmac_key' => 'INSECURE_DEFAULT_KEY',
 
 	// MySql server settings
 	'db_host'          => 'localhost',
