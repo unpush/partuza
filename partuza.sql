@@ -2,7 +2,7 @@
 --
 -- Host: localhost    Database: partuza
 -- ------------------------------------------------------
--- Server version	5.0.67
+-- Server version	5.0.51a
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -176,6 +176,58 @@ CREATE TABLE `languages` (
   `code` char(4) default NULL,
   `name` char(32) default NULL,
   PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `oauth_consumer`
+--
+
+DROP TABLE IF EXISTS `oauth_consumer`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `oauth_consumer` (
+  `user_id` bigint(20) NOT NULL,
+  `consumer_key` char(64) NOT NULL,
+  `consumer_secret` char(64) NOT NULL,
+  PRIMARY KEY  (`user_id`),
+  UNIQUE KEY `user_id` (`user_id`),
+  KEY `consumer_key` (`consumer_key`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `oauth_nonce`
+--
+
+DROP TABLE IF EXISTS `oauth_nonce`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `oauth_nonce` (
+  `nonce` char(64) NOT NULL,
+  `nonce_timestamp` int(11) NOT NULL,
+  PRIMARY KEY  (`nonce`),
+  KEY `nonce_timestamp` (`nonce_timestamp`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `oauth_token`
+--
+
+DROP TABLE IF EXISTS `oauth_token`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `oauth_token` (
+  `user_id` bigint(20) NOT NULL default '0',
+  `consumer_key` char(64) NOT NULL,
+  `type` char(7) NOT NULL,
+  `token_key` char(64) NOT NULL,
+  `token_secret` char(64) NOT NULL,
+  `authorized` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`token_key`),
+  UNIQUE KEY `token_key` (`token_key`),
+  KEY `token_key_2` (`token_key`,`type`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
@@ -603,4 +655,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2008-10-16 12:43:53
+-- Dump completed on 2008-11-08 17:33:09
