@@ -32,7 +32,7 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
 		if (is_array($person->getEntry())) {
 			$person = $person->getEntry();
 			if (is_array($person) && count($person) == 1) {
-				return array('entry' => array_pop($person));
+				return array_pop($person);
 			}
 		}
 		throw new SocialSpiException("Person not found", ResponseError::$BAD_REQUEST);
