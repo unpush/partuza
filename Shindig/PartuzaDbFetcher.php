@@ -51,7 +51,7 @@ class PartuzaDbFetcher {
 		$cache = Config::get('data_cache');
 		$this->cache = new $cache();
 		// change this to your site's location
-		$this->url_prefix = 'http://partuza';
+		$this->url_prefix = 'http://www.partuza.nl';
 	}
 
 	private function checkDb()

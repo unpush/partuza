@@ -68,7 +68,7 @@ class PartuzaOAuthDataStore extends OAuthDataStore {
 
 	public function lookup_token($consumer, $token_type, $token)
 	{
-		syslog(5, "[lookup_token] " . print_r($consumer, true), ", $token_type, $token");
+		syslog(5, "[lookup_token] " . print_r($consumer, true).", $token_type $token");
 		$token_type = mysqli_real_escape_string($this->db, $token_type);
 		$consumer_key = mysqli_real_escape_string($this->db, $consumer->key);
 		$token = mysqli_real_escape_string($this->db, $token);
@@ -85,7 +85,7 @@ class PartuzaOAuthDataStore extends OAuthDataStore {
 		syslog(5, "[lookup nonce] $consumer, $token, $nonce, $timestamp");
 		$timestamp = mysqli_real_escape_string($this->db, $timestamp);
 		$res = mysqli_query($this->db, "select nonce from oauth_nonce where nonce_timestamp = $timestamp");
-		if (! mysqli_num_rows($this->db)) {
+		if (! mysqli_num_rows($res)) {
 			$nonce = mysqli_real_escape_string($this->db, $nonce);
 			mysqli_query($this->db, "insert into oauth_nonce (nonce, nonce_timestamp) values ('$nonce', $timestamp)");
 			return null;
@@ -116,15 +116,39 @@ class PartuzaOAuthDataStore extends OAuthDataStore {
 
 	public function new_access_token($oauthToken, $consumer)
 	{
-		syslog(5, "[new_access_token] $oauthToken, " . print_r($consumer, true));
-		$res = mysqli_query("select * from oauth_token where type = 'request' and token_key = 'SOMETHING'");
+/*
+[new_access_token] 
+OAuthToken Object (     
+	[key] => d3e4c8c6-f4ce-c5fa-a5ff-fae1dadec9ce
+	[secret] => 43c908435c0ac7a63f4fbf7bbe8f3d95
+) 
+OAuthConsumer Object (     
+	[key] => fae5c2f2-fcef-c4fe-85c5-c3f6d9e1dfe5
+	[secret] => 46c7f4efb5552f7e2520dbb2c896fa0f
+	[callback_url] =>
+) 
+ */
+		syslog(5, "[new_access_token] oauthtoken: ".print_r($oauthToken, true).", consumer: " . print_r($consumer, true));
+		$org_token_key = $token_key = mysqli_real_escape_string($this->db, $oauthToken->key);
+		$res = mysqli_query($this->db, "select * from oauth_token where type = 'request' and token_key = '$token_key'");
 		if (mysqli_num_rows($res)) {
 			$ret = mysqli_fetch_array($res, MYSQLI_ASSOC);
 			if ($ret['authorized']) {
-				//$token = new OAuthToken(user_password(32), user_password(32));
-				//global $user;
-				//db_query("INSERT INTO {oauth_token} (consumer_key, type, token_key, token_secret, uid) VALUES ('%s', '%s', '%s', '%s', %d)", $consumer->key, 'access', $token->key, $token->secret, $user->uid);
-				//db_query("DELETE FROM {oauth_token} WHERE type='request' AND token_key='%s'", $request_token->key);
+				$token = new OAuthToken($this->genGUID(), md5(time()));
+				$token_key = mysqli_real_escape_string($this->db, $token->key);
+				$token_secret = mysqli_real_escape_string($this->db, $token->secret);
+				$consumer_key = mysqli_real_escape_string($this->db, $ret['consumer_key']);
+				$user_id = mysqli_real_escape_string($this->db, $ret['user_id']);
+				if (!@mysqli_query($this->db, "insert into oauth_token (consumer_key, type, token_key, token_secret, user_id) values ('$consumer_key', 'access', '$token_key', '$token_secret', $user_id)")) {
+					syslog(5,mysqli_error());
+				} else {
+					syslog(5, "insert into oauth_token (consumer_key, type, token_key, token_secret, user_id) values ('$consumer_key', 'access', '$token_key', '$token_secret', $user_id)");
+				}
+				if (!mysqli_query($this->db, "delete from oauth_token where type = 'request' and token_key = '$org_token_key'")) {
+					syslog(5,mysqli_error());
+				} else {
+					syslog(5, "delete from oauth_token where type = 'request' and token_key = '$org_token_key'");
+				}
 				return $token;
 			}
 		}
@@ -136,6 +160,7 @@ class PartuzaOAuthDataStore extends OAuthDataStore {
 		syslog(5, "[authorize_request_token] $token");
 		$token = mysqli_real_escape_string($this->db, $token);
 		mysqli_query($this->db, "update oauth_token set authorized = 1 where token_key = '$token'");
+		syslog(5,"update oauth_token set authorized = 1 where token_key = '$token'");
 	}
 
 	/** 

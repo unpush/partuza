@@ -57,8 +57,9 @@ class oauthController extends baseController {
 			$server->add_signature_method(new OAuthSignatureMethod_PLAINTEXT());
 			$request = OAuthRequest::from_request();
 			$token = $server->fetch_access_token($request);
-			if ($token)
+			if ($token) {
 				echo $token->to_string();
+			}
 		} catch (OAuthException $e) {
 			$this->sendServerError(401, $e->getMessage());
 		} catch (Exception $e) {
