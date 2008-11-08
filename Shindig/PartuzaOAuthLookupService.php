@@ -23,35 +23,27 @@
  */
 class PartuzaOAuthLookupService extends OAuthLookupService {
 
-	public function thirdPartyHasAccessToUser($oauthRequest, $appUrl, $userId)
+	public function getSecurityToken($oauthRequest, $appUrl, $userId)
 	{
 		$appId = $this->getAppId($appUrl);
-		return $this->hasValidSignature($oauthRequest, $appUrl, $appId) && $this->userHasAppInstalled($userId, $appId);
-	}
-
-	private function hasValidSignature($oauthRequest, $appUrl, $appId)
-	{
 		try {
-			$server = new OAuthServer(new PartuzaOAuthDataStore());
+			$ds = new PartuzaOAuthDataStore();
+			$server = new OAuthServer($ds);
 			$server->add_signature_method(new OAuthSignatureMethod_HMAC_SHA1());
 			$server->add_signature_method(new OAuthSignatureMethod_PLAINTEXT());
 			list($consumer, $token) = $server->verify_request($oauthRequest);
-			return true;
-		} catch (OAuthException $e) {	
-			echo "OAuthException: ".$e->getMessage();
+			$oauthUserId = $ds->get_user_id($token);
+			if ($userId && $oauthUserId && $oauthUserId != $userId) {
+				return null; // xoauth_requestor_id was provided, but does not match oauth token -> fail
+			} else {
+				$userId = $oauthUserId; // use userId from oauth token
+			}
+			
+			return new OAuthSecurityToken($userId, $appUrl, $this->getAppId($appUrl), "partuza");
+		} catch (OAuthException $e) {
+			//echo "OAuthException: ".$e->getMessage();
+			return null;
 		}
-		return false;
-	}
-
-	private function userHasAppInstalled($userId, $appId)
-	{
-		//TODO: SQL: select count(1) from person_applications where person_id = $userId and application_id $appId
-		return true; // a real implementation would look this up
-	}
-
-	public function getSecurityToken($appUrl, $userId)
-	{
-		return new OAuthSecurityToken($userId, $appUrl, $this->getAppId($appUrl), "partuza");
 	}
 
 	private function getAppId($appUrl)

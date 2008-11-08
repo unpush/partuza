@@ -132,7 +132,19 @@ class PartuzaOAuthDataStore extends OAuthDataStore {
 	public function authorize_request_token($token)
 	{
 		$token = mysqli_real_escape_string($this->db, $token);
-		mysqli_query($this->db, "update oauth_token set authorized = 1 where token_key = '$token'");
+		$user_id = mysqli_real_escape_string($this->db, $_SESSION['id']);
+		mysqli_query($this->db, "update oauth_token set authorized = 1, user_id = $user_id where token_key = '$token'");
+	}
+	
+	public function get_user_id($token)
+	{
+		$token_key = mysqli_real_escape_string($this->db, $token->key);
+		$res = mysqli_query($this->db, "select user_id from oauth_token where token_key = '$token_key'");
+		if (mysqli_num_rows($res)) {
+			list($user_id) = mysqli_fetch_row($res);
+			return $user_id;
+		}
+		return null;
 	}
 
 	/** 

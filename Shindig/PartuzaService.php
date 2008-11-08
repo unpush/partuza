@@ -24,17 +24,15 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
 
 	public function getPerson($userId, $groupId, $fields, SecurityToken $token)
 	{
-		if (! is_object($groupId)) {
-			// request is for an optionalPersonId, so fetch that person and ignore the group
-			// FIXME: cleaner way to do this (this seems to be how the data is passed in java)
-			$userId = new UserId('userId', $groupId);
-			$groupId = new GroupId(null, $groupId);
+		if (! is_object($userId)) {
+			$userId = new UserId('userId', $userId);
+			$groupId = new GroupId('self', 'all');
 		}
 		$person = $this->getPeople($userId, $groupId, new CollectionOptions(), $fields, $token);
 		if (is_array($person->getEntry())) {
 			$person = $person->getEntry();
 			if (is_array($person) && count($person) == 1) {
-				return array_pop($person);
+				return array('entry' => array_pop($person));
 			}
 		}
 		throw new SocialSpiException("Person not found", ResponseError::$BAD_REQUEST);
