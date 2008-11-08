@@ -33,7 +33,7 @@ $config = array(
 	//'container' => 'partuza',
 
 	// gadget server url
-	'gadget_server'    => 'http://partuza',
+	'gadget_server'    => 'http://shindig',
 
 	// Max age of a security token, defaults to one hour
 	'st_max_age' => 60 * 60,
