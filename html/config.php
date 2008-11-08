@@ -29,24 +29,24 @@ $config = array(
 	// Note: your shindig config/container.js needs to match this key, so if you changed this to 'partuza'
 	// you need to edit container.js and change the container key there like:
 	// {"gadgets.container" : ["partuza"],
-	//'container' => 'default',
-	'container' => 'partuza',
+	'container' => 'default',
+	//'container' => 'partuza',
 
 	// gadget server url
-	'gadget_server'    => 'http://modules.partuza.nl',
+	'gadget_server'    => 'http://partuza',
 
 	// Max age of a security token, defaults to one hour
 	'st_max_age' => 60 * 60,
 	'allow_plaintext_token' => true,
 
 	// Security token keys
-	'token_cipher_key' => '34ref45x',
-	'token_hmac_key' => '34ref45x',
+	'token_cipher_key' => '',
+	'token_hmac_key' => '',
 
 	// MySql server settings
 	'db_host'          => 'localhost',
 	'db_user'          => 'root',
-	'db_passwd'        => 'ref45x',
+	'db_passwd'        => '',
 	'db_database'      => 'partuza',
 	'db_port'          => '3306',
 
