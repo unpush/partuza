@@ -17,6 +17,7 @@
 			    <li><a href="#personal">Personal</a></li>
 			    <li><a href="#education">Education</a></li>
 			    <li><a href="#work">Work</a></li>
+			    <li><a href="#oauth">OAuth</a></li>
 			    <li><a href="#picture">Picture</a></li>
 			</ul>
 	
@@ -70,7 +71,7 @@
 						echo "<option value=\"$year\"$sel>$year</option>\n";
 					}
 					?>
-					</select>			
+					</select>
 				</div>
 	
 				<div class="form_entry">
@@ -141,7 +142,7 @@
 					<option value="multi-ethnic"<?=$vars['person']['ethnicity']=='multi-ethnic'?' SELECTED':''?>>multi-ethnic</option>
 					<option value="other"<?=$vars['person']['ethnicity']=='other'?' SELECTED':''?>>other</option>
 					</select>
-				</div>		
+				</div>
 			</div>
 			
 			<div id="contact" style="display:none">
@@ -238,6 +239,23 @@
 					<input type="file" name="profile_photo" />
 					<div style="clear:both"></div>
 				</div>
+			</div>
+			<div id="oauth" style="display:none">
+				<div class="form_entry">
+					<br />
+					<i>The OAuth consumer key and secret are automatically generated and unique for your profile.<br />
+					They can be used to develop an REST+OAuth client, if your not developing an OAuth client,<br />
+					feel free to ignore these values :-)</i>
+					<br /><br />
+				</div>
+				<div class="form_entry">
+					<div class="form_label"><label for="oauth_consumer_key">oauth consumer key</label></div>
+					<?=$vars['oauth']['consumer_key']?>
+				</div>
+				<div class="form_entry">
+					<div class="form_label"><label for="oauth_consumer_secret">oauth consumer secret</label></div>
+					<?=$vars['oauth']['consumer_secret']?>
+				</div>	
 			</div>
 			<br />
 			<input type="submit" class="submit" value="save" />

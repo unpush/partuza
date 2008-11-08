@@ -24,7 +24,7 @@
 class PartuzaOAuthDataStore extends OAuthDataStore {
 	private $db;
 
-	function __construct()
+	public function __construct()
 	{
 		global $db;
 		// this class is used in 2 different contexts, either through partuza where we have a Db class
@@ -54,10 +54,10 @@ class PartuzaOAuthDataStore extends OAuthDataStore {
 		}
 	}
 
-	function lookup_consumer($consumer_key)
+	public function lookup_consumer($consumer_key)
 	{
-		syslog(5,"[lookup consumer] $consumer_key");
-		$consumer_key = mysqli_real_escape_string($this->db, $consumer_key);
+		syslog(5, "[lookup consumer] $consumer_key");
+		$consumer_key = mysqli_real_escape_string($this->db, trim($consumer_key));
 		$res = mysqli_query($this->db, "select * from oauth_consumer where consumer_key = '$consumer_key'");
 		if (mysqli_num_rows($res)) {
 			$ret = mysqli_fetch_array($res, MYSQLI_ASSOC);
@@ -66,9 +66,9 @@ class PartuzaOAuthDataStore extends OAuthDataStore {
 		return null;
 	}
 
-	function lookup_token($consumer, $token_type, $token)
+	public function lookup_token($consumer, $token_type, $token)
 	{
-		syslog(5,"[lookup_token] ".print_r($consumer, true),", $token_type, $token");
+		syslog(5, "[lookup_token] " . print_r($consumer, true), ", $token_type, $token");
 		$token_type = mysqli_real_escape_string($this->db, $token_type);
 		$consumer_key = mysqli_real_escape_string($this->db, $consumer->key);
 		$token = mysqli_real_escape_string($this->db, $token);
@@ -80,42 +80,43 @@ class PartuzaOAuthDataStore extends OAuthDataStore {
 		throw new OAuthException("Unexpected token type ($token_type) or unknown token");
 	}
 
-	function lookup_nonce($consumer, $token, $nonce, $timestamp)
+	public function lookup_nonce($consumer, $token, $nonce, $timestamp)
 	{
 		syslog(5, "[lookup nonce] $consumer, $token, $nonce, $timestamp");
 		$timestamp = mysqli_real_escape_string($this->db, $timestamp);
-		$res = mysqli_select($this->db, "select nonce from oauth_nonce where nonce_timestamp = $timestamp");
-		if (!mysqli_num_rows($this->db)) {
+		$res = mysqli_query($this->db, "select nonce from oauth_nonce where nonce_timestamp = $timestamp");
+		if (! mysqli_num_rows($this->db)) {
 			$nonce = mysqli_real_escape_string($this->db, $nonce);
-			mysqli_query("insert into oauth_nonce (nonce, nonce_timestamp) values ('$nonce', $timestamp)");
+			mysqli_query($this->db, "insert into oauth_nonce (nonce, nonce_timestamp) values ('$nonce', $timestamp)");
 			return null;
 		}
 		$ret = mysqli_fetch_array($res, MYSQLI_ASSOC);
 		return $ret['nonce'];
 	}
 
-	function new_request_token($consumer)
+	public function new_request_token($consumer)
 	{
-		syslog(5,"[new_request_token] ".print_r($consumer, true));
+		syslog(5, "[new_request_token] " . print_r($consumer, true));
 		$consumer_key = mysqli_real_escape_string($this->db, $consumer->key);
-		$res = mysqli_query($this->db, "select uid from oauth_consumer where consumer_key = '$consumer_key'");
+		$consumer_secret = mysqli_real_escape_string($this->db, $consumer->secret);
+		$res = mysqli_query($this->db, "select user_id from oauth_consumer where consumer_key = '$consumer_key' and consumer_secret = '$consumer_secret'");
 		if (mysqli_num_rows($res)) {
 			$ret = mysqli_fetch_array($res, MYSQLI_ASSOC);
-			$user_id = $ret['uid'];
-			$token = new OAuthToken("fake-request-token", "fake-request-secret");
-			//$token = new OAuthToken(user_password(32), user_password(32));
+			$user_id = mysqli_real_escape_string($this->db, $ret['user_id']);
+			$token = new OAuthToken($this->genGUID(), md5(time()));
 			$token_key = mysqli_real_escape_string($this->db, $token->key);
 			$token_secret = mysqli_real_escape_string($this->db, $token->secret);
-			mysqli_query($this->db, "insert into oauth_token (consumer_key, token_key, token_secret, uid) values ('$consumer_key', 'request', '$token_key', '$token_secret', '$user_id')");
+			mysqli_query($this->db, "insert into oauth_token (consumer_key, type, token_key, token_secret, user_id) values ('$consumer_key', 'request', '$token_key', '$token_secret', $user_id)");
+			syslog(5,"[new_request_token] created request oauth_token entry: ('$consumer_key', 'request', '$token_key', '$token_secret', $user_id)");
+			return $token;
 		} else {
 			throw new OAuthException("Invalid consumer key ($consumer_key)");
 		}
-		return $token;
 	}
 
-	function new_access_token($oauthToken, $consumer)
+	public function new_access_token($oauthToken, $consumer)
 	{
-		syslog(5,"[new_access_token] $oauthToken, ".print_r($consumer, true));
+		syslog(5, "[new_access_token] $oauthToken, " . print_r($consumer, true));
 		$res = mysqli_query("select * from oauth_token where type = 'request' and token_key = 'SOMETHING'");
 		if (mysqli_num_rows($res)) {
 			$ret = mysqli_fetch_array($res, MYSQLI_ASSOC);
@@ -130,39 +131,39 @@ class PartuzaOAuthDataStore extends OAuthDataStore {
 		return null;
 	}
 
-	function authorize_request_token($token)
+	public function authorize_request_token($token)
 	{
-		syslog(5,"[authorize_request_token] $token");
+		syslog(5, "[authorize_request_token] $token");
 		$token = mysqli_real_escape_string($this->db, $token);
 		mysqli_query($this->db, "update oauth_token set authorized = 1 where token_key = '$token'");
 	}
 
+	/** 
+	 * @see http://jasonfarrell.com/misc/guid.phps Taken from here
+	 * e.g. output: 372472a2-d557-4630-bc7d-bae54c934da1
+	 * word*2-, word-, (w)ord-, (w)ord-, word*3
+	 */
+	private function genGUID()
+	{
+		$guidstr = '';
+		for ($i = 1; $i <= 16; $i ++) {
+			$b = (int)rand(0, 0xff);
+			// version 4 (random)
+			if ($i == 7) {
+				$b &= 0x0f;
+			}
+			$b |= 0x40;
+			// variant
+			if ($i == 9) {
+				$b &= 0x3f;
+			}
+			$b |= 0x80;
+			$guidstr .= sprintf("%02s", base_convert($b, 10, 16));
+			if ($i == 4 || $i == 6 || $i == 8 || $i == 10) {
+				$guidstr .= '-';
+			}
+		}
+		return $guidstr;
+	}
 }
 
-/** 
- * @see http://jasonfarrell.com/misc/guid.phps Taken from here
- * e.g. output: 372472a2-d557-4630-bc7d-bae54c934da1
- * word*2-, word-, (w)ord-, (w)ord-, word*3
- */
-function genGUID()
-{
-	$guidstr = '';
-	for ($i = 1; $i <= 16; $i ++) {
-		$b = (int)rand(0, 0xff);
-		// version 4 (random)
-		if ($i == 7) {
-			$b &= 0x0f;
-		}
-		$b |= 0x40;
-		// variant
-		if ($i == 9) {
-			$b &= 0x3f;
-		}
-		$b |= 0x80;
-		$guidstr .= sprintf("%02s", base_convert($b, 10, 16));
-		if ($i == 4 || $i == 6 || $i == 8 || $i == 10) {
-			$guidstr .= '-';
-		}
-	}
-	return $guidstr;
-}

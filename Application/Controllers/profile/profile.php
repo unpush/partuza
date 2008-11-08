@@ -96,11 +96,13 @@ class profileController extends baseController {
 				$message = 'Error saving information (' . $e->getMessage() . ')';
 			}
 		}
+		$oauth = $this->model('oauth');
+		$oauth_consumer = $oauth->get_consumer($_SESSION['id']);
 		$person = $people->get_person($_SESSION['id'], true);
 		$apps = $this->model('applications');
 		$applications = $apps->get_person_applications($_SESSION['id']);
 		$this->template('profile/profile_edit.php', array('message' => $message, 
-				'applications' => $applications, 'person' => $person, 'is_owner' => true));
+				'applications' => $applications, 'person' => $person, 'oauth' => $oauth_consumer, 'is_owner' => true));
 	}
 
 	public function preview($params)
