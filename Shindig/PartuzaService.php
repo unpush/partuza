@@ -121,6 +121,9 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
 
 	public function updatePersonData(UserId $userId, GroupId $groupId, $appId, $fields, $values, SecurityToken $token)
 	{
+		if ($userId->getUserId($token) == null) {
+			throw new SocialSpiException("Unknown person id.", ResponseError::$NOT_FOUND);
+		}
 		foreach ($fields as $key) {
 			if (! self::isValidKey($key)) {
 				throw new SocialSpiException("The person app data key had invalid characters", ResponseError::$BAD_REQUEST);
