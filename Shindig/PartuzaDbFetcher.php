@@ -114,8 +114,9 @@ class PartuzaDbFetcher {
 		return true;
 	}
 
-	public function getActivities($ids, $appId, $sortBy, $filterBy, $startIndex, $count, $fields)
+	public function getActivities($ids, $appId, $sortBy, $filterBy, $filterOp, $filterValue, $startIndex, $count, $fields)
 	{
+		//TODO add support for filterBy, filterOp and filterValue
 		$this->checkDb();
 		$activities = array();
 		foreach ($ids as $key => $val) {

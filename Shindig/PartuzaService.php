@@ -146,7 +146,7 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
 
 	public function getActivity($userId, $groupId, $appdId, $fields, $activityId, SecurityToken $token)
 	{
-		$activities = $this->getActivities($userId, $groupId, $appdId, null, null, 0, 20, $fields, $token);
+		$activities = $this->getActivities($userId, $groupId, $appdId, null, null, null, null, 0, 20, $fields, $token);
 		if ($activities instanceof RestFulCollection) {
 			$activities = $activities->getEntry();
 			foreach ($activities as $activity) {
@@ -157,11 +157,11 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
 		}
 		throw new SocialSpiException("Activity not found", ResponseError::$NOT_FOUND);
 	}
-
-	public function getActivities($userIds, $groupId, $appId, $sortBy, $filterBy, $startIndex, $count, $fields, $token)
+ 
+	public function getActivities($userIds, $groupId, $appId, $sortBy, $filterBy, $filterOp, $filterValue, $startIndex, $count, $fields, $token)
 	{
 		$ids = $this->getIdSet($userIds, $groupId, $token);
-		if ($activities = PartuzaDbFetcher::get()->getActivities($ids, $appId, $sortBy, $filterBy, $startIndex, $count, $fields)) {
+		if ($activities = PartuzaDbFetcher::get()->getActivities($ids, $appId, $sortBy, $filterBy, $filterOp, $filterValue, $startIndex, $count, $fields)) {
 			$totalResults = $activities['totalResults'];
 			$startIndex = $activities['startIndex'];
 			$count = $activities['count'];
