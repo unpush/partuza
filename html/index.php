@@ -22,7 +22,7 @@ require "config.php";
 require "../Library/PartuzaConfig.php";
 
 // An "Accept : application/xrds+xml" header means they want our XRDS document (and nothing else) 
-if (strpos(strtolower($_SERVER['HTTP_ACCEPT']), 'application/xrds+xml') !== false || $_SERVER["REQUEST_URI"] == '/xrds') {
+if ((isset($_SERVER['HTTP_ACCEPT']) && strpos(strtolower($_SERVER['HTTP_ACCEPT']), 'application/xrds+xml') !== false) || $_SERVER["REQUEST_URI"] == '/xrds') {
 	require PartuzaConfig::get('library_root') . "/XRDS.php";
 	die();
 }
