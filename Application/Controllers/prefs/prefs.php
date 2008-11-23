@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -20,26 +20,25 @@
 
 class prefsController extends baseController {
 
-	public function set($params)
-	{
-		if (empty($_GET['st']) || empty($_GET['name']) || ! isset($_GET['value'])) {
-			header("HTTP/1.0 400 Bad Request", true);
-			echo "<html><body><h1>400 - Bad Request</h1></body></html>";
-		} else {
-			try {
-				$st = urldecode(base64_decode($_GET['st']));
-				$key = urldecode($_GET['name']);
-				$value = urldecode($_GET['value']);
-				$token = BasicSecurityToken::createFromToken($st, PartuzaConfig::get('st_max_age'));
-				$app_id = $token->getAppId();
-				$viewer = $token->getViewerId();
-				$apps = $this->model('applications');
-				$apps->set_application_pref($viewer, $app_id, $key, $value);
-			} catch (Exception $e) {
-				header("HTTP/1.0 400 Bad Request", true);
-				echo "<html><body><h1>400 - Bad Request</h1>" . $e->getMessage() . "</body></html>";
-			}
-		}
-		die();
-	}
+  public function set($params) {
+    if (empty($_GET['st']) || empty($_GET['name']) || ! isset($_GET['value'])) {
+      header("HTTP/1.0 400 Bad Request", true);
+      echo "<html><body><h1>400 - Bad Request</h1></body></html>";
+    } else {
+      try {
+        $st = urldecode(base64_decode($_GET['st']));
+        $key = urldecode($_GET['name']);
+        $value = urldecode($_GET['value']);
+        $token = BasicSecurityToken::createFromToken($st, PartuzaConfig::get('st_max_age'));
+        $app_id = $token->getAppId();
+        $viewer = $token->getViewerId();
+        $apps = $this->model('applications');
+        $apps->set_application_pref($viewer, $app_id, $key, $value);
+      } catch (Exception $e) {
+        header("HTTP/1.0 400 Bad Request", true);
+        echo "<html><body><h1>400 - Bad Request</h1>" . $e->getMessage() . "</body></html>";
+      }
+    }
+    die();
+  }
 }

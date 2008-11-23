@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -20,10 +20,9 @@
 
 class opensocialController extends baseController {
 
-	public function certificates($params)
-	{
-		if ($params[3] == 'xoauth_public_keyvalue') {
-			readfile(PartuzaConfig::get('gadget_server') . '/public.crt');
-		}
-	}
+  public function certificates($params) {
+    if ($params[3] == 'xoauth_public_keyvalue') {
+      readfile(PartuzaConfig::get('gadget_server') . '/public.crt');
+    }
+  }
 }

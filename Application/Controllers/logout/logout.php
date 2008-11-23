@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -20,10 +20,9 @@
 
 class logoutController extends baseController {
 
-	public function index($params)
-	{
-		session_destroy();
-		setcookie("authenticated", '', time() - (30 * 24 * 60 * 60), '/');
-		header("Location: " . PartuzaConfig::get('web_prefix') . "/");
-	}
+  public function index($params) {
+    session_destroy();
+    setcookie("authenticated", '', time() - (30 * 24 * 60 * 60), '/');
+    header("Location: " . PartuzaConfig::get('web_prefix') . "/");
+  }
 }

@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -23,8 +23,8 @@ require "../Library/PartuzaConfig.php";
 
 // An "Accept : application/xrds+xml" header means they want our XRDS document (and nothing else) 
 if ((isset($_SERVER['HTTP_ACCEPT']) && strpos(strtolower($_SERVER['HTTP_ACCEPT']), 'application/xrds+xml') !== false) || $_SERVER["REQUEST_URI"] == '/xrds') {
-	require PartuzaConfig::get('library_root') . "/XRDS.php";
-	die();
+  require PartuzaConfig::get('library_root') . "/XRDS.php";
+  die();
 }
 
 // Basic sanity check if we have all required modules,
@@ -32,12 +32,12 @@ if ((isset($_SERVER['HTTP_ACCEPT']) && strpos(strtolower($_SERVER['HTTP_ACCEPT']
 $modules = array('json', 'SimpleXML', 'libxml', 'curl', 'mysqli', 'gd');
 // if plain text tokens are disallowed we require mcrypt
 if (! PartuzaConfig::get('allow_plaintext_token')) {
-	$modules[] = 'mcrypt';
+  $modules[] = 'mcrypt';
 }
 foreach ($modules as $module) {
-	if (! extension_loaded($module)) {
-		die("Shindig requires the {$module} extention, see <a href='http://www.php.net/{$module}'>http://www.php.net/{$module}</a> for more info");
-	}
+  if (! extension_loaded($module)) {
+    die("Shindig requires the {$module} extention, see <a href='http://www.php.net/{$module}'>http://www.php.net/{$module}</a> for more info");
+  }
 }
 $cache = PartuzaConfig::get('data_cache');
 
@@ -66,6 +66,6 @@ $uri = $_SERVER["REQUEST_URI"];
 $cache = PartuzaConfig::get('data_cache');
 $cache = new $cache();
 if (($pos = strpos($_SERVER["REQUEST_URI"], '?')) !== false) {
-	$uri = substr($_SERVER["REQUEST_URI"], 0, $pos);
+  $uri = substr($_SERVER["REQUEST_URI"], 0, $pos);
 }
 new Dispatcher($uri);

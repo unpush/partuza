@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -19,16 +19,15 @@
  */
 
 class activitiesModel extends Model {
-	public $cachable = array('get_person_activities', 'get_friend_activities');
+  public $cachable = array('get_person_activities', 'get_friend_activities');
 
-	public function load_get_person_activities($id, $limit)
-	{
-		global $db;
-		$this->add_dependency('activities', $id);
-		$id = $db->addslashes($id);
-		$limit = $db->addslashes($limit);
-		$ret = array();
-		$res = $db->query("
+  public function load_get_person_activities($id, $limit) {
+    global $db;
+    $this->add_dependency('activities', $id);
+    $id = $db->addslashes($id);
+    $limit = $db->addslashes($limit);
+    $ret = array();
+    $res = $db->query("
 		select
 			activities.title as title,
 			activities.body as body,
@@ -50,20 +49,19 @@ class activitiesModel extends Model {
 		limit 
 			$limit
 		");
-		while ($row = $db->fetch_array($res, MYSQLI_ASSOC)) {
-			$this->add_dependency('activities', $row['person_id']);
-			$row['media_items'] = $this->load_media_items($row['activity_id']);
-			$ret[] = $row;
-		}
-		return $ret;
-	}
+    while ($row = $db->fetch_array($res, MYSQLI_ASSOC)) {
+      $this->add_dependency('activities', $row['person_id']);
+      $row['media_items'] = $this->load_media_items($row['activity_id']);
+      $ret[] = $row;
+    }
+    return $ret;
+  }
 
-	public function load_media_items($activity_id)
-	{
-		global $db;
-		$activity_id = $db->addslashes($activity_id);
-		$ret = array();
-		$res = $db->query("
+  public function load_media_items($activity_id) {
+    global $db;
+    $activity_id = $db->addslashes($activity_id);
+    $ret = array();
+    $res = $db->query("
 		select
 			mime_type,
 			media_type,
@@ -72,20 +70,19 @@ class activitiesModel extends Model {
 		where
 			activity_id = $activity_id
 		");
-		while ($row = $db->fetch_array($res, MYSQLI_ASSOC)) {
-			$ret[] = $row;
-		}
-		return $ret;
-	}
+    while ($row = $db->fetch_array($res, MYSQLI_ASSOC)) {
+      $ret[] = $row;
+    }
+    return $ret;
+  }
 
-	public function load_get_friend_activities($id, $limit)
-	{
-		global $db;
-		$this->add_dependency('activities', $id);
-		$id = $db->addslashes($id);
-		$limit = $db->addslashes($limit);
-		$ret = array();
-		$res = $db->query("
+  public function load_get_friend_activities($id, $limit) {
+    global $db;
+    $this->add_dependency('activities', $id);
+    $id = $db->addslashes($id);
+    $limit = $db->addslashes($limit);
+    $ret = array();
+    $res = $db->query("
 		select
 			activities.title as title,
 			activities.body as body,
@@ -114,13 +111,13 @@ class activitiesModel extends Model {
 		limit 
 			$limit
 		");
-		
-		while ($row = $db->fetch_array($res, MYSQLI_ASSOC)) {
-			$this->add_dependency('activities', $row['person_id']);
-			$row['media_items'] = $this->load_media_items($row['activity_id']);
-			$ret[] = $row;
-		}
-		return $ret;
-	}
+    
+    while ($row = $db->fetch_array($res, MYSQLI_ASSOC)) {
+      $this->add_dependency('activities', $row['person_id']);
+      $row['media_items'] = $this->load_media_items($row['activity_id']);
+      $ret[] = $row;
+    }
+    return $ret;
+  }
 
 }

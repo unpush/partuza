@@ -9,16 +9,16 @@ Get in touch with your friends and share the fun.</div>
 <div class="gadgets-gadget-title-bar">Register</div>
 <div style="padding: 12px">
 		<?
-		if (! empty($vars['error'])) {
-			?>
+  if (! empty($vars['error'])) {
+    ?>
 			<div style="color: red"><b>Error : <?=$vars['error']?></b><br />
 </div>
 		<?
-		}
-		?>
+  }
+  ?>
 		
-	<form action="<?=PartuzaConfig::get('web_prefix');?>/register" method="post"
-	id="register">
+	<form action="<?=PartuzaConfig::get('web_prefix');?>/register"
+	method="post" id="register">
 <div class="form_header">Account information</div>
 
 <div class="form_entry">
@@ -55,29 +55,29 @@ name </label></div>
 	style="width: auto">
 	<option value="-">-</option>
 			<?
-			for ($month = 1; $month <= 12; $month ++) {
-				$sel = isset($_POST['date_of_birth_month']) && $_POST['date_of_birth_month'] == $month ? ' SELECTED' : '';
-				echo "<option value=\"$month\"$sel>$month</option>\n";
-			}
-			?>
+  for ($month = 1; $month <= 12; $month ++) {
+    $sel = isset($_POST['date_of_birth_month']) && $_POST['date_of_birth_month'] == $month ? ' SELECTED' : '';
+    echo "<option value=\"$month\"$sel>$month</option>\n";
+  }
+  ?>
 			</select> <select name="date_of_birth_day" id="date_of_birth_day"
 	style="width: auto">
 	<option value="-">-</option>
 			<?
-			for ($day = 1; $day <= 31; $day ++) {
-				$sel = isset($_POST['date_of_birth_day']) && $_POST['date_of_birth_day'] == $day ? ' SELECTED' : '';
-				echo "<option value=\"$day\"$sel>$day</option>\n";
-			}
-			?>
+  for ($day = 1; $day <= 31; $day ++) {
+    $sel = isset($_POST['date_of_birth_day']) && $_POST['date_of_birth_day'] == $day ? ' SELECTED' : '';
+    echo "<option value=\"$day\"$sel>$day</option>\n";
+  }
+  ?>
 			</select> <select name="date_of_birth_year" id="date_of_birth_year"
 	style="width: auto">
 	<option value="-">-</option>
 			<?
-			for ($year = 1940; $year <= 2008; $year ++) {
-				$sel = isset($_POST['date_of_birth_year']) && $_POST['date_of_birth_year'] == $year ? ' SELECTED' : '';
-				echo "<option value=\"$year\"$sel>$year</option>\n";
-			}
-			?>
+  for ($year = 1940; $year <= 2008; $year ++) {
+    $sel = isset($_POST['date_of_birth_year']) && $_POST['date_of_birth_year'] == $year ? ' SELECTED' : '';
+    echo "<option value=\"$year\"$sel>$year</option>\n";
+  }
+  ?>
 			</select></div>
 
 <div class="form_entry">

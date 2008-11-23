@@ -13,34 +13,33 @@
 <script type="text/javascript" src="/js/container.js"></script>
 <meta http-equiv="X-XRDS-Location"
 	content="http://<?php
-	echo $_SERVER['HTTP_HOST'];
-	?>/xrds" />
+echo $_SERVER['HTTP_HOST'];
+?>/xrds" />
 </head>
 <body>
 <div id="headerDiv">
 	<?
-	if (isset($_SESSION['username'])) {
-		?>
+if (isset($_SESSION['username'])) {
+  ?>
 	<div id="searchDiv">
-<form method="get" action="<?=PartuzaConfig::get('web_prefix')?>/search">| <label
-	for="search_q">search</label> <input type="text" id="search_q" name="q">
-<input class="button" type="submit" value="Go" /></form>
+<form method="get" action="<?=PartuzaConfig::get('web_prefix')?>/search">|
+<label for="search_q">search</label> <input type="text" id="search_q"
+	name="q"> <input class="button" type="submit" value="Go" /></form>
 </div>
 	<?
-	}
-	?>
+}
+?>
 	<div id="userMenuDiv"
 	<?=! isset($_SESSION['username']) ? ' style="margin-right:12px"' : ''?>>
 		<?
-		if (isset($_SESSION['username'])) {
-			echo "<a href=\"" . PartuzaConfig::get('web_prefix') . "/home\">home</a> | <a href=\"" . PartuzaConfig::get('web_prefix') . "/profile/{$_SESSION['id']}\">profile</a> | <a href=\"" . PartuzaConfig::get('web_prefix') . "/logout\">logout</a>&nbsp;";
-		} else {
-			echo "<form method=\"post\" action=\"{$_SERVER['REQUEST_URI']}\"><a style=\"text-decoration:underline\" href=\"" . PartuzaConfig::get('web_prefix') . "/register\" ><span style=\"text-decoration:underline\">register</span></a>, or login with <label for=\"email\">e-mail</label> <input type=\"text\" name=\"email\" id=\"email\" /> and <label for=\"password\">password</label> <input type=\"password\" name=\"password\" id=\"password\" /> <input class=\"button\" type=\"submit\" value=\"Go\" /></form>&nbsp;\n";
-		}
-		?>	
+  if (isset($_SESSION['username'])) {
+    echo "<a href=\"" . PartuzaConfig::get('web_prefix') . "/home\">home</a> | <a href=\"" . PartuzaConfig::get('web_prefix') . "/profile/{$_SESSION['id']}\">profile</a> | <a href=\"" . PartuzaConfig::get('web_prefix') . "/logout\">logout</a>&nbsp;";
+  } else {
+    echo "<form method=\"post\" action=\"{$_SERVER['REQUEST_URI']}\"><a style=\"text-decoration:underline\" href=\"" . PartuzaConfig::get('web_prefix') . "/register\" ><span style=\"text-decoration:underline\">register</span></a>, or login with <label for=\"email\">e-mail</label> <input type=\"text\" name=\"email\" id=\"email\" /> and <label for=\"password\">password</label> <input type=\"password\" name=\"password\" id=\"password\" /> <input class=\"button\" type=\"submit\" value=\"Go\" /></form>&nbsp;\n";
+  }
+  ?>	
 	</div>
 <span id="headerLogo"> <a
 	href="<?php
-	echo PartuzaConfig::get("web_prefix")?>/home">Partuza!</a> </span>
-</div>
+echo PartuzaConfig::get("web_prefix")?>/home">Partuza!</a> </span></div>
 <div id="contentDiv">

@@ -4,8 +4,8 @@ $this->template('/common/header.php');
 
 <div id="profileInfo" class="blue">
 	<?
-	$this->template('profile/profile_info.php', $vars);
-	?>
+$this->template('profile/profile_info.php', $vars);
+?>
 </div>
 
 <div id="profileContent">
@@ -16,19 +16,19 @@ $this->template('profile/profile_friendrequests.php', $vars);
 <div class="gadgets-gadget-title-bar"><span class="gadgets-gadget-title">Friend's
 activities</span></div>
 	<?
-	$this->template('profile/profile_activities.php', $vars);
-	?>
+$this->template('profile/profile_activities.php', $vars);
+?>
 </div>
 <?
 if (! empty($_SESSION['message'])) {
-	echo "<b>{$_SESSION['message']}</b><br /><br />";
-	unset($_SESSION['message']);
+  echo "<b>{$_SESSION['message']}</b><br /><br />";
+  unset($_SESSION['message']);
 }
 foreach ($vars['applications'] as $gadget) {
-	$width = 488;
-	$view = 'home';
-	$this->template('/gadget/gadget.php', array('width' => $width, 'gadget' => $gadget, 
-			'person' => $vars['person'], 'view' => $view));
+  $width = 488;
+  $view = 'home';
+  $this->template('/gadget/gadget.php', array('width' => $width, 'gadget' => $gadget, 
+      'person' => $vars['person'], 'view' => $view));
 }
 ?>
 </div>

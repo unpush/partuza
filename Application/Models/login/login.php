@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -20,38 +20,35 @@
 
 class loginModel extends Model {
 
-	public function authenticate($email, $password)
-	{
-		global $db;
-		$email = $db->addslashes($email);
-		$password = $db->addslashes($password);
-		$res = $db->query("select id, first_name, last_name, email from persons where email = '$email' and password = PASSWORD('$password')");
-		if ($db->num_rows($res)) {
-			return $db->fetch_array($res, MYSQLI_ASSOC);
-		} else {
-			return false;
-		}
-	}
+  public function authenticate($email, $password) {
+    global $db;
+    $email = $db->addslashes($email);
+    $password = $db->addslashes($password);
+    $res = $db->query("select id, first_name, last_name, email from persons where email = '$email' and password = PASSWORD('$password')");
+    if ($db->num_rows($res)) {
+      return $db->fetch_array($res, MYSQLI_ASSOC);
+    } else {
+      return false;
+    }
+  }
 
-	public function add_authenticated($id, $hash)
-	{
-		global $db;
-		$id = $db->addslashes($id);
-		$hash = $db->addslashes($hash);
-		$db->query("insert into authenticated (person_id, hash) values ($id, '$hash') on duplicate key update hash = '$hash'");
-	}
+  public function add_authenticated($id, $hash) {
+    global $db;
+    $id = $db->addslashes($id);
+    $hash = $db->addslashes($hash);
+    $db->query("insert into authenticated (person_id, hash) values ($id, '$hash') on duplicate key update hash = '$hash'");
+  }
 
-	public function get_authenticated($hash)
-	{
-		global $db;
-		$hash = $db->addslashes($hash);
-		$res = $db->query("select persons.id, persons.first_name, persons.last_name, persons.email 
+  public function get_authenticated($hash) {
+    global $db;
+    $hash = $db->addslashes($hash);
+    $res = $db->query("select persons.id, persons.first_name, persons.last_name, persons.email 
 		                  from authenticated, persons
 		                  where authenticated.hash = '$hash' and persons.id = authenticated.person_id");
-		if ($db->num_rows($res)) {
-			return $db->fetch_array($res, MYSQLI_ASSOC);
-		} else {
-			return false;
-		}
-	}
+    if ($db->num_rows($res)) {
+      return $db->fetch_array($res, MYSQLI_ASSOC);
+    } else {
+      return false;
+    }
+  }
 }
