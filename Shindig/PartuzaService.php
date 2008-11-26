@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -172,7 +173,12 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
 
   public function createActivity($userId, $groupId, $appId, $fields, $activity, SecurityToken $token) {
     try {
+      if ($token->getOwnerId() != $token->getViewerId()) {
+        throw new SocialSpiException("unauthorized: Create activity permission denied.", ResponseError::$UNAUTHORIZED);
+      }
       PartuzaDbFetcher::get()->createActivity($userId->getUserId($token), $activity, $token->getAppId());
+    } catch (SocialSpiException $e) {
+      throw $e;
     } catch (Exception $e) {
       throw new SocialSpiException("Invalid create activity request: " . $e->getMessage(), ResponseError::$INTERNAL_ERROR);
     }
