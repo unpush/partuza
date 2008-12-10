@@ -38,12 +38,13 @@ class activitiesModel extends Model {
 			applications.title as app_title,
 			applications.directory_title as app_directory_title,
 			applications.url as app_url,
-            activities.id as activity_id
+      activities.id as activity_id
 		from ( activities, persons )
-		left join applications on applications.id = activities.app_id
+  	left join applications on applications.id = activities.app_id
 		where 
 			activities.person_id = $id and 
-			persons.id = activities.person_id
+			persons.id = activities.person_id and
+			activities.title not like '[ACT%'
 		order by 
 			created desc
 		limit 
@@ -105,7 +106,8 @@ class activitiesModel extends Model {
 				select person_id from friends where friend_id = $id
 			)
 		) and 
-			persons.id = activities.person_id
+			persons.id = activities.person_id and
+			activities.title not like '[ACT%'
 		order by 
 			created desc
 		limit 
