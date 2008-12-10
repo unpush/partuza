@@ -32,7 +32,7 @@ if (isset($_SESSION['username'])) {
   if (isset($_SESSION['username'])) {
     echo "<a href=\"" . PartuzaConfig::get('web_prefix') . "/home\">home</a> | <a href=\"" . PartuzaConfig::get('web_prefix') . "/profile/{$_SESSION['id']}\">profile</a> | <a href=\"" . PartuzaConfig::get('web_prefix') . "/logout\">logout</a>&nbsp;";
   } else {
-    echo "<form method=\"post\" action=\"{$_SERVER['REQUEST_URI']}\"><a style=\"text-decoration:underline\" href=\"" . PartuzaConfig::get('web_prefix') . "/register\" ><span style=\"text-decoration:underline\">register</span></a>, or login with <label for=\"email\">e-mail</label> <input type=\"text\" name=\"email\" id=\"email\" /> and <label for=\"password\">password</label> <input type=\"password\" name=\"password\" id=\"password\" /> <input class=\"button\" type=\"submit\" value=\"Go\" /></form>&nbsp;\n";
+    echo "<form method=\"post\" action=\"{$_SERVER['REQUEST_URI']}\"><a style=\"text-decoration:underline\" href=\"" . PartuzaConfig::get('web_prefix') . "/register\" ><span style=\"text-decoration:underline\">register</span></a>, or <a style=\"text-decoration:underline\" href=\"" . PartuzaConfig::get('web_prefix') . "/login\" ><span style=\"text-decoration:underline\">login</span></a> with <label for=\"email\">e-mail</label> <input type=\"text\" name=\"email\" id=\"email\" /> and <label for=\"password\">password</label> <input type=\"password\" name=\"password\" id=\"password\" /> <input class=\"button\" type=\"submit\" value=\"Go\" /></form>&nbsp;\n";
   }
   ?>	
 	</div>

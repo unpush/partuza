@@ -31,7 +31,7 @@ class applicationsModel extends Model {
     $res = $db->query("select applications.*, person_applications.id as mod_id from person_applications, applications where person_applications.person_id = $id and applications.id = person_applications.application_id");
     while ($row = $db->fetch_array($res, MYSQLI_ASSOC)) {
       $this->add_dependency('applications', $row['id']);
-      $row['user_prefs'] = $this->get_application_prefs($id, $row['id'], $row['mod_id']);
+      $row['user_prefs'] = $this->get_application_prefs($id, $row['id']);
       $ret[] = $row;
     }
     return $ret;
@@ -87,7 +87,7 @@ class applicationsModel extends Model {
       list($app_url) = $db->fetch_row($res);
       $ret = $this->get_application($app_url);
       $ret['mod_id'] = $mod_id;
-      $ret['user_prefs'] = $this->get_application_prefs($person_id, $app_id, $mod_id);
+      $ret['user_prefs'] = $this->get_application_prefs($person_id, $app_id);
     }
     return $ret;
   }

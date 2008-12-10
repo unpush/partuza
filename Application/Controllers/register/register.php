@@ -21,7 +21,7 @@
 /*
  * TODO
  * - field validation
- * - add more fields such as date of birth, name pre/suffix, etc
+ * - add more fields such as name pre/suffix, etc
  * - link to 'did you forget your password'
  * - Accompanying text to explain what this is, that email/passwd will be your login, etc
  * - bonus: quick ajax check on email once it has been filled in & life feedback
@@ -46,7 +46,7 @@ class registerController extends baseController {
         $_POST['date_of_birth'] = mktime(0, 0, 1, $_POST['date_of_birth_month'], $_POST['date_of_birth_day'], $_POST['date_of_birth_year']);
         try {
           // attempt to register this person, any error in registration will cause an exception
-          $personId = $register->register($_POST['register_email'], $_POST['register_password'], $_POST['register_first_name'], $_POST['register_last_name'], $_POST['gender'], $_POST['date_of_birth']);
+          $register->register($_POST['register_email'], $_POST['register_password'], $_POST['register_first_name'], $_POST['register_last_name'], $_POST['gender'], $_POST['date_of_birth']);
           
           // registration went ok, set up the session (and cookie)
           $this->authenticate($_POST['register_email'], $_POST['register_password']);

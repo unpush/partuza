@@ -66,8 +66,8 @@ class oauthController extends baseController {
 
   public function authorize($params) {
     if (! isset($_SESSION['id'])) {
-      echo "You must log in first (note to self: is there a way to redir to sign in and come back here?";
-      return;
+      header("Location: /login?redirect=".urlencode($_SERVER['REQUEST_URI']));
+      die();
     }
     $request = OAuthRequest::from_request();
     $token = $request->get_parameter('oauth_token');
