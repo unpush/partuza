@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -54,7 +53,7 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
         if (! $token->isAnonymous() && $id == $token->getOwnerId()) {
           $person->setIsOwner(true);
         }
-        if (! isset($fields['@all'])) {
+        if (! in_array('@all', $fields)) {
           $newPerson = array();
           $newPerson['isOwner'] = $person->isOwner;
           $newPerson['isViewer'] = $person->isViewer;
