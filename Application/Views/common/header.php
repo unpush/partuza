@@ -3,18 +3,15 @@
 <head>
 <title>Partuza!</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link href="/css/container.css?v=4" rel="stylesheet" type="text/css">
+<link href="<?=PartuzaConfig::get('web_prefix')?>/css/container.css?v=4" rel="stylesheet" type="text/css">
 <!--  compressed with java -jar {$path}/yuicompressor-2.3.5.jar -o {$file}-min.js {$file}.js -->
 <script type="text/javascript"
 	src="<?=PartuzaConfig::get('gadget_server')?>/gadgets/js/rpc.js?c=1"></script>
 <script type="text/javascript"
 	src="http://ajax.googleapis.com/ajax/libs/prototype/1.6.0.2/prototype.js"></script>
-<script type="text/javascript" src="/js/tabs-min.js"></script>
-<script type="text/javascript" src="/js/container.js"></script>
-<meta http-equiv="X-XRDS-Location"
-	content="http://<?php
-echo $_SERVER['HTTP_HOST'];
-?>/xrds" />
+<script type="text/javascript" src="<?=PartuzaConfig::get('web_prefix')?>/js/tabs-min.js"></script>
+<script type="text/javascript" src="<?=PartuzaConfig::get('web_prefix')?>/js/container.js"></script>
+<meta http-equiv="X-XRDS-Location" content="http://<?php echo $_SERVER['HTTP_HOST'];?>/xrds" />
 </head>
 <body>
 <div id="headerDiv">
