@@ -86,11 +86,6 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
   }
 
   public function deletePersonData($userId, GroupId $groupId, $appId, $fields, SecurityToken $token) {
-    foreach ($fields as $key) {
-      if (! self::isValidKey($key)) {
-        throw new SocialSpiException("The person app data key had invalid characters", ResponseError::$BAD_REQUEST);
-      }
-    }
     $ids = $this->getIdSet($userId, $groupId, $token);
     if (count($ids) < 1) {
       throw new InvalidArgumentException("No userId specified");
@@ -99,9 +94,20 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
     }
     $userId = $ids[0];
     $appId = $token->getAppId();
-    foreach ($fields as $key) {
-      if (! PartuzaDbFetcher::get()->deleteAppData($userId, $key, $appId)) {
+    if ($fields == null) {
+      if (! PartuzaDbFetcher::get()->deleteAppData($userId, '*', $appId)) {
         throw new SocialSpiException("Internal server error", ResponseError::$INTERNAL_ERROR);
+      }
+    } else {
+      foreach ($fields as $key) {
+        if (! self::isValidKey($key) && $key != '*') {
+          throw new SocialSpiException("The person app data key had invalid characters", ResponseError::$BAD_REQUEST);
+        }
+      }
+      foreach ($fields as $key) {
+        if (! PartuzaDbFetcher::get()->deleteAppData($userId, $key, $appId)) {
+          throw new SocialSpiException("Internal server error", ResponseError::$INTERNAL_ERROR);
+        }
       }
     }
   }
@@ -109,10 +115,7 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
   public function getPersonData($userId, GroupId $groupId, $appId, $fields, SecurityToken $token) {
     $ids = $this->getIdSet($userId, $groupId, $token);
     $data = PartuzaDbFetcher::get()->getAppData($ids, $fields, $appId);
-    if (! count($data)) {
-      // if the data array is empty, the key was not found, raise a not found error
-      throw new SocialSpiException("Unknown person app data key(s): " . implode(', ', $fields), ResponseError::$NOT_FOUND);
-    }
+    // If the data array is empty, return empty DataCollection.
     return new DataCollection($data);
   }
 
