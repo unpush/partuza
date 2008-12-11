@@ -266,15 +266,7 @@ class PartuzaDbFetcher {
     $max = $options->getCount();
     $this->checkDb();
     $ret = array();
-    $ret['totalSize'] = '0';
-    if (($res = mysqli_query($this->db, "select count(*) from persons where id in (" . implode(',', $ids) . ")")) !== false) {
-      list($count) = mysqli_fetch_row($res);
-      $ret['totalSize'] = $count;
-    }
     $query = "select * from persons where id in (" . implode(',', $ids) . ") order by id ";
-    if ($first !== false && $max !== false && is_numeric($first) && is_numeric($max) && $first >= 0 && $max > 0) {
-      $query .= " limit $first, $max";
-    }
     $res = mysqli_query($this->db, $query);
     if ($res) {
       while ($row = @mysqli_fetch_array($res, MYSQLI_ASSOC)) {
@@ -611,8 +603,31 @@ class PartuzaDbFetcher {
         $ret[$person_id] = $person;
       }
     }
-    $ret = $this->filterResults($ret, $options);
-    return $ret;
+    try {
+      $ret = $this->filterResults($ret, $options);
+      $ret['totalSize'] = count($ret);
+    } catch(Exception $e) {
+      $ret['totalSize'] = count($ret) - 1;
+      $ret['filtered'] = 'false';
+    }
+    if ($first !== false && $max !== false && is_numeric($first) && is_numeric($max) && $first >= 0 && $max > 0) {
+      $count = 0;
+      $result = array();
+      foreach ($ret as $id => $person) {
+        if ($id == 'totalSize' || $id == 'filtered') {
+          $result[$id] = $person;
+          continue;
+        }
+        if ($count >= $first && $count < $first + $max) {
+          $result[$id] = $person;
+        }
+        ++$count;
+        
+      }
+      return $result;
+    } else {
+      return $ret;
+    }
   }
 
   private function filterResults($peopleById, $options) {
@@ -629,7 +644,7 @@ class PartuzaDbFetcher {
     $numFilteredResults = 0;
     foreach ($peopleById as $id => $person) {
       if ($person instanceof Person) {
-        if (true || $this->passesFilter($person, $filterBy, $op, $value)) {
+        if ($this->passesFilter($person, $filterBy, $op, $value)) {
           $filteredResults[$id] = $person;
           $numFilteredResults ++;
         }
@@ -680,11 +695,11 @@ class PartuzaDbFetcher {
       case CollectionOptions::FILTER_OP_EQUALS:
         return $fieldValue == $filterValue;
       case CollectionOptions::FILTER_OP_CONTAINS:
-        return strpos($fieldValue, $filterValue) !== false;
+        return stripos($fieldValue, $filterValue) !== false;
       case CollectionOptions::FILTER_OP_STARTSWITH:
-        return strpos($fieldValue, $filterValue) === 0;
+        return stripos($fieldValue, $filterValue) === 0;
       default:
-        return false; // unrecognized filterOp (TODO: throw error here?)
+        throw new Exception('unrecognized filterOp');
     }
   }
 }

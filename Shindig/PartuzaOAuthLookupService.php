@@ -24,7 +24,6 @@
 class PartuzaOAuthLookupService extends OAuthLookupService {
 
   public function getSecurityToken($oauthRequest, $appUrl, $userId) {
-    $appId = $this->getAppId($appUrl);
     try {
       $ds = new PartuzaOAuthDataStore();
       $server = new OAuthServer($ds);
@@ -37,7 +36,6 @@ class PartuzaOAuthLookupService extends OAuthLookupService {
       } else {
         $userId = $oauthUserId; // use userId from oauth token
       }
-      
       return new OAuthSecurityToken($userId, $appUrl, $this->getAppId($appUrl), "partuza");
     } catch (OAuthException $e) {
       //echo "OAuthException: ".$e->getMessage();
