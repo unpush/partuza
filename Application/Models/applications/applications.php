@@ -40,7 +40,7 @@ class applicationsModel extends Model {
   public function load_get_all_applications() {
     global $db;
     $ret = array();
-    $res = $db->query("select * from applications order by directory_title, title");
+    $res = $db->query("select * from applications where approved = 'Y' order by directory_title, title");
     while ($row = $db->fetch_array($res, MYSQLI_ASSOC)) {
       $this->add_dependency('applications', $row['id']);
       $row['user_prefs'] = array();
