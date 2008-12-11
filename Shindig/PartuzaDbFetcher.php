@@ -261,12 +261,19 @@ class PartuzaDbFetcher {
     return $data;
   }
 
-  public function getPeople($ids, $fields, $options) {
+  public function getPeople($ids, $fields, $options, $token) {
     $first = $options->getStartIndex();
     $max = $options->getCount();
     $this->checkDb();
     $ret = array();
-    $query = "select * from persons where id in (" . implode(',', $ids) . ") order by id ";
+    $filterQuery = '';
+    if ($options->getFilterBy() == 'hasApp') {
+      // remove the filterBy field, it's taken care of in the query already, otherwise filterResults will disqualify all results
+      $options->setFilterBy(null);
+      $appId = $token->getAppId();
+      $filterQuery = " and id in (select person_id from person_applications where application_id = $appId)";
+    }
+    $query = "select * from persons where id in (" . implode(',', $ids) . ") $filterQuery order by id ";
     $res = mysqli_query($this->db, $query);
     if ($res) {
       while ($row = @mysqli_fetch_array($res, MYSQLI_ASSOC)) {
@@ -411,7 +418,6 @@ class PartuzaDbFetcher {
           }
           $person->setFood($foods);
         }
-        
         if (isset($fields['heroes']) || isset($fields['@all'])) {
           $strings = array();
           $res2 = mysqli_query($this->db, "select hero from person_heroes where person_id = " . $person_id);
@@ -420,7 +426,6 @@ class PartuzaDbFetcher {
           }
           $person->setHeroes($strings);
         }
-        
         if (isset($fields['interests']) || isset($fields['@all'])) {
           $strings = array();
           $res2 = mysqli_query($this->db, "select interest from person_interests where person_id = " . $person_id);
@@ -508,8 +513,6 @@ class PartuzaDbFetcher {
           $person->setOrganizations($organizations);
         }
         //TODO languagesSpoken, currently missing the languages / countries tables so can't do this yet
-        
-
         if (isset($fields['movies']) || isset($fields['@all'])) {
           $strings = array();
           $res2 = mysqli_query($this->db, "select movie from person_movies where person_id = " . $person_id);
@@ -622,7 +625,6 @@ class PartuzaDbFetcher {
           $result[$id] = $person;
         }
         ++$count;
-        
       }
       return $result;
     } else {

@@ -40,7 +40,7 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
 
   public function getPeople($userId, $groupId, CollectionOptions $options, $fields, SecurityToken $token) {
     $ids = $this->getIdSet($userId, $groupId, $token);
-    $allPeople = PartuzaDbFetcher::get()->getPeople($ids, $fields, $options);
+    $allPeople = PartuzaDbFetcher::get()->getPeople($ids, $fields, $options, $token);
     $totalSize = $allPeople['totalSize'];
     $people = array();
     foreach ($ids as $id) {
