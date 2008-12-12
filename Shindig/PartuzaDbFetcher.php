@@ -49,7 +49,7 @@ class PartuzaDbFetcher {
     $cache = Config::get('data_cache');
     $this->cache = new $cache();
     // change this to your site's location
-    $this->url_prefix = 'http://partuza';
+    $this->url_prefix = 'http://www.partuza.nl';
   }
 
   private function checkDb() {
@@ -272,6 +272,8 @@ class PartuzaDbFetcher {
       $options->setFilterBy(null);
       $appId = $token->getAppId();
       $filterQuery = " and id in (select person_id from person_applications where application_id = $appId)";
+    } elseif ($options->getFilterBy() == 'all') {
+      $options->setFilterBy(null);
     }
     $query = "select * from persons where id in (" . implode(',', $ids) . ") $filterQuery order by id ";
     $res = mysqli_query($this->db, $query);
