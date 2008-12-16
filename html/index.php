@@ -18,6 +18,10 @@
  * 
  */
 
+// Some people forget to set their timezone in their php.ini,
+// this prevents that from generating warnings
+@date_default_timezone_set(@date_default_timezone_get());
+
 require "config.php";
 require "../Library/PartuzaConfig.php";
 
