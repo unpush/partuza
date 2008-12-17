@@ -510,6 +510,7 @@ class PartuzaDbFetcher {
             }
             $organizations[] = $organization;
           }
+          $fetchedOrg = true;
         }
         if ($fetchedOrg) {
           $person->setOrganizations($organizations);
