@@ -21,7 +21,7 @@
 $xrds = '<XRDS xmlns="xri://$xrds">
     <XRD xml:id="oauth" xmlns:simple="http://xrds-simple.net/core/1.0" xmlns="xri://$XRD*($v*2.0)" version="2.0">
       <Type>xri://$xrds*simple</Type>
-      <Expires>2008-12-31T23:59:59Z</Expires>
+      <Expires>'.date('YmdHiZ', time() + 30 * 24 * 60 * 60).'Z</Expires>
       <Service priority="10">
         <Type>http://oauth.net/core/1.0/endpoint/request</Type>
         <Type>http://oauth.net/core/1.0/parameters/auth-header</Type>
