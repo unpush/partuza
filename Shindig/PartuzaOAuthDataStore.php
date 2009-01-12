@@ -77,7 +77,8 @@ class PartuzaOAuthDataStore extends OAuthDataStore {
 
   public function lookup_nonce($consumer, $token, $nonce, $timestamp) {
     $timestamp = mysqli_real_escape_string($this->db, $timestamp);
-    $res = mysqli_query($this->db, "select nonce from oauth_nonce where nonce_timestamp = $timestamp");
+    $nonce = mysqli_real_escape_string($this->db, $nonce);
+    $res = mysqli_query($this->db, "select nonce from oauth_nonce where nonce_timestamp = $timestamp and nonce = '$nonce'");
     if (! mysqli_num_rows($res)) {
       $nonce = mysqli_real_escape_string($this->db, $nonce);
       mysqli_query($this->db, "insert into oauth_nonce (nonce, nonce_timestamp) values ('$nonce', $timestamp)");
