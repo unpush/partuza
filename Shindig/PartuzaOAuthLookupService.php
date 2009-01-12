@@ -29,7 +29,15 @@ class PartuzaOAuthLookupService extends OAuthLookupService {
       $server = new OAuthServer($ds);
       $server->add_signature_method(new OAuthSignatureMethod_HMAC_SHA1());
       $server->add_signature_method(new OAuthSignatureMethod_PLAINTEXT());
+      // Include the postBody in the signature check, conforming to spec
+      if (isset($GLOBALS['HTTP_RAW_POST_DATA'])) {
+        $oauthRequest->set_parameter($GLOBALS['HTTP_RAW_POST_DATA'], '');
+      }
       list($consumer, $token) = $server->verify_request($oauthRequest);
+      if (isset($GLOBALS['HTTP_RAW_POST_DATA'])) {
+        unset($oauthRequest->parameters[$GLOBALS['HTTP_RAW_POST_DATA']]);
+      }
+      
       $oauthUserId = $ds->get_user_id($token);
       if ($userId && $oauthUserId && $oauthUserId != $userId) {
         return null; // xoauth_requestor_id was provided, but does not match oauth token -> fail
