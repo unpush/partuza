@@ -23,51 +23,30 @@ class Image {
   static public function by_size($file_path, $width, $height, $force = false) {
     $width = (empty($width) || ! is_numeric($width)) ? '96' : $width;
     $height = (empty($height) || ! is_numeric($height)) ? '96' : $height;
-    $suffix = "{$width}x{$height}";
-    $thumb = $ofile = $file_path;
-    $ext = substr($thumb, strrpos($thumb, '.') + 1);
-    $part1 = substr($thumb, 0, strrpos($thumb, '.'));
-    $part2 = substr($part1, 0, strrpos($part1, '.'));
-    if (empty($part2)) {
-      $thumb = $part1 . ".$suffix.$ext";
-      $prefix = $part1;
-    } else {
-      $thumb = $part2 . ".$suffix.$ext";
-      $prefix = $part2;
-    }
+    $thumb = self::normalize_thumb($file_path, $width, $height);
     if ($force) {
       // remove all cached thumbnails so they get regenerated
       foreach (glob("$prefix*.*x*.$ext") as $file) {
         @unlink($file);
       }
     }
-    $file = str_replace('//', '/', dirname($ofile) . "/" . basename($thumb));
+    $file = str_replace('//', '/', dirname($file_path) . "/" . basename($thumb));
     if (! file_exists($thumb)) {
-      if (! Image::thumbnail($ofile, $suffix, $width, $height)) {
+      if (! Image::thumbnail($file_path, $width, $height)) {
         return false;
       }
     }
     return str_replace(PartuzaConfig::get('site_root'), '', $file);
   }
 
-  static public function thumbnail($file_path, $suffix = 'thumbnail', $desired_width = 96, $desired_height = 96) {
-    $thumb = $file_path;
-    $file = $file_path;
-    $ext = substr($thumb, strrpos($thumb, '.') + 1);
-    $thumb = substr($thumb, 0, strrpos($thumb, '.')) . ".$suffix.$ext";
-    // test to see if there are two suffixes in the same file name like 96x96.64x64
-    // if there are then simply remove the first one and leave the second one
-    // matches [set of chars].[set of chars].[set of chars].jpg
-    $pattern = '/.*\..*\..*\.jpg/';
-    if (preg_match($pattern, $thumb)) {
-      $part1 = substr($file_path, 0, strpos($file_path, '.'));
-      $thumb = $part1 . '.' . $desired_width . 'x' . $desired_width . '.jpg';
-    }
-    if (! file_exists($file)) {
+  static public function thumbnail($file_path, $desired_width = 96, $desired_height = 96) {
+    $ext = substr($file_path, strrpos($file_path, '.') + 1);
+    $thumb = self::normalize_thumb($file_path, $desired_width, $desired_height);
+    if (! file_exists($file_path)) {
       return false;
     }
     // These are the ratio calculations		
-    if (! $size = @GetImageSize($file)) {
+    if (! $size = @GetImageSize($file_path)) {
       return false;
     }
     $width = $size[0];
@@ -84,19 +63,19 @@ class Image {
     if (isset($factor) && $factor < 1) {
       $twidth = ceil($factor * $width);
       $theight = ceil($factor * $height);
-      Image::convert($file, $thumb, $twidth, $theight);
+      Image::convert($file_path, $thumb, $twidth, $theight);
     } else {
       if (file_exists($thumb)) {
         @unlink($thumb);
       }
       if (function_exists('symlink')) {
-        if (! symlink($file, $thumb)) {
-          die("Permission denied on generating thumbnail symlink");
+        if (! symlink($file_path, $thumb)) {
+          die("Permission denied on generating thumbnail symlink ($file, $thumb)");
         }
       } else {
         // php on windows doesn't know how to symlink so copy instead
-        if (! copy($file, $thumb)) {
-          die("Permission denied on generating thumbnail copy");
+        if (! copy($file_path, $thumb)) {
+          die("Permission denied on generating thumbnail copy ($file,$thumb)");
         }
       }
     }
@@ -108,7 +87,7 @@ class Image {
     if (file_exists($destination)) {
       @chmod($destination, 0664);
     } else {
-      die("Failed to generate thumbnail, check directory permissions and the availability of <b>gd.</b>");
+      //die("Failed to generate thumbnail, check directory permissions and the availability of <b>gd.</b>");
     }
   }
 
@@ -157,5 +136,17 @@ class Image {
       return false;
     }
     return true;
+  }
+
+  static private function normalize_thumb($file_path, $width, $height) {
+    $suffix = "{$width}x{$height}";
+    // parse the file name so that '1.jpg' and '1.128x128.jpg' both become '1.96x96.jpg'
+    $ext = substr($file_path, strrpos($file_path, '.') + 1);
+    $file_name = basename($file_path);
+    $base_name = substr($file_name, 0, strpos($file_name, '.'));
+    // we now have the base component (1), the suffix (96x96) and the extension (jpg), assemble that into the proper file name
+    $thumb = dirname($file_path) . '/' . $base_name . '.' . $suffix . '.' . $ext;
+    //die("thumb: $thumb");
+    return $thumb;
   }
 }
