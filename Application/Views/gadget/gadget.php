@@ -2,10 +2,13 @@
 if (! empty($vars['gadget']['error'])) {
   echo "<b>{$vars['gadget']['error']}</b>";
 } else {
+  if (!count($vars['gadget'])) {
+    return;
+  }
   $width = $vars['width'];
   $gadget = $vars['gadget'];
   $view = $vars['view'];
-  $user_prefs = $gadget['user_prefs'];
+  $user_prefs = isset($gadget['user_prefs']) ? $gadget['user_prefs'] : array();
   
   $prefs = '';
   $settings = ! empty($gadget['settings']) ? unserialize($gadget['settings']) : array();
