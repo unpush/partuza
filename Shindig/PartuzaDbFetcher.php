@@ -107,7 +107,7 @@ class PartuzaDbFetcher {
     return true;
   }
 
-  public function getActivities($ids, $appId, $sortBy, $filterBy, $filterOp, $filterValue, $startIndex, $count, $fields) {
+  public function getActivities($ids, $appId, $sortBy, $filterBy, $filterOp, $filterValue, $startIndex, $count, $fields, $activityIds) {
     //TODO add support for filterBy, filterOp and filterValue
     $this->checkDb();
     $activities = array();
@@ -115,8 +115,16 @@ class PartuzaDbFetcher {
       $ids[$key] = mysqli_real_escape_string($this->db, $val);
     }
     $ids = implode(',', $ids);
+    if (isset($activityIds) && is_array($activityIds)) {
+      foreach ($activityIds as $key => $val) {
+        $activityIds[$key] = mysqli_real_escape_string($this->db, $val);
+      }
+      $activityIdQuery = " and activities.id in (".implode(',', $activityIds);
+    } else {
+      $activityIdQuery = '';
+    }
     // return a proper totalResults count
-    $res = mysqli_query($this->db, "select count(id) from activities where activities.person_id in ($ids)");
+    $res = mysqli_query($this->db, "select count(id) from activities where activities.person_id in ($ids) $activityIdQuery");
     if ($res !== false) {
       list($totalResults) = mysqli_fetch_row($res);
     } else {
@@ -138,21 +146,27 @@ class PartuzaDbFetcher {
 				activities
 			where
 				activities.person_id in ($ids)
+				$activityIdQuery
 			order by 
 				created desc
 			limit 
 				$startIndex, $count
 			";
     $res = mysqli_query($this->db, $query);
-    if ($res && mysqli_num_rows($res)) {
-      while ($row = @mysqli_fetch_array($res, MYSQLI_ASSOC)) {
-        $activity = new Activity($row['activity_id'], $row['person_id']);
-        $activity->setStreamTitle('activities');
-        $activity->setTitle($row['activity_title']);
-        $activity->setBody($row['activity_body']);
-        $activity->setPostedTime($row['created']);
-        $activity->setMediaItems($this->getMediaItems($row['activity_id']));
-        $activities[] = $activity;
+    if ($res) {
+      if (@mysqli_num_rows($res)) {
+        while ($row = @mysqli_fetch_array($res, MYSQLI_ASSOC)) {
+          $activity = new Activity($row['activity_id'], $row['person_id']);
+          $activity->setStreamTitle('activities');
+          $activity->setTitle($row['activity_title']);
+          $activity->setBody($row['activity_body']);
+          $activity->setPostedTime($row['created']);
+          $activity->setMediaItems($this->getMediaItems($row['activity_id']));
+          $activities[] = $activity;
+        }
+      } elseif (isset($activityIds) && is_array($activityIds)) {
+        // specific activity id was specified, return a not found flag
+        return false;
       }
       return $activities;
     } else {
