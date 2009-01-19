@@ -27,7 +27,7 @@ class baseController extends Controller {
       if ($this->authenticate($_POST['email'], $_POST['password'])) {
         // Redirect to self, but without post to prevent posting if the user refreshes the page
         // Login request to /openid/login page should not be redirected. 
-        if (! isset($_SERVER['REQUEST_URI']) || $_SERVER['REQUEST_URI'] != '/openid/login') {
+        if (isset($_SERVER['REQUEST_URI']) && $_SERVER['REQUEST_URI'] != '/openid/login') {
           header("Location: {$_SERVER['REQUEST_URI']}");
           die();
         }
