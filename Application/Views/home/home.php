@@ -1,4 +1,5 @@
 <?
+// only add the openid login dialog if extension_loaded('bcmath') || extension_loaded('gmp') else it exceptions
 $this->template('/common/header.php');
 ?>
 <div style="float: right; width: 500px;">
@@ -54,7 +55,7 @@ up and running on a windows pc at:
 </p>
 </div>
 <br />
-<img src="images/partuza-home.jpg" align="left" />
+<img src="/images/partuza-home.jpg" align="left" />
 <?
 $this->template('/common/footer.php');
 ?>

@@ -18,6 +18,11 @@
  * 
  */
 
+$path_extra = dirname(dirname(__FILE__)).'/Library';
+$path = ini_get('include_path');
+$path = $path_extra . PATH_SEPARATOR . $path;
+ini_set('include_path', $path);
+
 // Some people forget to set their timezone in their php.ini,
 // this prevents that from generating warnings
 @date_default_timezone_set(@date_default_timezone_get());

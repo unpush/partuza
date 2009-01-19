@@ -23,11 +23,14 @@ class baseController extends Controller {
   public function __construct() {
     @session_start();
     // allow logins anywhere in the site
-    if (! empty($_POST['email']) && ! empty($_POST['password'])) {
+    if (! isset($_SESSION['id']) && ! empty($_POST['email']) && ! empty($_POST['password'])) {
       if ($this->authenticate($_POST['email'], $_POST['password'])) {
-        // redirect to self, but without post to prevent posting if the user refreshes the page
-        header("Location: {$_SERVER['REQUEST_URI']}");
-        die();
+        // Redirect to self, but without post to prevent posting if the user refreshes the page
+        // Login request to /openid/login page should not be redirected. 
+        if (! isset($_SERVER['REQUEST_URI']) || $_SERVER['REQUEST_URI'] != '/openid/login') {
+          header("Location: {$_SERVER['REQUEST_URI']}");
+          die();
+        }
       }
     }
     if (! isset($_SESSION['username']) && isset($_COOKIE['authenticated'])) {
@@ -62,5 +65,4 @@ class baseController extends Controller {
     $_SESSION['last_name'] = $user['last_name'];
     $_SESSION['email'] = $user['email'];
   }
-
 }

@@ -35,6 +35,9 @@ $config = array(
   // gadget server url
   'gadget_server' => 'http://shindig',
 
+  // The url of this partuza instalation, including the (optional) web_prefix
+  'partuza_url' => 'http://partuza/',
+
   // Max age of a security token, defaults to one hour
   'st_max_age' => 60 * 60,
   'allow_plaintext_token' => true, 

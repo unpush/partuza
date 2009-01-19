@@ -43,13 +43,12 @@ class PartuzaDbFetcher {
     }
     $this->db = mysqli_connect($config['db_host'], $config['db_user'], $config['db_passwd'], $config['db_database']);
     mysqli_select_db($this->db, $config['db_database']);
+    $this->url_prefix = $config['partuza_url'];
   }
 
   private function __construct() {
     $cache = Config::get('data_cache');
     $this->cache = new $cache();
-    // change this to your site's location
-    $this->url_prefix = 'http://partuza';
   }
 
   private function checkDb() {
