@@ -19,6 +19,13 @@
  */
 
 $xrds = '<XRDS xmlns="xri://$xrds">
+    <XRD>
+        <Service priority="0">
+          <Type>http://specs.openid.net/auth/2.0/signon</Type>
+          <Type>http://openid.net/signon/1.1</Type>
+          <URI>{host}/openid/auth</URI>
+        </Service>
+    </XRD>
     <XRD xml:id="oauth" xmlns:simple="http://xrds-simple.net/core/1.0" xmlns="xri://$XRD*($v*2.0)" version="2.0">
       <Type>xri://$xrds*simple</Type>
       <Expires>' . date('Y-m-d\TH:i:s\Z', time() + 30 * 24 * 60 * 60) . '</Expires>
@@ -77,13 +84,6 @@ $xrds = '<XRDS xmlns="xri://$xrds">
         <Service priority="10">
           <Type>http://oauth.net/discovery/1.0</Type>
           <URI>#oauth</URI>
-        </Service>
-    </XRD>
-    <XRD>
-        <Service priority="0">
-          <Type>http://specs.openid.net/auth/2.0/signon</Type>
-          <Type>http://openid.net/signon/1.1</Type>
-          <URI>{host}/openid/auth</URI>
         </Service>
     </XRD>
 </XRDS>';
