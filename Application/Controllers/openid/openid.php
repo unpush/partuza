@@ -23,6 +23,7 @@
 error_reporting(E_ERROR);
 
 require_once "Auth/OpenId/Server.php";
+require_once "Auth/OpenId/SReg.php";
 
 class openidController extends baseController {
 
@@ -102,17 +103,37 @@ class openidController extends baseController {
     }
     $id_url = $this->openid->idUrl($_SESSION['id']);
     $this->openid->setRequestInfo($info);
-    
     if ((! $info->idSelect()) && ($req_url != $id_url)) {
       return $this->openid->authCancel($info);
     }
     if ($trusted) {
       $this->openid->setRequestInfo();
       $server = &$this->openid->getOpenIdServer();
-      $response = &$info->answer(true, null, $req_url); 
+      $response = &$info->answer(true, null, $req_url);
+      $people = $this->model('people');
+      $person = $people->get_person($_SESSION['id'], true);
+      $date_of_birth_month = date('n', $person['date_of_birth']);
+      $date_of_birth_day = date('j', $person['date_of_birth']);
+      $date_of_birth_year = date('y', $person['date_of_birth']);
+      // Answer with Simple Registration data.
+      $sreg_data = array(
+          'fullname' => $person['first_name'] . ' ' . $person['last_name'], 
+          'nickname' => $person['first_name'], 
+          'dob' => $date_of_birth_year . '-' . $date_of_birth_month . '-' . $date_of_birth_day, 
+          'email' => $person['email'],
+          'gender' => $person['gender'], 
+          'country' => 'US',
+          'language' => 'en');
+      // Add the simple registration response values to the OpenID
+      // response message.
+      $sreg_request = Auth_OpenID_SRegRequest::fromOpenIDRequest($info);
+      $sreg_response = Auth_OpenID_SRegResponse::extractResponse($sreg_request, $sreg_data);
+      $sreg_response->toMessage($response->fields);
       // Generate a response to send to the user agent.
       $webresponse = &$server->encodeResponse($response);
       header('Location: ' . $webresponse->headers['location']);
+      header('Connection: close');
+      echo $webresponse->body;
     } elseif ($fail_cancels) {
       return $this->openid->authCancel($info);
     } else {
