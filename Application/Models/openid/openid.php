@@ -29,7 +29,7 @@ class openidModel extends Model {
   }
 
   public function idUrl($id) {
-    return str_replace('//', '/', PartuzaConfig::get('partuza_url') . 'profile/' . $id);
+    return str_replace('//profile', '/profile', PartuzaConfig::get('partuza_url') . 'profile/' . $id);
   }
 
   public function buildURL($action = null, $escaped = true) {
@@ -63,7 +63,7 @@ class openidModel extends Model {
   }
 
   private function getServerURL() {
-    return str_replace('//', '/', PartuzaConfig::get('partuza_url') . '/openid/auth');
+    return str_replace('//openid', '/openid', PartuzaConfig::get('partuza_url') . '/openid/auth');
   }
 
   private function getOpenIdStore() {
