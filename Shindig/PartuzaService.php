@@ -93,7 +93,6 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
       throw new InvalidArgumentException("Multiple userIds not supported");
     }
     $userId = $ids[0];
-    $appId = $token->getAppId();
     if ($fields == null) {
       if (! PartuzaDbFetcher::get()->deleteAppData($userId, '*', $appId)) {
         throw new SocialSpiException("Internal server error", ResponseError::$INTERNAL_ERROR);
@@ -132,7 +131,7 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
       case 'self':
         foreach ($fields as $key) {
           $value = isset($values[$key]) ? $values[$key] : null;
-          if (! PartuzaDbFetcher::get()->setAppData($userId->getUserId($token), $key, $value, $token->getAppId())) {
+          if (! PartuzaDbFetcher::get()->setAppData($userId->getUserId($token), $key, $value, $appId)) {
             throw new SocialSpiException("Internal server error", ResponseError::$INTERNAL_ERROR);
           }
         }
