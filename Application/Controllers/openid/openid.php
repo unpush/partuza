@@ -22,8 +22,8 @@
 // those we force E_ERROR only for our OpenID event
 error_reporting(E_ERROR);
 
-require_once "Auth/OpenId/Server.php";
-require_once "Auth/OpenId/SReg.php";
+require_once PartuzaConfig::get('library_root')."/Auth/OpenID/Server.php";
+require_once PartuzaConfig::get('library_root')."/Auth/OpenID/SReg.php";
 
 class openidController extends baseController {
 
