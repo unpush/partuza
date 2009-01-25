@@ -29,7 +29,7 @@ class openidModel extends Model {
   }
 
   public function idUrl($id) {
-    return str_replace('//profile', '/profile', PartuzaConfig::get('partuza_url') . 'profile/' . $id);
+    return str_replace('//profile', '/profile', PartuzaConfig::get('partuza_url') . '/profile/' . $id);
   }
 
   public function buildURL($action = null, $escaped = true) {

@@ -176,8 +176,8 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
 
   public function createActivity($userId, $groupId, $appId, $fields, $activity, SecurityToken $token) {
     try {
-      if ($token->getOwnerId() != $token->getViewerId()) {
-        throw new SocialSpiException("unauthorized: Create activity permission denied.", ResponseError::$UNAUTHORIZED);
+      if ($token->getOwnerId() != $token->getViewerId() || $token->getViewerId() != $userId->getUserId($token)) {
+        throw new SocialSpiException("Create activity permission denied.", ResponseError::$UNAUTHORIZED);
       }
       PartuzaDbFetcher::get()->createActivity($userId->getUserId($token), $activity, $token->getAppId());
     } catch (SocialSpiException $e) {
@@ -236,7 +236,7 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
   /**
    * Determines whether the input is a valid key. Valid keys match the regular
    * expression [\w\-\.]+.
-   * 
+   *
    * @param key the key to validate.
    * @return true if the key is a valid appdata key, false otherwise.
    */
