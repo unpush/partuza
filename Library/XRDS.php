@@ -68,18 +68,30 @@ $xrds = '<XRDS xmlns="xri://$xrds">
         <Service>
           <Type>http://ns.opensocial.org/people/0.8</Type>
           <os:URI-Template>{url}/social/rest/people/{guid}/{selector}{-prefix|/|pid}?format=atom</os:URI-Template>
+          <URI>{url}/social/rest/people</URI>
         </Service>
         <Service>
           <Type>http://ns.opensocial.org/activities/0.8</Type>
           <os:URI-Template>{url}/social/rest/activities/{guid}/{selector}?format=atom</os:URI-Template>
+          <URI>{url}/social/rest/activities</URI>
         </Service>
         <Service>
           <Type>http://ns.opensocial.org/appdata/0.8</Type>
           <os:URI-Template>{url}/social/rest/appdata/{guid}/{selector}?format=atom</os:URI-Template>
+          <URI>{url}/social/rest/activities</URI>
         </Service>
         <Service>
           <Type>http://ns.opensocial.org/messages/0.8</Type>
           <os:URI-Template>{url}/social/rest/messages/{guid}/outbox/{msgid}</os:URI-Template>
+          <URI>{url}/social/rest/messages</URI>
+        </Service>
+        <Service>
+          <Type>http://ns.opensocial.org/rest/0.8</Type>
+          <URI>{url}/social/rest</URI>
+        </Service>
+        <Service>
+          <Type>http://ns.opensocial.org/rpc/0.8</Type>
+          <URI>{url}/social/rpc</URI>
         </Service>
         <Service priority="10">
           <Type>http://oauth.net/discovery/1.0</Type>
@@ -89,7 +101,7 @@ $xrds = '<XRDS xmlns="xri://$xrds">
 </XRDS>';
 
 header("Content-Type: application/xrds+xml");
-//header("Content-Type: text/xml"); // turn this on and comment out the previous line to view it easily in a browser
+// header("Content-Type: text/xml"); // turn this on and comment out the previous line to view it easily in a browser
 // output the XRDS document with the correct URL to our gadget server filled in
 $xrds = str_replace('{url}', PartuzaConfig::get('gadget_server'), $xrds);
 $xrds = str_replace('{host}', 'http://' . $_SERVER['HTTP_HOST'], $xrds);
