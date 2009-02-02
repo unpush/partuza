@@ -32,18 +32,18 @@ class ModelException extends Exception {
  * 		return 'bar: '.$bar;
  * 	}
  * }
- * 
+ *
  * Then to call this cached model in your controller you would do:
  * 	$my = $this->model('my');
  * 	$bar = $my->foo('hello world');
- * 
+ *
  * And the model class takes care of all the magic for you :-)
- * 
+ *
  * NOTE: the cache class used has build in cache stampeding protection,
- * so no need to do that in here. 
+ * so no need to do that in here.
  */
 class Model {
-  // A local scope cache per model, every cache hit is stored in 
+  // A local scope cache per model, every cache hit is stored in
   // here so the next request doesn't have to fetch it
   private $local_cache = array();
   // A LIFO call stack to trace recursive dependencies
@@ -154,7 +154,7 @@ class Model {
   /**
    * Magic __call function that is called for each unknown function, which checks if
    * load_{$method_name} exists, and wraps caching around it
-   * 
+   *
    *
    * @param string $method method name
    * @param array $arguments arguments (argv) array

@@ -25,6 +25,8 @@ class Image {
     $height = (empty($height) || ! is_numeric($height)) ? '96' : $height;
     $thumb = self::normalize_thumb($file_path, $width, $height);
     if ($force) {
+      $prefix = substr($file_path, 0, strrpos($file_path, '.'));
+      $ext = substr($file_path, strrpos($file_path, '.') + 1);
       // remove all cached thumbnails so they get regenerated
       foreach (glob("$prefix*.*x*.$ext") as $file) {
         @unlink($file);
@@ -45,7 +47,7 @@ class Image {
     if (! file_exists($file_path)) {
       return false;
     }
-    // These are the ratio calculations		
+    // These are the ratio calculations
     if (! $size = @GetImageSize($file_path)) {
       return false;
     }
@@ -124,6 +126,7 @@ class Image {
         $ret = @imagejpeg($tmp, $destination, 100);
         break;
       case 'image/gif':
+        imagetruecolortopalette($tmp, true, 256);
         $ret = @imagegif($tmp, $destination, 100);
         break;
       case 'image/png':

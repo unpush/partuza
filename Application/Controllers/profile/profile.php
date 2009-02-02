@@ -36,11 +36,12 @@ class profileController extends baseController {
     $friend_requests = isset($_SESSION['id']) && $_SESSION['id'] == $id ? $people->get_friend_requests($_SESSION['id']) : array();
     $apps = $this->model('applications');
     $applications = $apps->get_person_applications($id);
-    $this->template('profile/profile.php', array('activities' => $person_activities, 
-        'applications' => $applications, 'person' => $person, 
-        'friend_requests' => $friend_requests, 'friends' => $friends, 
-        'is_friend' => $is_friend, 
-        'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $id) : false));
+    $person_apps = null;
+    if (isset($_SESSION['id']) && $_SESSION['id'] != $id) {
+      $person_apps = $apps->get_person_applications($_SESSION['id']);
+    }
+    $this->template('profile/profile.php', array('activities' => $person_activities, 'applications' => $applications, 'person' => $person, 'friend_requests' => $friend_requests, 'friends' => $friends,
+    	'is_friend' => $is_friend, 'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $id) : false, 'person_apps' => $person_apps));
   }
 
   public function friends($params) {
@@ -50,12 +51,143 @@ class profileController extends baseController {
     }
     $people = $this->model('people');
     $person = isset($_SESSION['id']) ? $people->get_person($params[3], true) : false;
-    $friends = $people->get_friends($params[3]);
+    $friends_count = $people->get_friends_count($params[3]);
+    if (isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0 && $_GET['page'] <= $friends_count) {
+      $page = intval($_GET['page']);
+    } else {
+      $page = 1;
+    }
+    $start = ($page - 1) * 8;
+    $count = 8;
+    $pages = ceil($friends_count / 8);
+    $friends = $people->get_friends($params[3], "$start, $count");
     $apps = $this->model('applications');
-    $applications = isset($_SESSION['id']) ? $apps->get_person_applications($params[3]) : array();
-    $this->template('profile/profile_showfriends.php', array('friends' => $friends, 
-        'applications' => $applications, 'person' => $person, 
-        'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $params[3]) : false));
+    $applications = $apps->get_person_applications($params[3]);
+    $is_friend = isset($_SESSION['id']) ? ($_SESSION['id'] == $params[3] ? true : $people->is_friend($params[3], $_SESSION['id'])) : false;
+    $this->template('profile/profile_showfriends.php', array('is_friend' => $is_friend, 'page' => $page, 'pages' => $pages, 'friends_count' => $friends_count, 'friends' => $friends, 'applications' => $applications,
+        'person' => $person, 'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $params[3]) : false));
+  }
+
+  public function message_inbox($type) {
+    $start = 0;
+    $count = 20;
+    if (isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0) {
+      $start = ($_GET['page'] - 1) * 20;
+    }
+    $messages = $this->model('messages');
+    if ($type == 'inbox') {
+      $messages = $messages->get_inbox($_SESSION['id'], $start, $count);
+    } elseif ($type == 'sent') {
+      $messages = $messages->get_sent($_SESSION['id'], $start, $count);
+    } else {
+      die("invalid type");
+    }
+    $this->template('profile/profile_show_messages.php', array('messages' => $messages, 'type' => $type));
+  }
+
+  public function message_notifications() {
+    die('Not implemented, at some point this will container friend requests and requestShareApp notifications');
+  }
+
+  public function message_delete($message_id) {
+    $messages = $this->model('messages');
+    $message = $messages->get_message($message_id);
+    // silly special case if you send a message to your self
+    if ($message['to'] == $_SESSION['id'] && $message['from'] == $_SESSION['id']) {
+      $messages->delete_message($message_id, 'to');
+      $messages->delete_message($message_id, 'from');
+      return;
+    }
+    if ($message['to'] == $_SESSION['id']) {
+      $type = 'to';
+    } elseif ($message['from'] == $_SESSION['id']) {
+      $type = 'from';
+    } else {
+      die('This is not the message your looking for');
+      return;
+    }
+    $messages->delete_message($message_id, $type);
+  }
+
+  public function message_get() {
+    $messageId = isset($_GET['messageId']) ? intval($_GET['messageId']) : false;
+    $messageType = isset($_GET['messageType']) && ($_GET['messageType'] == 'inbox' || $_GET['messageType'] == 'sent') ? $_GET['messageType'] : false;
+    if (!$messageId || !$messageType) {
+      die('This is not the message your looking for');
+    }
+    $messages = $this->model('messages');
+    $message = $messages->get_message($messageId);
+    if (isset($message['read']) && $message['read'] == 'no') {
+      $messages->mark_read($messageId);
+    }
+    $this->template('/profile/profile_show_message.php', array('message' => $message, 'messageId' => $messageId, 'messageType' => $messageType));
+  }
+
+  public function message_compose() {
+    $people = $this->model('people');
+    $friends = $people->get_friends($_SESSION['id']);
+    $this->template('/profile/profile_compose_message.php', array('friends' => $friends));
+  }
+
+  public function message_send() {
+    $to = isset($_POST['to']) ? $_POST['to'] : false;
+    $subject = isset($_POST['subject']) ? trim(strip_tags($_POST['subject'])) : false;
+    $body = isset($_POST['message']) ? trim(strip_tags($_POST['message'])) : '';
+    if (!$to || !$subject) {
+      die('Uh what?');
+    }
+    $messages = $this->model('messages');
+    $messages->send_message($_SESSION['id'], $to, $subject, $body);
+  }
+
+  public function messages($params) {
+    if (! isset($_SESSION['id'])) {
+      header("Location: /");
+    }
+    if (isset($params[3])) {
+      switch ($params[3]) {
+        case 'inbox':
+          $this->message_inbox('inbox');
+          break;
+        case 'sent':
+          $this->message_inbox('sent');
+          break;
+        case 'notifications':
+          $this->message_notifications();
+          break;
+        case 'delete':
+          $this->message_delete($params[4]);
+          break;
+        case 'get':
+          $this->message_get();
+          break;
+        case 'compose':
+          $this->message_compose();
+          break;
+        case 'send':
+          $this->message_send();
+          break;
+      }
+    } else {
+      $people = $this->model('people');
+      $apps = $this->model('applications');
+      $applications = $apps->get_person_applications($_SESSION['id']);
+      $person = $people->get_person($_SESSION['id'], true);
+      $this->template('profile/profile_messages.php', array('person' => $person, 'applications' => $applications, 'is_owner' => true));
+    }
+  }
+
+  public function photos($params) {
+    if (! isset($params[3]) || ! is_numeric($params[3])) {
+      header("Location: /");
+      die();
+    }
+    $people = $this->model('people');
+    $person = isset($_SESSION['id']) ? $people->get_person($params[3], true) : false;
+    $apps = $this->model('applications');
+    $applications = $apps->get_person_applications($params[3]);
+    $is_friend = isset($_SESSION['id']) ? ($_SESSION['id'] == $params[3] ? true : $people->is_friend($params[3], $_SESSION['id'])) : false;
+    $this->template('profile/profile_photos.php', array('is_friend' => $is_friend, 'applications' => $applications, 'person' => $person, 'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $params[3]) : false));
   }
 
   public function edit($params) {
@@ -75,8 +207,7 @@ class profileController extends baseController {
         if (substr($file['type'], 0, strlen('image/')) == 'image/' && $file['error'] == UPLOAD_ERR_OK) {
           $ext = strtolower(substr($file['name'], strrpos($file['name'], '.') + 1));
           // it's a file extention that we accept too (not that means anything really)
-          $accepted = array(
-              'gif', 'jpg', 'jpeg', 'png');
+          $accepted = array('gif', 'jpg', 'jpeg', 'png');
           if (in_array($ext, $accepted)) {
             if (! move_uploaded_file($file['tmp_name'], PartuzaConfig::get('site_root') . '/images/people/' . $_SESSION['id'] . '.' . $ext)) {
               die("no permission to images/people dir, or possible file upload attack, aborting");
@@ -99,9 +230,7 @@ class profileController extends baseController {
     $person = $people->get_person($_SESSION['id'], true);
     $apps = $this->model('applications');
     $applications = $apps->get_person_applications($_SESSION['id']);
-    $this->template('profile/profile_edit.php', array('message' => $message, 
-        'applications' => $applications, 'person' => $person, 'oauth' => $oauth_consumer, 
-        'is_owner' => true));
+    $this->template('profile/profile_edit.php', array('message' => $message, 'applications' => $applications, 'person' => $person, 'oauth' => $oauth_consumer, 'is_owner' => true));
   }
 
   public function preview($params) {
@@ -115,8 +244,7 @@ class profileController extends baseController {
     $apps = $this->model('applications');
     $application = $apps->get_application_by_id($app_id);
     $applications = isset($_SESSION['id']) ? $apps->get_person_applications($_SESSION['id']) : array();
-    $this->template('applications/application_preview.php', array('applications' => $applications, 
-        'application' => $application, 'person' => $person, 'is_owner' => true));
+    $this->template('applications/application_preview.php', array('applications' => $applications, 'application' => $application, 'person' => $person, 'is_owner' => true));
   }
 
   public function application($params) {
@@ -133,9 +261,7 @@ class profileController extends baseController {
     $friend_requests = isset($_SESSION['id']) ? $people->get_friend_requests($_SESSION['id']) : array();
     $apps = $this->model('applications');
     $application = $apps->get_person_application($id, $app_id, $mod_id);
-    $this->template('applications/application_canvas.php', array('application' => $application, 
-        'person' => $person, 'friend_requests' => $friend_requests, 
-        'friends' => $friends, 
+    $this->template('applications/application_canvas.php', array('application' => $application, 'person' => $person, 'friend_requests' => $friend_requests, 'friends' => $friends,
         'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $id) : false));
   }
 
@@ -148,8 +274,7 @@ class profileController extends baseController {
     $apps = $this->model('applications');
     $applications = $apps->get_person_applications($_SESSION['id']);
     $person = $people->get_person($id, true);
-    $this->template('applications/applications_manage.php', array('person' => $person, 
-        'is_owner' => true, 'applications' => $applications));
+    $this->template('applications/applications_manage.php', array('person' => $person, 'is_owner' => true, 'applications' => $applications));
   }
 
   public function appgallery($params) {
@@ -162,9 +287,7 @@ class profileController extends baseController {
     $app_gallery = $apps->get_all_applications();
     $applications = $apps->get_person_applications($_SESSION['id']);
     $person = $people->get_person($id, true);
-    $this->template('applications/applications_gallery.php', array('person' => $person, 
-        'is_owner' => true, 'applications' => $applications, 
-        'app_gallery' => $app_gallery));
+    $this->template('applications/applications_gallery.php', array('person' => $person, 'is_owner' => true, 'applications' => $applications, 'app_gallery' => $app_gallery));
   }
 
   public function addapp($params) {
@@ -227,8 +350,6 @@ class profileController extends baseController {
       header("Location: " . PartuzaConfig::get("web_prefix") . "/profile/application/{$_SESSION['id']}/$app_id/$mod_id");
       die();
     }
-    $this->template('applications/application_settings.php', array('applications' => $applications, 
-        'application' => $app, 'person' => $person, 
-        'friend_requests' => $friend_requests, 'friends' => $friends, 'is_owner' => true));
+    $this->template('applications/application_settings.php', array('applications' => $applications, 'application' => $app, 'person' => $person, 'friend_requests' => $friend_requests, 'friends' => $friends, 'is_owner' => true));
   }
 }

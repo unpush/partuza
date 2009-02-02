@@ -19,7 +19,7 @@
  */
 
 class applicationsModel extends Model {
-  public $cachable = array('get_person_applications', 'get_all_applications', 'get_application_prefs', 
+  public $cachable = array('get_person_applications', 'get_all_applications', 'get_application_prefs',
       'get_person_application', 'get_application_by_id', 'get_application');
 
   public function load_get_person_applications($id) {
@@ -56,7 +56,7 @@ class applicationsModel extends Model {
     $app_id = $db->addslashes($app_id);
     $key = $db->addslashes($key);
     $value = $db->addslashes($value);
-    $db->query("insert into application_settings (application_id, person_id, name, value) values ($app_id, $person_id, '$key', '$value') 
+    $db->query("insert into application_settings (application_id, person_id, name, value) values ($app_id, $person_id, '$key', '$value')
 					on duplicate key update value = '$value'");
   }
 
@@ -94,8 +94,8 @@ class applicationsModel extends Model {
 
   private function fetch_gadget_metadata($app_url) {
     $request = json_encode(array(
-        'context' => array('country' => 'US', 'language' => 'en', 'view' => 'default', 
-            'container' => 'partuza'), 
+        'context' => array('country' => 'US', 'language' => 'en', 'view' => 'default',
+            'container' => 'partuza'),
         'gadgets' => array(array('url' => $app_url, 'moduleId' => '1'))));
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, PartuzaConfig::get('gadget_server') . '/gadgets/metadata');
@@ -133,7 +133,7 @@ class applicationsModel extends Model {
     $error = false;
     $info = array();
     // see if we have up-to-date info in our db. Cut-off time is 1 day (aka refresh module info once a day)
-    $time = time() - (24 * 60 * 60);
+    $time = $_SERVER['REQUEST_TIME'] - (24 * 60 * 60);
     $url = $db->addslashes($app_url);
     $res = $db->query("select * from applications where url = '$url' and modified > $time");
     if ($db->num_rows($res)) {
@@ -174,7 +174,7 @@ class applicationsModel extends Model {
           $iframe_params = array();
           parse_str($iframe_url, $iframe_params);
           $info['version'] = isset($iframe_params['v']) ? $iframe_params['v'] : '';
-          $info['modified'] = time();
+          $info['modified'] = $_SERVER['REQUEST_TIME'];
           // Insert new application into our db, or if it exists (but had expired info) update the meta data
           $db->query("insert into applications
 								(id, url, title, directory_title, screenshot, thumbnail, author, author_email, description, settings, views, version, height, scrolling, modified)

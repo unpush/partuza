@@ -19,7 +19,7 @@
  */
 
 class peopleModel extends Model {
-  public $cachable = array('is_friend', 'get_person', 'get_person_info', 'get_friends', 'get_friend_requests');
+  public $cachable = array('is_friend', 'get_person', 'get_person_info', 'get_friends', 'get_friends_count', 'get_friend_requests');
 
   public function load_is_friend($person_id, $friend_id) {
     global $db;
@@ -54,11 +54,11 @@ class peopleModel extends Model {
     global $db;
     $this->invalidate_dependency('people', $id);
     $id = $db->addslashes($id);
-    $supported_fields = array('about_me', 'children', 'birthday', 'drinker', 'ethnicity', 'fashion', 
-        'gender', 'happiest_when', 'humor', 'job_interests', 'living_arrangement', 
-        'looking_for', 'nickname', 'pets', 'political_views', 'profile_song', 
-        'profile_video', 'relationship_status', 'religion', 'romance', 'scared_of', 
-        'sexual_orientation', 'smoker', 'status', 'utc_offset', 'first_name', 
+    $supported_fields = array('about_me', 'children', 'birthday', 'drinker', 'ethnicity', 'fashion',
+        'gender', 'happiest_when', 'humor', 'job_interests', 'living_arrangement',
+        'looking_for', 'nickname', 'pets', 'political_views', 'profile_song',
+        'profile_video', 'relationship_status', 'religion', 'romance', 'scared_of',
+        'sexual_orientation', 'smoker', 'status', 'utc_offset', 'first_name',
         'last_name');
     foreach ($person as $key => $val) {
       if (in_array($key, $supported_fields)) {
@@ -90,10 +90,10 @@ class peopleModel extends Model {
     //TODO missing : person_languages_spoken, need to add table with ISO 639-1 codes
     $tables_addresses = array('person_addresses', 'person_current_location');
     $tables_organizations = array('person_jobs', 'person_schools');
-    $tables = array('person_activities', 'person_body_type', 'person_books', 'person_cars', 
-        'person_emails', 'person_food', 'person_heroes', 'person_movies', 
-        'person_interests', 'person_music', 'person_phone_numbers', 'person_quotes', 
-        'person_sports', 'person_tags', 'person_turn_offs', 'person_turn_ons', 
+    $tables = array('person_activities', 'person_body_type', 'person_books', 'person_cars',
+        'person_emails', 'person_food', 'person_heroes', 'person_movies',
+        'person_interests', 'person_music', 'person_phone_numbers', 'person_quotes',
+        'person_sports', 'person_tags', 'person_turn_offs', 'person_turn_ons',
         'person_tv_shows', 'person_urls');
     foreach ($tables as $table) {
       $person[$table] = array();
@@ -118,10 +118,10 @@ class peopleModel extends Model {
   }
 
   /*
-	 * doing a select * on a large table is way to IO and memory expensive to do 
+	 * doing a select * on a large table is way to IO and memory expensive to do
 	 * for all friends/people on a page. So this gets just the basic fields required
 	 * to build a person expression:
-	 * id, email, first_name, last_name, thumbnail_url and profile_url 
+	 * id, email, first_name, last_name, thumbnail_url and profile_url
 	 */
   public function load_get_person_info($id) {
     global $db;
@@ -138,7 +138,7 @@ class peopleModel extends Model {
     global $db;
     $this->add_dependency('people', $id);
     $ret = array();
-    $limit = $limit && is_numeric($limit) ? ' limit ' . $db->addslashes($limit) : '';
+    $limit = $limit ? ' limit ' . $db->addslashes($limit) : '';
     $person_id = $db->addslashes($id);
     $res = $db->query("select person_id, friend_id from friends where person_id = $person_id or friend_id = $person_id $limit");
     while (list($p1, $p2) = $db->fetch_row($res)) {
@@ -146,6 +146,16 @@ class peopleModel extends Model {
       $friend = $p1 != $person_id ? $p1 : $p2;
       $ret[$friend] = $this->get_person_info($friend);
     }
+    return $ret;
+  }
+
+  public function load_get_friends_count($id) {
+    global $db;
+    $this->add_dependency('people', $id);
+    $ret = array();
+    $person_id = $db->addslashes($id);
+    $res = $db->query("select count(person_id) from friends where person_id = $person_id or friend_id = $person_id");
+    list($ret) = $db->fetch_row($res);
     return $ret;
   }
 
@@ -182,10 +192,10 @@ class peopleModel extends Model {
         return false;
       }
       $db->query("insert into friends values ($person_id, $friend_id)");
-      
+
       //FIXME quick hack to put in befriending activities, move this to its own class/function soon
       // We want to create the friend activities on both people so we do this twice
-      $time = time();
+      $time = $_SERVER['REQUEST_TIME'];
       foreach (array($friend_id => $person_id, $person_id => $friend_id) as $key => $val) {
         $res = $db->query("select concat(first_name, ' ', last_name) from persons where id = $key");
         list($name) = $db->fetch_row($res);

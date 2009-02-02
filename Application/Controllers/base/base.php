@@ -26,7 +26,7 @@ class baseController extends Controller {
     if (! isset($_SESSION['id']) && ! empty($_POST['email']) && ! empty($_POST['password'])) {
       if ($this->authenticate($_POST['email'], $_POST['password'])) {
         // Redirect to self, but without post to prevent posting if the user refreshes the page
-        // Login request to /openid/login page should not be redirected. 
+        // Login request to /openid/login page should not be redirected.
         if (isset($_SERVER['REQUEST_URI']) && $_SERVER['REQUEST_URI'] != '/openid/login') {
           header("Location: {$_SERVER['REQUEST_URI']}");
           die();
@@ -52,7 +52,7 @@ class baseController extends Controller {
       $hash = sha1($email . $password);
       $login->add_authenticated($user['id'], $hash);
       // remeber cookie for 30 days, after which we'd like the user to authenticate again
-      setcookie("authenticated", $hash, time() + (30 * 24 * 60 * 60), '/');
+      setcookie("authenticated", $hash, $_SERVER['REQUEST_TIME'] + (30 * 24 * 60 * 60), '/');
       return true;
     }
     return false;

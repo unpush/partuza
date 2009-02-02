@@ -53,6 +53,10 @@ class Controller {
   }
 
   public function template($template, $vars = array()) {
+    // scope the $vars into local name space
+    foreach ($vars as $key => $val) {
+      $$key = $val;
+    }
     // We also poke the modified time to when this template was changed, so that even
     // for 'static content' the last-modified time is always correct
     $this->set_modified(filemtime(PartuzaConfig::get('views_root') . "/$template"));

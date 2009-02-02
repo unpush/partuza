@@ -22,7 +22,7 @@ class logoutController extends baseController {
 
   public function index($params) {
     session_destroy();
-    setcookie("authenticated", '', time() - (30 * 24 * 60 * 60), '/');
+    setcookie("authenticated", '', $_SERVER['REQUEST_TIME'] - (30 * 24 * 60 * 60), '/');
     header("Location: " . PartuzaConfig::get('web_prefix') . "/");
   }
 }

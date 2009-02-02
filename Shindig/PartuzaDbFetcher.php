@@ -72,6 +72,42 @@ class PartuzaDbFetcher {
     return PartuzaDbFetcher::$fetcher;
   }
 
+  public function createMessage($from, $appId, $message)
+  {
+   /* A $message looks like:
+    * [id] => {msgid}
+    * [title] => You have an invitation from Joe
+    * [body] => Click <a href="http://app.example.org/invites/{msgid}">here</a> to review your invitation.
+    * [recipients] => Array
+    *      (
+    *          [0] => UserId1
+    *          [1] => UserId2
+    *      )
+    */
+    $this->checkDb();
+    $from = mysqli_real_escape_string($this->db, $from);
+    if (empty($from)) {
+      throw new Exception("Invalid person id");
+    }
+    $created = time();
+    $title = mysqli_real_escape_string($this->db, trim($message['title']));
+    if (empty($title)) {
+      throw new Exception("Can't send a message with an empty title");
+    }
+    $body = mysqli_real_escape_string($this->db, trim($message['body']));
+    if (!isset($message['recipients'])) {
+      throw new Exception("Invalid recipients");
+    }
+    if (!is_array($message['recipients'])) {
+      $message['recipients'] = array($message['recipients']);
+    }
+    foreach ($message['recipients'] as $to) {
+      //TODO should verify here if this is a valid user id, and if it's a friend
+      $to = mysqli_real_escape_string($this->db, $to);
+      mysqli_query($this->db, "insert into messages (`from`, `to`, title, body, created) values ($from, $to, '$title', '$body', $created)");
+    }
+  }
+
   public function createActivity($person_id, $activity, $app_id = '0') {
     $this->checkDb();
     $app_id = mysqli_real_escape_string($this->db, $app_id);

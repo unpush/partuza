@@ -19,55 +19,59 @@
  */
 
 $config = array(
-  // Language to use, used for gettext / setenv LC_ALL
-  'language' => 'en_US', 
+// Language to use, used for gettext / setenv LC_ALL
+'language' => 'en_US',
 
-  // prefix of where partuza lives, empty means it's /
-  'web_prefix' => '', 
+// prefix of where partuza lives, empty means it's /
+'web_prefix' => '',
 
-  // Container (formaly known as syndicator) to pass in the iframe (defaults to 'default')
-  // Note: your shindig config/container.js needs to match this key, so if you changed this to 'partuza'
-  // you need to edit container.js and change the container key there like:
-  // {"gadgets.container" : ["partuza"],
-  'container' => 'default',
-  //'container' => 'partuza',
+// Container (formaly known as syndicator) to pass in the iframe (defaults to 'default')
+// Note: your shindig config/container.js needs to match this key, so if you changed this to 'partuza'
+// you need to edit container.js and change the container key there like:
+// {"gadgets.container" : ["partuza"],
+'container' => 'default',
 
-  // gadget server url
-  'gadget_server' => 'http://shindig',
+// gadget server url
+'gadget_server' => 'http://shindig',
 
-  // The url of this partuza instalation, including the (optional) web_prefix
-  'partuza_url' => 'http://partuza/',
+// The url of this partuza instalation, including the (optional) web_prefix
+'partuza_url' => 'http://partuza/',
 
-  // Max age of a security token, defaults to one hour
-  'st_max_age' => 60 * 60,
-  'allow_plaintext_token' => true, 
+// Max age of a security token, defaults to one hour
+'st_max_age' => 60 * 60,
 
-  // Security token keys
-  'token_cipher_key' => 'INSECURE_DEFAULT_KEY',
-  'token_hmac_key' => 'INSECURE_DEFAULT_KEY',
+// Allow plain text tokens, disable this on live systems
+'allow_plaintext_token' => true,
 
-  // MySql server settings
-  'db_host' => 'localhost', 
-  'db_user' => 'root',
-  'db_passwd' => '',
-  'db_database' => 'partuza',
-  'db_port' => '3306', 
-    
-  'data_cache' => 'CacheFile',
-  // If you use CacheMemcache as caching backend, change these to the memcache server settings
-  'cache_host' => 'localhost',
-  'cache_port' => 11211, 
-  'cache_time' => 24 * 60 * 60,
-  // If you use CacheFile as caching backend, this is the directory where it stores the temporary files
-  // Right now you should set this to the same directory as shindig, else the cache invalidations won't
-  // apply to both shindig and partuza
-  'cache_root' => '/tmp/shindig', 
+// Security token keys, this is a shared secret between shindig and partuza so make sure you set them to the same value in both
+'token_cipher_key' => 'INSECURE_DEFAULT_KEY',
+'token_hmac_key' => 'INSECURE_DEFAULT_KEY',
 
-	/* No need to edit the settings below in general, unless you modified the directory layout */
-	'site_root' => realpath(dirname(__FILE__)), 
-	'library_root' => realpath(dirname(__FILE__) . "/../Library"), 
-  'application_root' => realpath(dirname(__FILE__) . "/../Application"), 
-  'views_root' => realpath(dirname(__FILE__) . "/../Application/Views"), 
-  'models_root' => realpath(dirname(__FILE__) . "/../Application/Models"), 
-  'controllers_root' => realpath(dirname(__FILE__) . "/../Application/Controllers")
+// MySql server settings
+'db_host' => 'localhost',
+'db_user' => 'root',
+'db_passwd' => '',
+'db_database' => 'partuza',
+'db_port' => '3306',
+
+'data_cache' => 'CacheApc',
+// If you use CacheMemcache as caching backend, change these to the memcache server settings
+'cache_host' => 'localhost',
+'cache_port' => 11211,
+'cache_time' => 24 * 60 * 60,
+
+// If you use CacheFile as caching backend, this is the directory where it stores the temporary files
+// Right now you should set this to the same directory as shindig, else the cache invalidations won't
+// apply to both shindig and partuza
+'cache_root' => '/tmp/shindig',
+
+/* No need to edit the settings below in general, unless you modified the directory layout.
+ * Note: On production systems it's faster to put absolute paths here instead of using these dynamicly generated ones
+*/
+'site_root' => realpath(dirname(__FILE__)),
+'library_root' => realpath(dirname(__FILE__) . "/../Library"),
+'application_root' => realpath(dirname(__FILE__) . "/../Application"),
+'views_root' => realpath(dirname(__FILE__) . "/../Application/Views"),
+'models_root' => realpath(dirname(__FILE__) . "/../Application/Models"),
+'controllers_root' => realpath(dirname(__FILE__) . "/../Application/Controllers")
 );

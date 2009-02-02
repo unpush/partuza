@@ -97,7 +97,7 @@ class CacheMemcache extends Cache {
     if (($ret = @memcache_get($this->connection, $key)) === false) {
       return false;
     }
-    if (time() - $ret['time'] > $expiration) {
+    if ($_SERVER['REQUEST_TIME'] - $ret['time'] > $expiration) {
       $this->delete($key);
       return false;
     }
@@ -107,8 +107,8 @@ class CacheMemcache extends Cache {
   public function set($key, $value) {
     $this->check();
     // we store it with the cache_time default expiration so objects will atleast get cleaned eventually.
-    if (@memcache_set($this->connection, $key, array('time' => time(), 
-        'data' => $value), false, PartuzaConfig::Get('cache_time')) == false) {
+    if (@memcache_set($this->connection, $key, array('time' => $_SERVER['REQUEST_TIME'],
+       'data' => $value), false, PartuzaConfig::Get('cache_time')) == false) {
       throw new CacheException("Couldn't store data in cache");
     }
   }

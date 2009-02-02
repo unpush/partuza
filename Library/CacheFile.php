@@ -23,7 +23,7 @@
  * but on a multi server setup this could lead to some problems due to inconsistencies
  * between the various cached versions on the different servers. Other methods like
  * memcached should be used instead really.
- * 
+ *
  * When using this file based backend, its adviced to make a cron job that scans thru the
  * cache dir, and removes all files that are older then 24 hours (or whatever your
  * config's CACHE_TIME is set too).
@@ -94,7 +94,7 @@ class CacheFile extends Cache {
       $this->waitForLock($cacheFile);
     }
     if (file_exists($cacheFile) && is_readable($cacheFile)) {
-      $now = time();
+      $now = $_SERVER['REQUEST_TIME'];
       if (($mtime = filemtime($cacheFile)) !== false && ($now - $mtime) < PartuzaConfig::get('cache_time')) {
         if (($data = @file_get_contents($cacheFile)) !== false) {
           $data = unserialize($data);

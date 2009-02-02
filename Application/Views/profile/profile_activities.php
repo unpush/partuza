@@ -9,10 +9,14 @@ if (! count($vars['activities'])) {
     echo "<div class=\"activity$add\">\n";
     echo "<a href=\"/profile/{$activity['person_id']}\">{$activity['person_name']}</a> ";
     echo $activity['title'] . "<br />\n";
-    foreach ($activity['media_items'] as $mediaItem) {
-      if ($mediaItem['media_type'] == 'IMAGE') {
-        echo "<img src=\"" . $mediaItem['url'] . "\" width=\"50\"></img>";
+    if (count($activity['media_items'])) {
+      echo "<div style=\"clear:both\">";
+      foreach ($activity['media_items'] as $mediaItem) {
+        if ($mediaItem['media_type'] == 'IMAGE') {
+          echo "<div class=\" ui-corner-all\" style=\"float:left\"><img src=\"" . $mediaItem['url'] . "\" width=\"50\"></img></div>";
+        }
       }
+      echo "</div>";
     }
     echo "{$activity['body']}\n";
     echo "</div>";

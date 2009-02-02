@@ -1,30 +1,30 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-<title>Partuza!</title>
+<title>Partuza</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link href="<?=PartuzaConfig::get('web_prefix')?>/css/container.css?v=4" rel="stylesheet" type="text/css">
-<!--  compressed with java -jar {$path}/yuicompressor-2.3.5.jar -o {$file}-min.js {$file}.js -->
-<script type="text/javascript"
-	src="<?=PartuzaConfig::get('gadget_server')?>/gadgets/js/rpc.js?c=1"></script>
-<script type="text/javascript"
-	src="http://ajax.googleapis.com/ajax/libs/prototype/1.6.0.2/prototype.js"></script>
-<script type="text/javascript" src="<?=PartuzaConfig::get('web_prefix')?>/js/tabs-min.js"></script>
+<link href="<?=PartuzaConfig::get('web_prefix')?>/css/container.css?v=5" rel="stylesheet" type="text/css">
+<link type="text/css" href="<?=PartuzaConfig::get('web_prefix')?>/css/jquery.css?v=5" rel="Stylesheet" />
+<!--  the below can be compressed with yuicompressor using: java -jar {$path}/yuicompressor-2.3.5.jar -o {$file}-min.js {$file}.js -->
+<script type="text/javascript" src="<?=PartuzaConfig::get('gadget_server')?>/gadgets/js/rpc.js?c=1"></script>
+<script type="text/javascript" src="<?=PartuzaConfig::get('web_prefix')?>/js/jquery-1.3.js"></script>
+<script type="text/javascript" src="<?=PartuzaConfig::get('web_prefix')?>/js/jquery.ui.all.js"></script>
+<script type="text/javascript" src="<?=PartuzaConfig::get('web_prefix')?>/js/jquery.class.js"></script>
 <script type="text/javascript" src="<?=PartuzaConfig::get('web_prefix')?>/js/container.js"></script>
 <link rel="openid2.provider openid.server" href="http://<?php echo $_SERVER['HTTP_HOST'];?>/openid/auth">
 <meta http-equiv="X-XRDS-Location" content="http://<?php echo $_SERVER['HTTP_HOST'];?>/xrds" />
 </head>
 <body>
-<div id="headerDiv">
-	<?
+<div id="headerDiv" class="ui-dark-widget-header ui-corner-all">
+<?php
 if (isset($_SESSION['username'])) {
-  ?>
+?>
 	<div id="searchDiv">
 <form method="get" action="<?=PartuzaConfig::get('web_prefix')?>/search">|
 <label for="search_q">search</label> <input type="text" id="search_q"
 	name="q"> <input class="button" type="submit" value="Go" /></form>
 </div>
-	<?
+<?php
 }
 ?>
 	<div id="userMenuDiv"
@@ -48,9 +48,9 @@ if (isset($_SESSION['username'])) {
     }
     echo sprintf(login_form, $action);
   }
-  ?>	
+  ?>
 	</div>
 <span id="headerLogo"> <a
 	href="<?php
-echo PartuzaConfig::get("web_prefix")?>/home">Partuza!</a> </span></div>
+echo PartuzaConfig::get("web_prefix")?>/home">Partuza</a> </span></div>
 <div id="contentDiv">
