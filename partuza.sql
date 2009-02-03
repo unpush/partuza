@@ -211,12 +211,13 @@ DROP TABLE IF EXISTS `oauth_consumer`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `oauth_consumer` (
-  `user_id` bigint(20) NOT NULL,
+  `user_id` bigint(20) NOT NULL default '0',
+  `app_id` int not null default '0',
   `consumer_key` char(64) NOT NULL,
   `consumer_secret` char(64) NOT NULL,
-  PRIMARY KEY (`user_id`),
-  UNIQUE KEY `user_id` (`user_id`),
-  KEY `consumer_key` (`consumer_key`)
+  index(user_id),
+  index(app_id),
+  index(consumer_key)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
