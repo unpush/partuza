@@ -200,7 +200,7 @@ CREATE TABLE `messages` (
   KEY `id` (`id`),
   KEY `to` (`to`,`created`),
   KEY `from` (`from`,`created`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -211,13 +211,13 @@ DROP TABLE IF EXISTS `oauth_consumer`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `oauth_consumer` (
-  `user_id` bigint(20) NOT NULL default '0',
-  `app_id` int not null default '0',
+  `user_id` bigint(20) NOT NULL DEFAULT '0',
+  `app_id` int(11) NOT NULL DEFAULT '0',
   `consumer_key` char(64) NOT NULL,
   `consumer_secret` char(64) NOT NULL,
-  index(user_id),
-  index(app_id),
-  index(consumer_key)
+  KEY `user_id` (`user_id`),
+  KEY `app_id` (`app_id`),
+  KEY `consumer_key` (`consumer_key`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
@@ -680,4 +680,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2009-02-02 17:55:03
+-- Dump completed on 2009-02-03 16:50:02
