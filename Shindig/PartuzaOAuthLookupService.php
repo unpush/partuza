@@ -33,26 +33,33 @@ class PartuzaOAuthLookupService extends OAuthLookupService {
       if (isset($GLOBALS['HTTP_RAW_POST_DATA'])) {
         $oauthRequest->set_parameter($GLOBALS['HTTP_RAW_POST_DATA'], '');
       }
-      list($consumer, $token) = $server->verify_request($oauthRequest);
+      if (! isset($oauthRequest->parameters['oauth_token'])) {
+        // 2 legged OAuth request, do our own magic instead of counting OAuth.php since it doesn't support 2 legged OAuth very well (read: not at all)
+        $consumerToken = $ds->lookup_consumer($oauthRequest->parameters['oauth_consumer_key']);
+        $signature_method = new OAuthSignatureMethod_HMAC_SHA1();
+        $signature_valid = $signature_method->check_signature($oauthRequest, $consumerToken, null, $_GET["oauth_signature"]);
+        if (! $signature_valid) {
+          // signature did not check out, abort
+          return null;
+        }
+        return new OAuthSecurityToken($userId, $appUrl, $ds->get_app_id($consumerToken), "partuza");
+      } else {
+        // 'Regular' 3 legged OAuth
+        list($consumer, $token) = $server->verify_request($oauthRequest);
+      }
       if (isset($GLOBALS['HTTP_RAW_POST_DATA'])) {
         unset($oauthRequest->parameters[$GLOBALS['HTTP_RAW_POST_DATA']]);
       }
-      
       $oauthUserId = $ds->get_user_id($token);
       if ($userId && $oauthUserId && $oauthUserId != $userId) {
         return null; // xoauth_requestor_id was provided, but does not match oauth token -> fail
       } else {
         $userId = $oauthUserId; // use userId from oauth token
       }
-      return new OAuthSecurityToken($userId, $appUrl, $this->getAppId($appUrl), "partuza");
+      return new OAuthSecurityToken($userId, $appUrl, 0, "partuza");
     } catch (OAuthException $e) {
       //echo "OAuthException: ".$e->getMessage();
       return null;
     }
-  }
-
-  private function getAppId($appUrl) {
-    // TODO: SQL: select id from applications where url = $appUrl
-    return 0; // a real implementation would look this up
   }
 }

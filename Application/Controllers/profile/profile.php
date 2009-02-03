@@ -226,7 +226,7 @@ class profileController extends baseController {
       }
     }
     $oauth = $this->model('oauth');
-    $oauth_consumer = $oauth->get_consumer($_SESSION['id']);
+    $oauth_consumer = $oauth->get_person_consumer($_SESSION['id']);
     $person = $people->get_person($_SESSION['id'], true);
     $apps = $this->model('applications');
     $applications = $apps->get_person_applications($_SESSION['id']);

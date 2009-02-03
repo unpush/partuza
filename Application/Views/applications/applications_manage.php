@@ -46,12 +46,14 @@ Or add an application by url:<br />
         echo "<img src=\"" . PartuzaConfig::get('gadget_server') . "/gadgets/proxy?url=" . urlencode($app['thumbnail']) . "\" />";
       }
       echo "</div><b>{$app['directory_title']}</b><br />{$app['description']}<br />";
-      if (! empty($app['author_email'])) {
+      $app['author'] = trim($app['author']);
+      if (! empty($app['author_email']) && !empty($app['author'])) {
         $app['author'] = "<a href=\"mailto: {$app['author_email']}\">{$app['author']}</a>";
       }
       if (! empty($app['author'])) {
-        echo "By {$app['author']}";
+        //echo "By {$app['author']}";
       }
+      echo "<br /><div class=\"oauth\">This gadget's OAuth Consumer Key: <i>{$app['oauth']['consumer_key']}</i> and secret: <i>{$app['oauth']['consumer_secret']}</i></div>";
       echo "</div>";
     }
   }

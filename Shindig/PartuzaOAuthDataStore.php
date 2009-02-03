@@ -27,7 +27,7 @@ class PartuzaOAuthDataStore extends OAuthDataStore {
   public function __construct() {
     global $db;
     // this class is used in 2 different contexts, either through partuza where we have a Db class
-    // or through Shindig's social API, in which case we have to create our own db handle 
+    // or through Shindig's social API, in which case we have to create our own db handle
     if (isset($db) && $db instanceof DB) {
       // running in partuza's context
       $this->db = $db->get_handle();
@@ -55,10 +55,10 @@ class PartuzaOAuthDataStore extends OAuthDataStore {
 
   public function lookup_consumer($consumer_key) {
     $consumer_key = mysqli_real_escape_string($this->db, trim($consumer_key));
-    $res = mysqli_query($this->db, "select * from oauth_consumer where consumer_key = '$consumer_key'");
+    $res = mysqli_query($this->db, "select user_id, app_id, consumer_key, consumer_secret from oauth_consumer where consumer_key = '$consumer_key'");
     if (mysqli_num_rows($res)) {
       $ret = mysqli_fetch_array($res, MYSQLI_ASSOC);
-      return new OAuthConsumer($ret['consumer_key'], $ret['consumer_secret']);
+      return new OAuthConsumer($ret['consumer_key'], $ret['consumer_secret'], null);
     }
     return null;
   }
@@ -140,7 +140,17 @@ class PartuzaOAuthDataStore extends OAuthDataStore {
     return null;
   }
 
-  /** 
+  public function get_app_id($token) {
+    $token_key = mysqli_real_escape_string($this->db, $token->key);
+    $res = mysqli_query($this->db, "select app_id from oauth_consumer where consumer_key = '$token_key'");
+    $ret = 0;
+    if (mysqli_num_rows($res)) {
+      list($ret) = mysqli_fetch_row($res);
+    }
+    return $ret;
+  }
+
+  /**
    * @see http://jasonfarrell.com/misc/guid.phps Taken from here
    * e.g. output: 372472a2-d557-4630-bc7d-bae54c934da1
    * word*2-, word-, (w)ord-, (w)ord-, word*3
@@ -167,4 +177,3 @@ class PartuzaOAuthDataStore extends OAuthDataStore {
     return $guidstr;
   }
 }
-

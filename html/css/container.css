@@ -239,10 +239,13 @@ form#register div .label {
 
 .app {
 	background-color: #e5ecf9;
-	padding: 12px;
-	height: 60px;
-	margin-bottom: 6px;
+	padding: 8px;
+	height: 84px;
+	margin-bottom: 12px;
 	overflow: hidden;
+	border: 1px solid #E5ECF9; background: #E5ECF9 url(/images/ui-bg_highlight-soft_75_E5ECF9_1x100.png) 50% 50% repeat-x;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
 }
 
 .app .app_thumbnail {
@@ -259,6 +262,10 @@ form#register div .label {
 	width: 100px;
 	height: 60px;
 	text-align: right;
+}
+
+.app .oauth {
+	clear: both;	
 }
 
 .application_link {
@@ -382,6 +389,10 @@ form#register div .label {
 	line-height: 32px;
 	text-align: center;
 	background-color: #e5ecf9;
+	border: 1px solid #E5ECF9; background: #E5ECF9 url(/images/ui-bg_highlight-soft_75_E5ECF9_1x100.png) 50% 50% repeat-x;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	
 }
 
 .form_entry {

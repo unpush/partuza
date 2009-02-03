@@ -309,10 +309,12 @@ $date_of_birth_year = date('Y', $vars['person']['date_of_birth']);
   <div id="oauth">
     <div class="form_entry"><br />
     <i>The OAuth consumer key and secret are automatically generated and
-    unique for your profile.<br />
-    They can be used to develop an REST+OAuth client, if your not developing
-    an OAuth client,<br />
-    feel free to ignore these values :-)</i> <br />
+    unique for your profile. Normally these would be created for for a registered developer account where you register your site and/or purpose but are listed here for developer conveniance.<br /><br />
+    They can be used to develop an REST + (3 legged) OAuth client, if your not developing
+    an Auth consuming mobile application or website, feel free to ignore these values :-)<br /><br />
+    If your developing a gadget that uses the REST and/or RPC interface, you should be using the <a href="http://sites.google.com/site/oauthgoog/2leggedoauth/2opensocialrestapi" style="color:#3366CC">2-legged oauth</a>
+    tokens which you can find in the 'edit applications' overview of your profile.<br />
+    </i>
     <br />
     </div>
     <div class="form_entry">

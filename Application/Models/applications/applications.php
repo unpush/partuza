@@ -27,11 +27,14 @@ class applicationsModel extends Model {
     $this->add_dependency('person_applications', $id);
     $this->add_dependency('person_application_prefs', $id);
     $ret = array();
+    include_once PartuzaConfig::get('models_root') . "/oauth/oauth.php";
+    $oauth = new oauthModel();
     $id = $db->addslashes($id);
     $res = $db->query("select applications.*, person_applications.id as mod_id from person_applications, applications where person_applications.person_id = $id and applications.id = person_applications.application_id");
     while ($row = $db->fetch_array($res, MYSQLI_ASSOC)) {
       $this->add_dependency('applications', $row['id']);
       $row['user_prefs'] = $this->get_application_prefs($id, $row['id']);
+      $row['oauth'] = $oauth->get_gadget_consumer($row['id']);
       $ret[] = $row;
     }
     return $ret;
@@ -39,11 +42,14 @@ class applicationsModel extends Model {
 
   public function load_get_all_applications() {
     global $db;
+    include_once PartuzaConfig::get('models_root') . "/oauth/oauth.php";
+    $oauth = new oauthModel();
     $ret = array();
     $res = $db->query("select * from applications where approved = 'Y' order by directory_title, title");
     while ($row = $db->fetch_array($res, MYSQLI_ASSOC)) {
       $this->add_dependency('applications', $row['id']);
       $row['user_prefs'] = array();
+      $row['oauth'] = $oauth->get_gadget_consumer($row['id']);
       $ret[] = $row;
     }
     return $ret;
