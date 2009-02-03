@@ -54,7 +54,7 @@ $config = array(
 'db_database' => 'partuza',
 'db_port' => '3306',
 
-'data_cache' => 'CacheApc',
+'data_cache' => 'CacheFile',
 // If you use CacheMemcache as caching backend, change these to the memcache server settings
 'cache_host' => 'localhost',
 'cache_port' => 11211,
