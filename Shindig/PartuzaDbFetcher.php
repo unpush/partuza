@@ -162,8 +162,10 @@ class PartuzaDbFetcher {
     } else {
       $activityIdQuery = '';
     }
+    $appIdQuery = $appId ? " and activities.app_id = ".mysqli_real_escape_string($this->db, $appId) : '';
+
     // return a proper totalResults count
-    $res = mysqli_query($this->db, "select count(id) from activities where activities.person_id in ($ids) $activityIdQuery");
+    $res = mysqli_query($this->db, "select count(id) from activities where activities.person_id in ($ids) $activityIdQuery $appIdQuery");
     if ($res !== false) {
       list($totalResults) = mysqli_fetch_row($res);
     } else {
@@ -186,6 +188,7 @@ class PartuzaDbFetcher {
 			where
 				activities.person_id in ($ids)
 				$activityIdQuery
+				$appIdQuery
 			order by
 				created desc
 			limit
