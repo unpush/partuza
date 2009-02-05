@@ -56,7 +56,7 @@ if (! empty($vars['gadget']['error'])) {
     ?><div class="gadgets-gadget-title-button-bar"><a
 	href="<?php
     echo PartuzaConfig::get('web_prefix') . "/profile/application/{$vars['person']['id']}/{$gadget['id']}/{$gadget['mod_id']}"?>"
-	title="View full screen"><span class="ui-icon ui-icon-carat-1-e" /></div><?php
+	title="View full screen"><span class="ui-icon ui-icon-carat-1-e"></span></div><?php
   }
   $title = ! empty($gadget['directory_title']) ? $gadget['directory_title'] : $gadget['title'];
 

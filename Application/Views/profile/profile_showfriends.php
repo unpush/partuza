@@ -21,7 +21,7 @@ foreach ($vars['friends'] as $friend) {
     <div class=\"thumb\" style=\"float:left; margin-left:3px; margin-top:3px; width:50px; height:50px; background-image: url('$thumb') ; background-repeat: no-repeat; background-position: center center;\"></div>
     <div style=\"float:left; margin: 6px;\"><a href=\"" . PartuzaConfig::get('web_prefix') . "/profile/{$friend['id']}\" rel=\"friend\" >{$friend['first_name']} {$friend['last_name']}</a></div>";
   if ($vars['is_owner']) {
-    echo "<div style=\"float:right; margin: 6px;\" class=\"ui-state-default ui-corner-all\"><a href=\"javascript: void(0);\" id=\"removeButton{$friend['id']}\"><span class=\"ui-icon ui-icon-closethick\" /></a></div>";
+    echo "<div style=\"float:right; margin: 6px;\" class=\"ui-state-default ui-corner-all\"><a href=\"javascript: void(0);\" id=\"removeButton{$friend['id']}\"><span class=\"ui-icon ui-icon-closethick\"></span></a></div>";
 ?>
     <script type="text/javascript">
     	$('#removeButton<?php echo $friend['id']?>').bind('click', function() {

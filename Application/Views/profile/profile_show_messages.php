@@ -15,7 +15,7 @@ if (count($messages)) {
     //TODO add script to the onLoad function to hook up the delete buttons, and also add the link to view message to each subject and body
     $readStyle = isset($message['read']) && $message['read'] == 'no' ? ' style="font-weight:bold"' : '';
     echo "<div class=\"message\" id=\"message{$message['id']}\">".
-         "<div style=\"float:right; margin: 6px;\" class=\"ui-state-default ui-corner-all\"><a href=\"javascript: void(0);\" id=\"removeButton{$message['id']}\"><span id=\"removeIcon{$message['id']}\" class=\"ui-icon ui-icon-closethick\" /></a></div>".
+         "<div style=\"float:right; margin: 6px;\" class=\"ui-state-default ui-corner-all\"><a href=\"javascript: void(0);\" id=\"removeButton{$message['id']}\"><span id=\"removeIcon{$message['id']}\" class=\"ui-icon ui-icon-closethick\"></span></a></div>".
          "<div class=\"who\"><div class=\"thumb\" style=\"float:left; margin-right: 6px; width:50px; height:50px; background-image: url('$thumb') ; background-repeat: no-repeat; background-position: center center;\"></div>{$message['name']}</a><br /><span>$created</span></div>".
          "<div class=\"preview\"$readStyle>$title<br />$preview</div>".
          "</div>".

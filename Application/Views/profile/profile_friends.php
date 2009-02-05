@@ -1,7 +1,7 @@
 <div id="profileRight">
 <div class="gadgets-gadget-chrome">
 <div class="gadgets-gadget-title-bar">
-<div class="gadgets-gadget-title-button-bar"><a href="<?php echo PartuzaConfig::get("web_prefix")?>/profile/friends/<?php echo $vars['person']['id']?>" title="View all.."><span class="ui-icon ui-icon ui-icon-carat-1-e" /></div>
+<div class="gadgets-gadget-title-button-bar"><a href="<?php echo PartuzaConfig::get("web_prefix")?>/profile/friends/<?php echo $vars['person']['id']?>" title="View all.."><span class="ui-icon ui-icon ui-icon-carat-1-e" ></span></div>
 <span class="gadgets-gadget-title"><?php echo $vars['person']['first_name']?>'s friends (<?php echo count($vars['friends'])?>)</span>
 </div>
 <div style="margin-left: 6px">
@@ -37,7 +37,7 @@ foreach ($vars['friends'] as $friend) {
 <div class="gadgets-gadget-title-bar">
 <?php
   if ($vars['is_owner']) {
-    echo "<div class=\"gadgets-gadget-title-button-bar\"><a href=\"" . PartuzaConfig::get('web_prefix') . "/profile/edit\" title=\"Edit your profile\"><span class=\"ui-icon ui-icon-pencil\" /></a></div>";
+    echo "<div class=\"gadgets-gadget-title-button-bar\"><a href=\"" . PartuzaConfig::get('web_prefix') . "/profile/edit\" title=\"Edit your profile\"><span class=\"ui-icon ui-icon-pencil\"></span></a></div>";
   }
 ?>
 

@@ -13,7 +13,7 @@ echo $vars['person']['first_name'] . " " . $vars['person']['last_name'];
 ?>
 <?php
   if ($vars['is_owner']) {
-    echo "<div class=\"gadgets-gadget-title-button-bar\" style=\"margin-right:10px; margin-top: -2px;\"><a href=\"" . PartuzaConfig::get('web_prefix') . "/profile/edit\" title=\"Edit your profile\"><span class=\"ui-icon ui-icon-pencil\" /></a></div>";
+    echo "<div class=\"gadgets-gadget-title-button-bar\" style=\"margin-right:10px; margin-top: -2px;\"><a href=\"" . PartuzaConfig::get('web_prefix') . "/profile/edit\" title=\"Edit your profile\"><span class=\"ui-icon ui-icon-pencil\"></span></a></div>";
   }
 ?>
 </div>
@@ -74,7 +74,7 @@ $('#removeButton').bind('click', function() {
 <div class="header" style="padding-left:12px">Applications
 <?php
 if ($vars['is_owner']) {
-    echo "<div class=\"gadgets-gadget-title-button-bar\" style=\"margin-right:10px; margin-top: -2px;\"><a href=\"" . PartuzaConfig::get("web_prefix") . "/profile/myapps\" title=\"Edit your applications\"><span class=\"ui-icon ui-icon-pencil\" /></a></div>";
+    echo "<div class=\"gadgets-gadget-title-button-bar\" style=\"margin-right:10px; margin-top: -2px;\"><a href=\"" . PartuzaConfig::get("web_prefix") . "/profile/myapps\" title=\"Edit your applications\"><span class=\"ui-icon ui-icon-pencil\"></span></a></div>";
   }
 ?>
 </div>
