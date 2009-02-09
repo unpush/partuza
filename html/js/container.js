@@ -73,7 +73,7 @@ var Container = Class.extend({
 		// we use the security token to tell our backend who this is (app/mod/viewer)
 		// since it's the only fail safe way of doing so
 		if (elm != undefined) {
-			var params = gadgets.container._parseIframeUrl(elm.src);
+			var params = gadgets.container._parseIframeUrl(elm.attr('src'));
 			//TODO use params.st to make the store request, it holds the owner / viewer / app id / mod id required
 			var ret = $.ajax({
 				type: "GET",
