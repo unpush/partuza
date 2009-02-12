@@ -10,6 +10,7 @@
 <script type="text/javascript" src="<?=PartuzaConfig::get('web_prefix')?>/js/jquery-1.3.js"></script>
 <script type="text/javascript" src="<?=PartuzaConfig::get('web_prefix')?>/js/jquery.ui.all.js"></script>
 <script type="text/javascript" src="<?=PartuzaConfig::get('web_prefix')?>/js/jquery.class.js"></script>
+<script type="text/javascript" src="<?=PartuzaConfig::get('web_prefix')?>/js/jquery.json-1.3.js"></script>
 <script type="text/javascript" src="<?=PartuzaConfig::get('web_prefix')?>/js/container.js"></script>
 <link rel="openid2.provider openid.server" href="http://<?php echo $_SERVER['HTTP_HOST'];?>/openid/auth">
 <?php if($this instanceof profileController) { ?>
