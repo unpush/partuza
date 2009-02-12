@@ -120,7 +120,7 @@ var Container = Class.extend({
 			var params = gadgets.container._parseIframeUrl(elm.attr('src'));
 			var url = gadgets.container._getUrlForView(view, params.owner, params.aid, params.mid);
 			if (opt_params) {
-				var paramStr = Object.toJSON(opt_params);
+				var paramStr = $.toJSON(opt_params);
 				if (paramStr.length > 0) {
 					url += '?appParams=' + encodeURIComponent(paramStr);
 				}
