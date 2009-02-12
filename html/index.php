@@ -15,7 +15,7 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
- * 
+ *
  */
 
 $path_extra = dirname(dirname(__FILE__)).'/Library';
@@ -30,8 +30,10 @@ ini_set('include_path', $path);
 require "config.php";
 require "../Library/PartuzaConfig.php";
 
-// An "Accept : application/xrds+xml" header means they want our XRDS document (and nothing else) 
-if ((isset($_SERVER['HTTP_ACCEPT']) && strpos(strtolower($_SERVER['HTTP_ACCEPT']), 'application/xrds+xml') !== false) || $_SERVER["REQUEST_URI"] == '/xrds') {
+// An "Accept : application/xrds+xml" header means they want our XRDS document (and nothing else)
+if ((isset($_SERVER['HTTP_ACCEPT']) && strpos(strtolower($_SERVER['HTTP_ACCEPT']), 'application/xrds+xml') !== false) ||
+    $_SERVER['REQUEST_URI'] == '/xrds' ||
+    $_SERVER['REQUEST_URI'] == '/openidxrds') {
   require PartuzaConfig::get('library_root') . "/XRDS.php";
   die();
 }
