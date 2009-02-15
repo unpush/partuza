@@ -49,7 +49,7 @@ class openidController extends baseController {
         // so.
         return noIdentifier_render();
       } else if ($request->immediate) {
-        $response = &$request->answer(false, buildURL());
+        $response = &$request->answer(false, $this->openid->buildURL());
       } else {
         if (! isset($_SESSION['id'])) {
           $this->login_render();
