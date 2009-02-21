@@ -1,6 +1,6 @@
 <?php
 $message['title'] = strip_tags($message['title']);
-$message['body'] = strip_tags($message['body']);
+$message['body'] = strip_tags($message['body'], '<p><a><i><b><strong><br>');
 $created = strftime('%B %e, %Y at %H:%M', $message['created']);
 $userId = $messageType == 'inbox' ? $message['from'] : $message['to'];
 if (empty($message['thumbnail'])) {
