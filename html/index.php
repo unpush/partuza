@@ -50,7 +50,6 @@ foreach ($modules as $module) {
     die("Shindig requires the {$module} extention, see <a href='http://www.php.net/{$module}'>http://www.php.net/{$module}</a> for more info");
   }
 }
-$cache = PartuzaConfig::get('data_cache');
 
 // Basic library requirements that are always needed
 require PartuzaConfig::get('library_root') . "/Image.php";
@@ -60,7 +59,10 @@ require PartuzaConfig::get('library_root') . "/Dispatcher.php";
 require PartuzaConfig::get('library_root') . "/Controller.php";
 require PartuzaConfig::get('library_root') . "/Model.php";
 require PartuzaConfig::get('library_root') . "/Cache.php";
-require PartuzaConfig::get('library_root') . "/{$cache}.php";
+require PartuzaConfig::get('library_root') . "/CacheStorage.php";
+require PartuzaConfig::get('library_root') . "/CacheStorageApc.php";
+require PartuzaConfig::get('library_root') . "/CacheStorageFile.php";
+require PartuzaConfig::get('library_root') . "/CacheStorageMemcache.php";
 require PartuzaConfig::get('controllers_root') . "/base/base.php";
 
 // Files copied from shindig, required to make the security token
@@ -74,8 +76,7 @@ require PartuzaConfig::get('library_root') . "/BasicSecurityToken.php";
 Language::set(PartuzaConfig::get('language'));
 $db = new DB(PartuzaConfig::get('db_host'), PartuzaConfig::get('db_port'), PartuzaConfig::get('db_user'), PartuzaConfig::get('db_passwd'), PartuzaConfig::get('db_database'), false);
 $uri = $_SERVER["REQUEST_URI"];
-$cache = PartuzaConfig::get('data_cache');
-$cache = new $cache();
+$cache = Cache::createCache(PartuzaConfig::get('data_cache'), 'Partuza');
 if (($pos = strpos($_SERVER["REQUEST_URI"], '?')) !== false) {
   $uri = substr($_SERVER["REQUEST_URI"], 0, $pos);
 }

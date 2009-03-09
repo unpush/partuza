@@ -54,13 +54,13 @@ $config = array(
 'db_database' => 'partuza',
 'db_port' => '3306',
 
-'data_cache' => 'CacheFile',
-// If you use CacheMemcache as caching backend, change these to the memcache server settings
+'data_cache' => 'CacheStorageFile',
+// If you use CacheStorageMemcache as caching backend, change these to the memcache server settings
 'cache_host' => 'localhost',
 'cache_port' => 11211,
 'cache_time' => 24 * 60 * 60,
 
-// If you use CacheFile as caching backend, this is the directory where it stores the temporary files
+// If you use CacheStorageFile as caching backend, this is the directory where it stores the temporary files
 // Right now you should set this to the same directory as shindig, else the cache invalidations won't
 // apply to both shindig and partuza
 'cache_root' => '/tmp/shindig',

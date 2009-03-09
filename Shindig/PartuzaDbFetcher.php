@@ -21,7 +21,7 @@
 class PartuzaDbFetcher {
   private $db;
   private $url_prefix;
-  private $cache;
+  // private $cache;
 
   // Singleton
   private static $fetcher;
@@ -51,8 +51,8 @@ class PartuzaDbFetcher {
   }
 
   private function __construct() {
-    $cache = Config::get('data_cache');
-    $this->cache = new $cache();
+    // Not currently used
+    //$this->cache = Cache::createCache(Config::get('data_cache'), 'PartuzaDbFetcher');
   }
 
   private function checkDb() {

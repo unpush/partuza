@@ -21,11 +21,106 @@
 class CacheException extends Exception {
 }
 
-abstract class Cache {
+class RequestTime {
 
-  abstract function get($key, $expiration = false);
+  public function getRequestTime() {
+    return $_SERVER['REQUEST_TIME'];
+  }
+}
 
-  abstract function set($key, $value);
+class Cache {
+  /**
+   * @var RequestTime
+   */
+  private $time = null;
 
-  abstract function delete($key);
+  /**
+   * @var CacheStorage
+   */
+  private $storage = null;
+
+  static public function createCache($cacheClass, $name, $time = null) {
+    return new Cache($cacheClass, $name, $time);
+  }
+
+  private function __construct($cacheClass, $name, $time) {
+    $this->storage = new $cacheClass($name);
+    if ($time == null) {
+      $this->time = new RequestTime();
+    } else {
+      $this->time = $time;
+    }
+  }
+
+  public function get($key) {
+    if ($this->storage->isLocked($key)) {
+      $this->storage->waitForLock($key);
+    }
+    $data = $this->storage->fetch($key);
+    if ($data) {
+      $data = unserialize($data);
+      if ($data['valid'] && ($this->time->getRequestTime() - $data['time']) < $data['ttl']) {
+        return $data['data'];
+      }
+    }
+    return false;
+  }
+
+  public function expiredGet($key) {
+    if ($this->storage->isLocked($key)) {
+      $this->storage->waitForLock($key);
+    }
+    $data = $this->storage->fetch($key);
+    if ($data) {
+      $data = unserialize($data);
+      return array('found' => true, 'time' => $data['time'], 'ttl' => $data['ttl'], 'valid' => $data['valid'], 'data' => $data['data']);
+    }
+    return array('found' => false);
+  }
+
+  public function set($key, $value, $ttl = false) {
+    if (! $ttl) {
+      $ttl = PartuzaConfig::Get('cache_time');
+    }
+    if ($this->storage->isLocked($key)) {
+      $this->storage->waitForLock($key);
+    }
+    $data = serialize(array('time' => $this->time->getRequestTime(), 'ttl' => $ttl, 'valid' => true, 'data' => $value));
+    $this->storage->lock($key);
+    try {
+      $this->storage->store($key, $data);
+      $this->storage->unlock($key);
+    } catch (Exception $e) {
+      $this->storage->unlock($key);
+      throw $e;
+    }
+  }
+
+  public function delete($key) {
+    if ($this->storage->isLocked($key)) {
+      $this->storage->waitForLock($key);
+    }
+    $this->storage->lock($key);
+    $this->storage->delete($key);
+    $this->storage->unlock($key);
+  }
+
+  public function invalidate($key) {
+    if ($this->storage->isLocked($key)) {
+      $this->storage->waitForLock($key);
+    }
+    $this->storage->lock($key);
+    try {
+      $data = $this->storage->fetch($key);
+      if ($data) {
+        $data = unserialize($data);
+        $data = serialize(array('time' => $data['time'], 'ttl' => $data['ttl'], 'valid' => false, 'data' => $data['data']));
+        $this->storage->store($key, $data);
+      }
+      $this->storage->unlock($key);
+    } catch (Exception $e) {
+      $this->storage->unlock($key);
+      throw $e;
+    }
+  }
 }
