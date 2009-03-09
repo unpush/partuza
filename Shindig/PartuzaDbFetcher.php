@@ -23,6 +23,7 @@ class PartuzaDbFetcher {
   private $url_prefix;
   // private $cache;
 
+
   // Singleton
   private static $fetcher;
 
@@ -50,9 +51,8 @@ class PartuzaDbFetcher {
     }
   }
 
-  private function __construct() {
-    // Not currently used
-    //$this->cache = Cache::createCache(Config::get('data_cache'), 'PartuzaDbFetcher');
+  private function __construct() {  // Not currently used
+  //$this->cache = Cache::createCache(Config::get('data_cache'), 'PartuzaDbFetcher');
   }
 
   private function checkDb() {
@@ -61,8 +61,8 @@ class PartuzaDbFetcher {
     }
   }
 
-  private function __clone() {  // private, don't allow cloning of a singleton
-  }
+  private function __clone() {// private, don't allow cloning of a singleton
+}
 
   static function get() {
     // This object is a singleton
@@ -72,9 +72,8 @@ class PartuzaDbFetcher {
     return PartuzaDbFetcher::$fetcher;
   }
 
-  public function createMessage($from, $appId, $message)
-  {
-   /* A $message looks like:
+  public function createMessage($from, $appId, $message) {
+    /* A $message looks like:
     * [id] => {msgid}
     * [title] => You have an invitation from Joe
     * [body] => Click <a href="http://app.example.org/invites/{msgid}">here</a> to review your invitation.
@@ -95,10 +94,10 @@ class PartuzaDbFetcher {
       throw new Exception("Can't send a message with an empty title");
     }
     $body = mysqli_real_escape_string($this->db, trim($message['body']));
-    if (!isset($message['recipients'])) {
+    if (! isset($message['recipients'])) {
       throw new Exception("Invalid recipients");
     }
-    if (!is_array($message['recipients'])) {
+    if (! is_array($message['recipients'])) {
       $message['recipients'] = array($message['recipients']);
     }
     foreach ($message['recipients'] as $to) {
@@ -110,8 +109,8 @@ class PartuzaDbFetcher {
 
   public function createActivity($person_id, $activity, $app_id = '0') {
     $this->checkDb();
-    $app_id = mysqli_real_escape_string($this->db, $app_id);
-    $person_id = mysqli_real_escape_string($this->db, $person_id);
+    $app_id = intval($app_id);
+    $person_id = intval($person_id);
     $title = trim(isset($activity['title']) ? $activity['title'] : '');
     if (empty($title)) {
       throw new Exception("Invalid activity: empty title");
@@ -150,19 +149,15 @@ class PartuzaDbFetcher {
     //TODO add support for filterBy, filterOp and filterValue
     $this->checkDb();
     $activities = array();
-    foreach ($ids as $key => $val) {
-      $ids[$key] = mysqli_real_escape_string($this->db, $val);
-    }
+    $ids = array_map('intval', $ids);
     $ids = implode(',', $ids);
     if (isset($activityIds) && is_array($activityIds)) {
-      foreach ($activityIds as $key => $val) {
-        $activityIds[$key] = mysqli_real_escape_string($this->db, $val);
-      }
-      $activityIdQuery = " and activities.id in (".implode(',', $activityIds);
+      $activityIds = array_map('intval', $activityIds);
+      $activityIdQuery = " and activities.id in (" . implode(',', $activityIds);
     } else {
       $activityIdQuery = '';
     }
-    $appIdQuery = $appId ? " and activities.app_id = ".mysqli_real_escape_string($this->db, $appId) : '';
+    $appIdQuery = $appId ? " and activities.app_id = " . intval($appId) : '';
 
     // return a proper totalResults count
     $res = mysqli_query($this->db, "select count(id) from activities where activities.person_id in ($ids) $activityIdQuery $appIdQuery");
@@ -218,19 +213,17 @@ class PartuzaDbFetcher {
 
   public function deleteActivities($userId, $appId, $activityIds) {
     $this->checkDb();
-    foreach ($activityIds as $key => $val) {
-      $activityIds[$key] = mysqli_real_escape_string($this->db, $val);
-    }
+    $activityIds = array_map('intval', $activityIds);
     $activityIds = implode(',', $activityIds);
-    $userId = mysqli_real_escape_string($this->db, $userId);
-    $appId = mysqli_real_escape_string($this->db, $appId);
+    $userId = intval($userId);
+    $appId = intval($appId);
     mysqli_query($this->db, "delete from activities where person_id = $userId and app_id = $appId and id in ($activityIds)");
     return (mysqli_affected_rows($this->db) != 0);
   }
 
   private function getMediaItems($activity_id) {
     $media = array();
-    $activity_id = mysqli_real_escape_string($this->db, $activity_id);
+    $activity_id = intval($activity_id);
     $res = mysqli_query($this->db, "select mime_type, media_type, url from activity_media_items where activity_id = $activity_id");
     while (list($mime_type, $type, $url) = @mysqli_fetch_row($res)) {
       $media[] = new MediaItem($mime_type, $type, $url);
@@ -241,7 +234,7 @@ class PartuzaDbFetcher {
   public function getFriendIds($person_id) {
     $this->checkDb();
     $ret = array();
-    $person_id = mysqli_real_escape_string($this->db, $person_id);
+    $person_id = intval($person_id);
     $res = mysqli_query($this->db, "select person_id, friend_id from friends where person_id = $person_id or friend_id = $person_id");
     while (list($pid, $fid) = @mysqli_fetch_row($res)) {
       $id = ($pid == $person_id) ? $fid : $pid;
@@ -252,10 +245,10 @@ class PartuzaDbFetcher {
 
   public function setAppData($person_id, $key, $value, $app_id) {
     $this->checkDb();
-    $person_id = mysqli_real_escape_string($this->db, $person_id);
+    $person_id = intval($person_id);
     $key = mysqli_real_escape_string($this->db, $key);
     $value = mysqli_real_escape_string($this->db, $value);
-    $app_id = mysqli_real_escape_string($this->db, $app_id);
+    $app_id = intval($app_id);
     if (empty($value)) {
       // empty key kind of became to mean "delete data" (was an old orkut hack that became part of the spec spec)
       if (! @mysqli_query($this->db, "delete from application_settings where application_id = $app_id and person_id = $person_id and name = '$key'")) {
@@ -271,8 +264,8 @@ class PartuzaDbFetcher {
 
   public function deleteAppData($person_id, $key, $app_id) {
     $this->checkDb();
-    $person_id = mysqli_real_escape_string($this->db, $person_id);
-    $app_id = mysqli_real_escape_string($this->db, $app_id);
+    $person_id = intval($person_id);
+    $app_id = intval($app_id);
     if ($key == '*') {
       if (! @mysqli_query($this->db, "delete from application_settings where application_id = $app_id and person_id = $person_id")) {
         return false;
@@ -289,11 +282,7 @@ class PartuzaDbFetcher {
   public function getAppData($ids, $keys, $app_id) {
     $this->checkDb();
     $data = array();
-    foreach ($ids as $key => $val) {
-      if (! empty($val)) {
-        $ids[$key] = mysqli_real_escape_string($this->db, $val);
-      }
-    }
+    $ids = array_map('intval', $ids);
     if (! isset($keys[0])) {
       $keys[0] = '*';
     }
@@ -335,7 +324,7 @@ class PartuzaDbFetcher {
     $res = mysqli_query($this->db, $query);
     if ($res) {
       while ($row = @mysqli_fetch_array($res, MYSQLI_ASSOC)) {
-        $person_id = mysqli_real_escape_string($this->db, $row['id']);
+        $person_id = $row['id'];
         $name = new Name($row['first_name'] . ' ' . $row['last_name']);
         $name->setGivenName($row['first_name']);
         $name->setFamilyName($row['last_name']);
@@ -367,8 +356,7 @@ class PartuzaDbFetcher {
         $person->setThumbnailUrl(! empty($row['thumbnail_url']) ? $this->url_prefix . $row['thumbnail_url'] : '');
         if (! empty($row['thumbnail_url'])) {
           // also report thumbnail_url in standard photos field (this is the only photo supported by partuza)
-          $person->setPhotos(array(
-              new Photo($this->url_prefix . $row['thumbnail_url'], 'thumbnail', true)));
+          $person->setPhotos(array(new Photo($this->url_prefix . $row['thumbnail_url'], 'thumbnail', true)));
         }
         $person->setUtcOffset(sprintf('%+03d:00', $row['time_zone'])); // force "-00:00" utc-offset format
         if (! empty($row['drinker'])) {
@@ -509,7 +497,7 @@ class PartuzaDbFetcher {
             $organization->setWebpage($row['webpage']);
             $organization->setType('job');
             if ($row['address_id']) {
-              $res3 = mysqli_query($this->db, "select * from addresses where id = " . mysqli_real_escape_string($this->db, $row['address_id']));
+              $res3 = mysqli_query($this->db, "select * from addresses where id = " . $row['address_id']);
               if (mysqli_num_rows($res3)) {
                 $row = mysqli_fetch_array($res3, MYSQLI_ASSOC);
                 if (empty($row['unstructured_address'])) {
@@ -546,7 +534,7 @@ class PartuzaDbFetcher {
             $organization->setWebpage($row['webpage']);
             $organization->setType($row['school']);
             if ($row['address_id']) {
-              $res3 = mysqli_query($this->db, "select * from addresses where id = " . mysqli_real_escape_string($this->db, $row['address_id']));
+              $res3 = mysqli_query($this->db, "select * from addresses where id = " . $row['address_id']);
               if (mysqli_num_rows($res3)) {
                 $row = mysqli_fetch_array($res3, MYSQLI_ASSOC);
                 if (empty($row['unstructured_address'])) {
@@ -668,7 +656,7 @@ class PartuzaDbFetcher {
     try {
       $ret = $this->filterResults($ret, $options);
       $ret['totalSize'] = count($ret);
-    } catch(Exception $e) {
+    } catch (Exception $e) {
       $ret['totalSize'] = count($ret) - 1;
       $ret['filtered'] = 'false';
     }
@@ -683,7 +671,7 @@ class PartuzaDbFetcher {
         if ($count >= $first && $count < $first + $max) {
           $result[$id] = $person;
         }
-        ++$count;
+        ++ $count;
       }
       return $result;
     } else {
