@@ -56,7 +56,7 @@ class PartuzaDbFetcher {
   }
 
   private function checkDb() {
-    if (! is_resource($this->db)) {
+    if (! is_object($this->db)) {
       $this->connectDb();
     }
   }
