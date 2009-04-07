@@ -88,14 +88,17 @@ class PartuzaOAuthDataStore extends OAuthDataStore {
     return $ret['nonce'];
   }
 
-  public function new_request_token($consumer) {
+  public function new_request_token($consumer, $token_secret = null) {
     $consumer_key = mysqli_real_escape_string($this->db, $consumer->key);
     $consumer_secret = mysqli_real_escape_string($this->db, $consumer->secret);
     $res = mysqli_query($this->db, "select user_id from oauth_consumer where consumer_key = '$consumer_key' and consumer_secret = '$consumer_secret'");
     if (mysqli_num_rows($res)) {
       $ret = mysqli_fetch_array($res, MYSQLI_ASSOC);
       $user_id = mysqli_real_escape_string($this->db, $ret['user_id']);
-      $token = new OAuthToken($this->genGUID(), md5(time()));
+      if ($token_secret === null) {
+        $token_secret = md5(time());
+      }
+      $token = new OAuthToken($this->genGUID(), $token_secret);
       $token_key = mysqli_real_escape_string($this->db, $token->key);
       $token_secret = mysqli_real_escape_string($this->db, $token->secret);
       mysqli_query($this->db, "insert into oauth_token (consumer_key, type, token_key, token_secret, user_id) values ('$consumer_key', 'request', '$token_key', '$token_secret', $user_id)");

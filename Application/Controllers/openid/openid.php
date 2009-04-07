@@ -24,6 +24,9 @@ error_reporting(E_ERROR);
 
 require_once PartuzaConfig::get('library_root')."/Auth/OpenID/Server.php";
 require_once PartuzaConfig::get('library_root')."/Auth/OpenID/SReg.php";
+require_once PartuzaConfig::get('library_root')."/HybridOAuth.php";
+require_once PartuzaConfig::get('library_root')."/OAuth.php";
+require_once PartuzaConfig::get('site_root')."/../Shindig/PartuzaOAuthDataStore.php";
 
 class openidController extends baseController {
 
@@ -37,6 +40,7 @@ class openidController extends baseController {
     $request = $server->decodeRequest();
     $this->openid->setRequestInfo($request);
     if (in_array($request->mode, array('checkid_immediate', 'checkid_setup'))) {
+      // Among all steps, only the authentication one involves user interaction, thus it need to be handles seperated here.
       if ($request->idSelect()) {
         // Perform IDP-driven identifier selection
         if ($request->mode == 'checkid_immediate') {
@@ -45,12 +49,12 @@ class openidController extends baseController {
           return $this->trust_render($request);
         }
       } else if ((! $request->identity) && (! $request->idSelect())) {
-        // No identifier used or desired; display a page saying
-        // so.
+        // No identifier used or desired; display a page saying so.
         return noIdentifier_render();
       } else if ($request->immediate) {
         $response = &$request->answer(false, $this->openid->buildURL());
       } else {
+        // Handles the real authentications
         if (! isset($_SESSION['id'])) {
           $this->login_render();
           return;
@@ -84,10 +88,11 @@ class openidController extends baseController {
   public function trust() {
     $info = $this->openid->getRequestInfo();
     $trusted = isset($_POST['trust']);
-    return $this->doAuth($info, $trusted, true, @$_POST['idSelect']);
+    $accepted_scopes = implode(',', $_POST['scope']);
+    return $this->doAuth($info, $trusted, true, @$_POST['idSelect'], $accepted_scopes);
   }
 
-  private function doAuth($info, $trusted = null, $fail_cancels = false, $idpSelect = null) {
+  private function doAuth($info, $trusted = null, $fail_cancels = false, $idpSelect = null, $accepted_scopes = null) {
     if (! $info) {
       // There is no authentication information, so bail
       return $this->openid->authCancel(null);
@@ -107,9 +112,12 @@ class openidController extends baseController {
       return $this->openid->authCancel($info);
     }
     if ($trusted) {
+      // prepare the OpenID response object
       $this->openid->setRequestInfo();
       $server = &$this->openid->getOpenIdServer();
       $response = &$info->answer(true, null, $req_url);
+      
+      // Simple Registration Extension
       $people = $this->model('people');
       $person = $people->get_person($_SESSION['id'], true);
       $date_of_birth_month = date('n', $person['date_of_birth']);
@@ -129,6 +137,19 @@ class openidController extends baseController {
       $sreg_request = Auth_OpenID_SRegRequest::fromOpenIDRequest($info);
       $sreg_response = Auth_OpenID_SRegResponse::extractResponse($sreg_request, $sreg_data);
       $sreg_response->toMessage($response->fields);
+      
+      // Hybrid OAuth Extension
+      $oauth_request = HybridOAuthRequest::fromOpenIDRequest($info);
+      // handle accepted scopes (generates OAuth token)
+      if ($oauth_request !== null) {
+        $oauthDataStore = new PartuzaOAuthDataStore();
+        $consumer = $oauthDataStore->lookup_consumer($oauth_request->consumer);
+        $token = $oauthDataStore->new_request_token($consumer, '');
+        $oauthDataStore->authorize_request_token($token);
+        $oauth_response = HybridOAuthResponse::buildResponse($oauth_request, $token->key, $accepted_scopes);
+        $oauth_response->toMessage($response->fields);
+      }
+      
       // Generate a response to send to the user agent.
       $webresponse = &$server->encodeResponse($response);
       header('Location: ' . $webresponse->headers['location']);
@@ -141,11 +162,18 @@ class openidController extends baseController {
     }
   }
 
+  /*
+   * User has logged-in.  Just ask whether the RP could see user's info.
+   */
   private function trust_render($info) {
-    $GLOBALS['render'] = array('info' => serialize($info));
+    $oauth = HybridOAuthRequest::fromOpenIDRequest($info);
+    $GLOBALS['render'] = array('info' => serialize($info), 'oauth' => serialize($oauth));
     $this->template('openid/trust.php');
   }
 
+  /*
+   * Render login page for user, in order to do the authentication.
+   */
   private function login_render() {
     $GLOBALS['render'] = array('openid' => 'login');
     $this->template('home/home.php');

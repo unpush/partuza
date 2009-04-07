@@ -635,22 +635,26 @@ class OAuthServer {
 
 class OAuthDataStore {
 
-  function lookup_consumer($consumer_key) {// implement me
-}
+  function lookup_consumer($consumer_key) {
+    // implement me
+  }
 
-  function lookup_token($consumer, $token_type, $token) {// implement me
-}
+  function lookup_token($consumer, $token_type, $token) {
+    // implement me
+  }
 
-  function lookup_nonce($consumer, $token, $nonce, $timestamp) {// implement me
-}
+  function lookup_nonce($consumer, $token, $nonce, $timestamp) {
+    // implement me
+  }
 
-  function fetch_request_token($consumer) {// return a new token attached to this consumer
-}
+  function fetch_request_token($consumer, $token_secret) {
+    // return a new token attached to this consumer
+  }
 
-  function fetch_access_token($token, $consumer) {// return a new access token attached to this consumer
-// for the user associated with this token if the request token
-  // is authorized
-  // should also invalidate the request token
+  function fetch_access_token($token, $consumer) {
+    // return a new access token attached to this consumer for the user
+    // associated with this token if the request token is authorized
+    // should also invalidate the request token
   }
 
 }
@@ -711,12 +715,11 @@ class SimpleOAuthDataStore extends OAuthDataStore {
     return $token;
   }
 
-  function new_request_token($consumer) {
+  function new_request_token($consumer, $token_secret = null) {
     return $this->new_token($consumer, "request");
   }
 
   function new_access_token($token, $consumer) {
-
     $token = $this->new_token($consumer, 'access');
     dba_delete("request_" . $token->key, $this->dbh);
     return $token;
