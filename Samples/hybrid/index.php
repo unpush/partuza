@@ -19,18 +19,20 @@
 
 // Loads OAuth, OpenID, and common utility functions.
 require_once 'common.inc.php';
+require_once 'config.php';
 
 $SIG_METHOD = new OAuthSignatureMethod_HMAC_SHA1();
+$peopleUri = "{$OPENSOCIAL_ENDPOINT}/social/rest/people/@me/@self";
 $SCOPES = array(
-  'http://shindig/social/rest/people/@me/@self'
+  $peopleUri
 );
 
 $openid_params = array(
   'openid.ns'              => 'http://specs.openid.net/auth/2.0',
   'openid.claimed_id'      => @$_REQUEST['openid_identifier'],
   'openid.identity'        => @$_REQUEST['openid_identifier'],
-  'openid.return_to'       => "http://{$CONSUMER_KEY}{$_SERVER['PHP_SELF']}",
-  'openid.realm'           => "http://{$CONSUMER_KEY}",
+  'openid.return_to'       => "http://{$_SERVER['SERVER_NAME']}{$_SERVER['PHP_SELF']}",
+  'openid.realm'           => "http://{$_SERVER['SERVER_NAME']}",
   'openid.mode'            => @$_REQUEST['openid_mode'],
   'openid.ns.oauth'        => 'http://specs.openid.net/extensions/oauth/1.0',
   'openid.oauth.consumer'  => $CONSUMER_KEY,
@@ -46,7 +48,6 @@ if ($request_token) {
   $access_token = getAccessToken($request_token);
 
   // Query OpenSocial People API ======================================
-  $peopleUri = 'http://shindig/social/rest/people/@me/@self';
   $req = OAuthRequest::from_consumer_and_token($consumer, $access_token, 'GET',
                                                $peopleUri, NULL);
   $req->sign_request($SIG_METHOD, $consumer, $access_token);
@@ -96,11 +97,11 @@ switch(@$_REQUEST['openid_mode']) {
  * @return string The access token
  */
 function getAccessToken($request_token_str) {
-  global $consumer, $SIG_METHOD;
+  global $consumer, $SIG_METHOD, $OAUTH_ENDPOINT;
 
   $token = new OAuthToken($request_token_str, NULL);
 
-  $token_endpoint = 'http://partuza/oauth/access_token';
+  $token_endpoint = "{$OAUTH_ENDPOINT}/oauth/access_token";
   $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET',
                                                    $token_endpoint);
   $request->sign_request($SIG_METHOD, $consumer, $token);
@@ -110,9 +111,9 @@ function getAccessToken($request_token_str) {
                                   false);
 
   // Parse out oauth_token (access token) and oauth_token_secret
-  preg_match('/oauth_token=(.*)&oauth_token_secret=(.*)/', $response, $matches);
-  $access_token = new OAuthToken(urldecode($matches[1]),
-                                 urldecode($matches[2]));
+  $matches = array();
+  @parse_str($response, $matches);
+  $access_token = new OAuthToken(urldecode($matches['oauth_token']), urldecode($matches['oauth_token_secret']));
 
   return $access_token;
 }

@@ -24,10 +24,6 @@ require_once('OAuth.php');
 // OpenID library - http://www.openidenabled.com/php-openid/
 require_once 'Auth/OpenID/Consumer.php';
 
-// OAuth 'credentials'
-$CONSUMER_KEY = 'localhost';
-$CONSUMER_SECRET = 'localhost';
-
 /**
  * Makes an HTTP request to the specified URL
  *
