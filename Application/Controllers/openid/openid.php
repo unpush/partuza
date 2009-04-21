@@ -43,6 +43,7 @@ class openidController extends baseController {
       // Among all steps, only the authentication one involves user interaction, thus it need to be handles seperated here.
       if ($request->idSelect()) {
         // Perform IDP-driven identifier selection
+        // TODO: container should implement it by themselves!
         if ($request->mode == 'checkid_immediate') {
           $response = & $request->answer(false);
         } else {
@@ -145,7 +146,7 @@ class openidController extends baseController {
         $oauthDataStore = new PartuzaOAuthDataStore();
         $consumer = $oauthDataStore->lookup_consumer($oauth_request->consumer);
         $token = $oauthDataStore->new_request_token($consumer, '');
-        $oauthDataStore->authorize_request_token($token);
+        $oauthDataStore->authorize_request_token($token->key);
         $oauth_response = HybridOAuthResponse::buildResponse($oauth_request, $token->key, $accepted_scopes);
         $oauth_response->toMessage($response->fields);
       }
