@@ -21,19 +21,26 @@
 header("Content-Type: application/xrds+xml");
 
 if ($_SERVER['REQUEST_URI'] == '/openidxrds') {
-  $openid_xrds = '<XRDS xmlns="xri://$xrds">
-    <XRD>
-      <Service priority="0">
-        <Type>http://specs.openid.net/auth/2.0/signon</Type>
-        <Type>http://openid.net/signon/1.1</Type>
-        <URI>{host}/openid/auth</URI>
-      </Service>
-    </XRD>
-  </XRDS>';
+  $openid_xrds = '<?xml version="1.0" encoding="UTF-8"?>
+<xrds:XRDS
+    xmlns:xrds="xri://$xrds"
+    xmlns:openid="http://openid.net/xmlns/1.0"
+    xmlns="xri://$xrd*($v*2.0)">
+  <XRD>
+    <Service priority="0">
+      <Type>http://specs.openid.net/auth/2.0/server</Type>
+      <Type>http://specs.openid.net/extensions/pape/1.0</Type>
+      <Type>http://openid.net/sreg/1.0</Type>
+      <Type>http://openid.net/extensions/sreg/1.1</Type>
+      <URI>{host}/openid/auth</URI>
+    </Service>
+  </XRD>
+</xrds:XRDS>';
   $openid_xrds = str_replace('{host}', 'http://' . $_SERVER['HTTP_HOST'], $openid_xrds);
   echo $openid_xrds;
 } else {
-  $xrds = '<XRDS xmlns="xri://$xrds">
+  $xrds = '<?xml version="1.0" encoding="UTF-8"?>
+  <XRDS xmlns="xri://$xrds">
       <XRD xml:id="oauth" xmlns:simple="http://xrds-simple.net/core/1.0" xmlns="xri://$XRD*($v*2.0)" version="2.0">
         <Type>xri://$xrds*simple</Type>
         <Expires>' . date('Y-m-d\TH:i:s\Z', time() + 30 * 24 * 60 * 60) . '</Expires>
