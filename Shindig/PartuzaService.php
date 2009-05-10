@@ -196,9 +196,24 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
     }
   }
 
-  public function createMessage($userId, $appId, $message, $optionalMessageId, SecurityToken $token) {
-    PartuzaDbFetcher::get()->createMessage($userId->getUserId($token), $appId, $message);
-  }
+  /*
+   * Code incompatible with the 0.9 SPI
+   *  public function createMessage($userId, $appId, $message, $optionalMessageId, SecurityToken $token) {
+   *   PartuzaDbFetcher::get()->createMessage($userId->getUserId($token), $appId, $message);
+   *  }
+   */
+
+  /*
+   * Empty stubs that will be implemented soon, see shindig/php/social/spi/MessagesService.php for the description
+   */
+  public function createMessageCollection($userId, $msgCollection, $token) {}
+  public function updateMessageCollection($userId, $msgCollection, $token) {}
+  public function deleteMessageCollection($userId, $msgCollId, $token) {}
+  public function getMessageCollections($userId, $fields, $options, $token) {}
+  public function createMessage($userId, $msgCollId, $message, $token) {}
+  public function updateMessage($userId, $msgCollId, $message, $token) {}
+  public function deleteMessages($userId, $msgCollId, $messageIds, $token) {}
+  public function getMessages($userId, $msgCollId, $fields, $msgIds, $options, $token) {}
 
   /**
    * Get the set of user id's from a user or collection of users, and group

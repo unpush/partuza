@@ -96,7 +96,7 @@ class PartuzaOAuthDataStore extends OAuthDataStore {
       $ret = mysqli_fetch_array($res, MYSQLI_ASSOC);
       $user_id = mysqli_real_escape_string($this->db, $ret['user_id']);
       if ($token_secret === null) {
-        $token_secret = md5(time());
+        $token_secret = md5(uniqid(rand(), true));
       }
       $token = new OAuthToken($this->genGUID(), $token_secret);
       $token_key = mysqli_real_escape_string($this->db, $token->key);
@@ -114,7 +114,7 @@ class PartuzaOAuthDataStore extends OAuthDataStore {
     if (mysqli_num_rows($res)) {
       $ret = mysqli_fetch_array($res, MYSQLI_ASSOC);
       if ($ret['authorized']) {
-        $token = new OAuthToken($this->genGUID(), md5(time()));
+        $token = new OAuthToken($this->genGUID(), md5(uniqid(rand(), true)));
         $token_key = mysqli_real_escape_string($this->db, $token->key);
         $token_secret = mysqli_real_escape_string($this->db, $token->secret);
         $consumer_key = mysqli_real_escape_string($this->db, $ret['consumer_key']);
