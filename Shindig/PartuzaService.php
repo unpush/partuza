@@ -159,15 +159,7 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
     $ids = $this->getIdSet($userIds, $groupId, $token);
     $activities = PartuzaDbFetcher::get()->getActivities($ids, $appId, $sortBy, $filterBy, $filterOp, $filterValue, $startIndex, $count, $fields, $activityIds);
     if ($activities) {
-      $totalResults = $activities['totalResults'];
-      $startIndex = $activities['startIndex'];
-      $count = $activities['count'];
-      unset($activities['totalResults']);
-      unset($activities['startIndex']);
-      unset($activities['count']);
-      $ret = new RestfulCollection($activities, $startIndex, $totalResults);
-      $ret->setItemsPerPage($count);
-      return $ret;
+      return $this->getRestfulCollection($activities);
     } else {
       throw new SocialSpiException("Invalid activity specified", ResponseError::$NOT_FOUND);
     }
@@ -196,25 +188,118 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
     }
   }
 
-  /*
-   * Code incompatible with the 0.9 SPI
-   *  public function createMessage($userId, $appId, $message, $optionalMessageId, SecurityToken $token) {
-   *   PartuzaDbFetcher::get()->createMessage($userId->getUserId($token), $appId, $message);
-   *  }
-   */
-
-  /*
-   * Empty stubs that will be implemented soon, see shindig/php/social/spi/MessagesService.php for the description
-   */
-  public function createMessageCollection($userId, $msgCollection, $token) {}
-  public function updateMessageCollection($userId, $msgCollection, $token) {}
-  public function deleteMessageCollection($userId, $msgCollId, $token) {}
-  public function getMessageCollections($userId, $fields, $options, $token) {}
-  public function createMessage($userId, $msgCollId, $message, $token) {}
-  public function updateMessage($userId, $msgCollId, $message, $token) {}
-  public function deleteMessages($userId, $msgCollId, $messageIds, $token) {}
-  public function getMessages($userId, $msgCollId, $fields, $msgIds, $options, $token) {}
-
+  public function createMessage($userId, $msgCollId, $message, $token) {
+    $from = $userId->getUserId($token);
+    if ($token->getOwnerId() != $token->getViewerId() || $token->getViewerId() != $from) {
+      throw new SocialSpiException("Create message permission denied.", ResponseError::$UNAUTHORIZED);
+    }
+    if (in_array($from, $message['recipients'])) {
+      throw new SocialSpiException("Can't send message to myself.", ResponseError::$BAD_REQUEST);
+    }
+    try {
+      PartuzaDbFetcher::get()->createMessage($from, $token->getAppId(), $msgCollId, $message);
+    } catch (SocialSpiException $e) {
+      throw $e;
+    } catch (Exception $e) {
+      throw new SocialSpiException("Invalid create message request: " . $e->getMessage(), ResponseError::$INTERNAL_ERROR);
+    }
+  }
+  
+  public function deleteMessages($userId, $msgCollId, $messageIds, $token) {
+    if ($token->getOwnerId() != $token->getViewerId() || $token->getViewerId() != $userId->getUserId($token)) {
+      throw new SocialSpiException("Delete message permission denied.", ResponseError::$UNAUTHORIZED);
+    }
+    try {
+      PartuzaDbFetcher::get()->deleteMessages($userId->getUserId($token), $token->getAppId(), $msgCollId, $messageIds);
+    } catch (SocialSpiException $e) {
+      throw $e;
+    } catch (Exception $e) {
+      throw new SocialSpiException("Server error: " . $e->getMessage(), ResponseError::$INTERNAL_ERROR);
+    }
+  }
+  
+  public function updateMessage($userId, $msgCollId, $message, $token) {
+    if ($token->getOwnerId() != $token->getViewerId() || $token->getViewerId() != $userId->getUserId($token)) {
+      throw new SocialSpiException("Delete message permission denied.", ResponseError::$UNAUTHORIZED);
+    }
+    try {
+      PartuzaDbFetcher::get()->updateMessage($userId->getUserId($token), $token->getAppId(), $msgCollId, $message);
+    } catch (SocialSpiException $e) {
+      throw $e;
+    } catch (Exception $e) {
+      throw new SocialSpiException("Server error: " . $e->getMessage(), ResponseError::$INTERNAL_ERROR);
+    }
+  }
+  
+  private function getRestfulCollection($results) {
+    $totalResults = $results['totalResults'];
+    $startIndex = $results['startIndex'];
+    $count = $results['count'];
+    unset($results['totalResults']);
+    unset($results['startIndex']);
+    unset($results['count']);
+    $ret = new RestfulCollection($results, $startIndex, $totalResults);
+    $ret->setItemsPerPage($count);
+    return $ret;
+  }
+    
+  public function getMessages($userId, $msgCollId, $fields, $msgIds, $options, $token) {
+    if ($token->getOwnerId() != $token->getViewerId() || $token->getViewerId() != $userId->getUserId($token)) {
+      throw new SocialSpiException("Get message permission denied.", ResponseError::$UNAUTHORIZED);
+    }
+    $messages = PartuzaDbFetcher::get()->getMessages($userId->getUserId($token), $msgCollId, $fields, $msgIds, $options); 
+    if ($messages) {
+      return $this->getRestfulCollection($messages);
+    } else {
+      throw new SocialSpiException("Message not found.", ResponseError::$NOT_FOUND);
+    }
+  }
+  
+  public function createMessageCollection($userId, $msgCollection, $token) {
+    if ($token->getOwnerId() != $token->getViewerId() || $token->getViewerId() != $userId->getUserId($token)) {
+      throw new SocialSpiException("Create message collection permission denied.", ResponseError::$UNAUTHORIZED);
+    }
+    return PartuzaDbFetcher::get()->createMessageCollection($userId->getUserId($token), $token->getAppId(), $msgCollection);
+  }
+  
+  public function updateMessageCollection($userId, $msgCollection, $token) {
+    if ($token->getOwnerId() != $token->getViewerId() || $token->getViewerId() != $userId->getUserId($token)) {
+      throw new SocialSpiException("Update message collection permission denied.", ResponseError::$UNAUTHORIZED);
+    }
+    try {
+      PartuzaDbFetcher::get()->updateMessageCollection($userId->getUserId($token), $token->getAppId(), $msgCollection);
+    } catch (SocialSpiException $e) {
+      throw $e;
+    } catch (Exception $e) {
+      throw new SocialSpiException("Server error: " . $e->getMessage(), ResponseError::$INTERNAL_ERROR);
+    }
+  }
+  
+  public function deleteMessageCollection($userId, $msgCollId, $token) {
+    if ($token->getOwnerId() != $token->getViewerId() || $token->getViewerId() != $userId->getUserId($token)) {
+      throw new SocialSpiException("Delete message collection permission denied.", ResponseError::$UNAUTHORIZED);
+    }
+    try {
+      PartuzaDbFetcher::get()->deleteMessageCollection($userId->getUserId($token), $token->getAppId(), $msgCollId);
+    } catch (SocialSpiException $e) {
+      throw $e;
+    } catch (Exception $e) {
+      throw new SocialSpiException("Server error: " . $e->getMessage(), ResponseError::$INTERNAL_ERROR);
+    }
+  }
+  
+  public function getMessageCollections($userId, $fields, $options, $token) {
+    if ($token->getOwnerId() != $token->getViewerId() || $token->getViewerId() != $userId->getUserId($token)) {
+      throw new SocialSpiException("Get message collection permission denied.", ResponseError::$UNAUTHORIZED);
+    }
+    $messageCollections = PartuzaDbFetcher::get()->getMessageCollections($userId->getUserId($token), $token->getAppId(), $fields, $options);
+    if ($messageCollections) {
+      return $this->getRestfulCollection($messageCollections);
+    } else {
+      throw new SocialSpiException("Invalid activity specified", ResponseError::$NOT_FOUND);
+    }
+  }
+  
   /**
    * Get the set of user id's from a user or collection of users, and group
    */

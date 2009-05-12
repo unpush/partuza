@@ -22,8 +22,7 @@ class PartuzaDbFetcher {
   private $db;
   private $url_prefix;
   // private $cache;
-
-
+  
   // Singleton
   private static $fetcher;
 
@@ -62,7 +61,7 @@ class PartuzaDbFetcher {
   }
 
   private function __clone() {// private, don't allow cloning of a singleton
-}
+  }
 
   static function get() {
     // This object is a singleton
@@ -72,7 +71,7 @@ class PartuzaDbFetcher {
     return PartuzaDbFetcher::$fetcher;
   }
 
-  public function createMessage($from, $appId, $message) {
+  public function createMessage($userId, $appId, $msgCollId, $message) {
     /* A $message looks like:
     * [id] => {msgid}
     * [title] => You have an invitation from Joe
@@ -84,29 +83,406 @@ class PartuzaDbFetcher {
     *      )
     */
     $this->checkDb();
-    $from = mysqli_real_escape_string($this->db, $from);
-    if (empty($from)) {
-      throw new Exception("Invalid person id");
-    }
-    $created = time();
+    $from = intval($userId);
     $title = mysqli_real_escape_string($this->db, trim($message['title']));
-    if (empty($title)) {
-      throw new Exception("Can't send a message with an empty title");
+    if (strlen($title) == 0) {
+      throw new SocialSpiException("Can't send a message with an empty title");
     }
     $body = mysqli_real_escape_string($this->db, trim($message['body']));
-    if (! isset($message['recipients'])) {
-      throw new Exception("Invalid recipients");
+    $bodyId = mysqli_real_escape_string($this->db, trim($message['bodyId']));
+    $titleId = mysqli_real_escape_string($this->db, trim($message['titleId']));
+    
+    // People can only send message to their friends.
+    if (!isset($message['recipients'])) {
+      throw new SocialSpiException("Invalid recipients");
     }
-    if (! is_array($message['recipients'])) {
+    if (!is_array($message['recipients'])) {
       $message['recipients'] = array($message['recipients']);
     }
+    $friends = $this->getFriendIds($from);
     foreach ($message['recipients'] as $to) {
-      //TODO should verify here if this is a valid user id, and if it's a friend
-      $to = mysqli_real_escape_string($this->db, $to);
-      mysqli_query($this->db, "insert into messages (`from`, `to`, title, body, created) values ($from, $to, '$title', '$body', $created)");
+      if (!in_array($to, $friends)) {
+        throw new SocialSpiException("Can't send message to none friend: $to", ResponseError::$BAD_REQUEST);
+      }
+    }
+    $jsonRecipients = mysqli_real_escape_string($this->db, json_encode($message['recipients']));
+    
+    // Checks whether the specified message collections are in the repository.  
+    $collectionIds = array();      
+    if ($msgCollId != MessageCollection::$OUTBOX && $msgCollId != MessageCollection::$ALL) {
+      $collectionIds[] = $msgCollId;
+    }
+    if (isset($message['collectionIds'])) {
+      if (!is_array($message['collectionIds'])) {
+        $message['collectionIds'] = array($message['collectionIds']);
+      }
+      $collectionIds = array_merge($collectionIds, $message['collectionIds']);
+      $collectionIds = array_unique($collectionIds);
+    }
+    $collectionIds = array_map('intval', $collectionIds);
+    $jsonCollectionIds = ''; 
+    $appId = intval($appId);
+    if (count($collectionIds) > 0) {
+      $query = "select id from message_collections where person_id = $from and app_id = $appId and id in (" . implode(',', $collectionIds) . ")";
+      $res = mysqli_query($this->db, $query);
+      if (!$res || @mysqli_num_rows($res) != count($collectionIds)) {
+        throw new SocialSpiException("Can't find message collections.", ResponseError::$BAD_REQUEST);
+      }
+      $jsonCollectionIds = mysqli_real_escape_string($this->db, json_encode($collectionIds));
+    }
+    $urls = '';
+    if (isset($messageCollection['urls'])) {
+      $urls = mysqli_real_escape_string($this->db, json_encode($messageCollection['urls']));  
+    }
+    $created = time();
+    // The 'from_deleted' field of the first message is set to 'no' all the remaining
+    // 'from_deleted' is set to 'yes'. It indicates that the first message is actually two messages
+    // one for the sender(from) another for the receiver(to).
+    $fromDeleted = 'no';
+    foreach ($message['recipients'] as $to) {
+      $to = intval($to);
+      $query = "insert into messages (`from`, `to`, app_id, title, body, title_id, body_id, urls, recipients, collection_ids, from_deleted, updated, created)" .
+          " values ($from, $to, $appId, '$title', '$body', '$titleId', '$bodyId', '$urls', '$jsonRecipients', '$jsonCollectionIds', '$fromDeleted', $created, $created)";
+      $fromDeleted = 'yes';
+      mysqli_query($this->db, $query);
+      $messageId = mysqli_insert_id($this->db);
+      if (!$messageId) {
+        return false;
+      } else {
+        foreach ($collectionIds as $collectionId) {
+          mysqli_query($this->db, "insert into message_groups (message_id, message_collection_id) values ($messageId, $collectionId)");
+        }
+      }
+    }
+    return true;
+  }
+  
+  public function getMessages($userId, $msgCollId, $fields, $msgIds, $options) {
+    // TODO: Supports fields and options. Currently deleted messages couldn't be retrieved.
+    $this->checkDb();
+
+    $userId = intval($userId);
+    $fromQuery = " (messages.from = $userId and messages.from_deleted = 'no')";
+    $toQuery = " (messages.to = $userId and messages.to_deleted = 'no')";
+    $basicQuery = '';
+    $groupTable = '';
+    if ($msgCollId == '@inbox') {
+      $basicQuery = $toQuery;
+    } else if ($msgCollId == '@outbox') {
+      $basicQuery = $fromQuery;
+    } else if ($msgCollId == '@all') {
+      $basicQuery = " ( " . $fromQuery . " or " . $toQuery . ")";
+    } else {
+      $msgCollId = intval($msgCollId);
+      $groupTable = ', message_groups'; 
+      $basicQuery = " messages.id = message_groups.message_id and " . " ( " . $fromQuery . " or " . $toQuery . ")" . " and message_groups.message_collection_id = $msgCollId";
+    }
+    
+    $messageIdQuery = '';
+    if (isset($msgIds) && is_array($msgIds) && count($msgIds) > 0) {
+      $msgIds = array_map('intval', $msgIds);
+      $messageIdQuery = " and messages.id in (" . implode(',', $msgIds) . ")";
+    }
+    
+    $countQuery = "select count(*) from messages $groupTable where $basicQuery $messageIdQuery";
+    $res = mysqli_query($this->db, $countQuery);
+    if ($res !== false) {
+      list($totalResults) = mysqli_fetch_row($res);
+    } else {
+      $totalResults = '0';
+    }
+    $startIndex = $options->getStartIndex();
+    $count = $options->getCount();
+    $messages = array();
+    $messages['totalResults'] = $totalResults;
+    $messages['startIndex'] = $startIndex;
+    $messages['count'] = $count;
+    
+    $query = "select messages.from as `from`,
+                     messages.to as `to`,
+                     messages.id as id,
+                     messages.title as title,
+                     messages.body as body,
+                     messages.updated as updated,
+                     messages.collection_ids as collection_ids,
+                     messages.recipients as recipients
+                from messages $groupTable
+                where $basicQuery $messageIdQuery
+                order by messages.created desc
+                limit $startIndex, $count;";
+    $res = mysqli_query($this->db, $query);
+    if ($res) {
+      if (@mysqli_num_rows($res)) {
+        while ($row = @mysqli_fetch_array($res, MYSQLI_ASSOC)) {
+          $message = new Message($row['id'], $row['title']);
+          $message->setBody($row['body']);
+          $message->setUpdated($row['updated']);
+          $message->setRecipients(json_decode($row['recipients']));
+          if ($row['collection_ids']) {
+            $message->setCollectionIds(json_decode($row['collection_ids']));
+          }
+          $messages[] = $message;
+        }
+      } else if($messageIdQuery) {
+        throw new SocialSpiException("Message not found", ResponseError::$NOT_FOUND);
+      }
+      return $messages;
+    }
+  }
+  
+  /**
+   * Only the 'status' and the 'collectionids' can be updated. A new message should be created
+   * instead of updating fields like title, body and etc. 
+   */
+  public function updateMessage($userId, $appId, $msgCollId, $message) {
+    $this->checkDb();
+    $id = intval($message['id']);
+    $appId = intval($appId);
+    $userId = intval($userId);
+    // Checks the ownership of the message.
+    $personQuery = " ((`from` = $userId and from_deleted = 'no') or (`to` = $userId and to_deleted = 'no'))";
+    $query = "select * from messages where id = $id and app_id = $appId and " . $personQuery;
+    $res = mysqli_query($this->db, $query);
+    if (!$res || @mysqli_num_rows($res) != 1) {
+      throw new SocialSpiException("Message not found.", ResponseError::$NOT_FOUND);
+    }
+    // Checks whether the specified message collections are valid.
+    $newIds = array();
+    if ($msgCollId != MessageCollection::$OUTBOX && $msgCollId != MessageCollection::$ALL
+        && $msgCollId != MessageCollection::$INBOX) {
+      $newIds[] = $msgCollId;
+    }
+    if (isset($message['collectionIds'])) {
+      if (!is_array($message['collectionIds'])) {
+        $newIds = array($message['collectionIds']);  
+      }
+      $newIds = array_merge($newIds, array($message['collectionIds']));
+      $newIds = array_unique($newIds);
+    }
+    $newIds = array_map('intval', $newIds);
+    if (count($newIds) > 0) {
+      $query = "select id from message_collections where person_id = $userId and app_id = $appId and id in (" . implode(',', $newIds) . ")";
+      $res = mysqli_query($this->db, $query);
+      if (!$res || @mysqli_num_rows($res) != count($newIds)) {
+        throw new SocialSpiException("Can't find message collections.", ResponseError::$BAD_REQUEST);
+      }
+    }
+    
+    $collectionIds = '';
+    if (!empty($newIds)) {
+      $collectionIds = json_encode($newIds);  
+    }
+    $status = '';
+    if (isset($message['status'])) {
+      // Update the status to "DELETED" is not support.
+      if ($message['status'] == 'NEW') {
+        $status = 'new';
+      } else if ($message['status'] == 'READ') {
+        $status = 'read';
+      } else {
+        throw new SocialSpiException("Invalid status field.", ResponseError::$BAD_REQUEST);
+      }
+    }
+    $query = "update messages set collection_ids = '$collectionIds'";
+    if ($status) {
+      $query .= ", status = '$status' where id = $id";
+    }
+    if (!mysqli_query($this->db, $query)) {
+      throw new SocialSpiException("Update failed.", ResponseError::$INTERNAL_ERROR);
+    }
+    $oldIds = array();
+    $res = mysqli_query($this->db, "select message_collection_id from message_groups where message_id = $id");
+    if ($res && @mysqli_num_rows($res) > 0) {
+      while ($row = @mysqli_fetch_array($res, MYSQLI_ASSOC)) {
+        $oldIds[] = $row['message_collection_id'];
+      }
+    }
+    $addIds = array_diff($newIds, $oldIds);
+    $deleteIds = array_diff($oldIds, $newIds);
+    // Removes and/or adds the message collection relationship.
+    foreach ($addIds as $msgId) {
+      mysqli_query($this->db, "insert into message_groups (message_id, message_collection_id) values ($id, $msgId)");
+    }
+    if (count($deleteIds) > 0) {
+      $query = "delete from message_groups where message_id = $id and message_collection_id in (" . implode(',', $deleteIds) . ")";
+      mysqli_query($this->db, $query);
+    }
+    return true;
+  }
+  
+  private function deleteMessageGroups($msgCollId, $messageIds) {
+    $collectionQuery = '';
+    if ($msgCollId != MessageCollection::$INBOX && $msgCollId != MessageCollection::$OUTBOX
+        && $msgCollId != MessageCollection::$ALL) {
+      $msgCollId = intval($msgCollId);
+      $collectionQuery = " and message_collection_id = $msgCollId"; 
+    }
+    $query = "delete from message_groups where message_id in (" . implode(',', $messageIds) . ") $collectionQuery";    
+    mysqli_query($this->db, $query);
+    return mysqli_affected_rows($this->db) > 0;
+  }
+  
+  public function deleteMessages($userId, $appId, $msgCollId, $messageIds) {
+    $this->checkDb();
+    $userId = intval($userId);
+    $messageIds = array_map('intval', $messageIds);
+    $appId = intval($appId);
+    // Only the sender requests to delete the messages.
+    $fromDeleteIds = array();
+    // Only the receiver requests to delete the messages.
+    $toDeleteIds = array();
+    $query = "select * from messages where id in (" . implode(',', $messageIds) . ") and app_id = $appId and (`from` = $userId or `to` = $userId)";
+    $res = mysqli_query($this->db, $query);
+    $filteredIds = array();
+    if ($res && @mysqli_num_rows($res) > 0) {
+      while ($row = @mysqli_fetch_array($res, MYSQLI_ASSOC)) {
+        $filteredIds[] = $row['id'];
+        if ($row['from'] == $userId) {
+          if ($row['from_deleted'] == 'yes') {
+            throw new SocialSpiException("Message not found.", ResponseError::$NOT_FOUND);
+          } else {
+            $fromDeleteIds[] = $row['id'];
+          }  
+        } else if ($row['to'] == $userId) {
+          if ($row['to_deleted'] == 'yes') {
+            throw new SocialSpiException("Message not found.", ResponseError::$NOT_FOUND);
+          } else {
+            $toDeleteIds[] = $row['id'];
+          }
+        }
+      }
+    } else {
+      throw new SocialSpiException("Messages not found.", ResponseError::$BAD_REQUEST);
+    }
+    
+    if ($msgCollId == '@inbox' || $msgCollId == '@outbox' || $msgCollId == '@all') {
+      $cnt = 0;
+      if (count($fromDeleteIds) > 0) {
+        $query = "update messages set from_deleted = 'yes' where id in (" . implode(',', $fromDeleteIds) . ")";
+        mysqli_query($this->db, $query);
+        $cnt += mysqli_affected_rows($this->db);
+      }
+      if (count($toDeleteIds) > 0) {
+        $query = "update messages set to_deleted = 'yes' where id in (" . implode(',', $toDeleteIds) . ")";
+        mysqli_query($this->db, $query);
+        $cnt += mysqli_affected_rows($this->db);
+      }
+      if (count($deleteIds) > 0) {
+        $query = "delete from messages where id in (" . implode(',', $deleteIds) . ")";
+        mysqli_query($this->db, $query);
+        $cnt += mysqli_affected_rows($this->db);
+      }
+      if ($cnt == 0) {
+        throw new SocialSpiException("Deletes failed.", ResponseError::$INTERNAL_ERROR);
+      }
+    }
+    // Deletes the relations 
+    return $this->deleteMessageGroups($msgCollId, $filteredIds);
+  }
+  
+  public function createMessageCollection($userId, $appId, $messageCollection) {
+    $this->checkDb();
+    $userId = intval($userId);
+    $appId = intval($appId);
+    $title = mysqli_real_escape_string($this->db, trim($messageCollection['title']));
+    if (strlen($title) == 0) {
+      throw new SocialSpiException("Can't create a message collection with an empty title");
+    }
+    // Stores urls as a json string.
+    $urls = '';
+    if (isset($messageCollection['urls'])) {
+      $urls = mysqli_real_escape_string($this->db, json_encode($messageCollection['urls']));  
+    }
+    $created = time();
+    mysqli_query($this->db, "insert into message_collections (person_id, app_id, title, updated, urls, created) values ($userId, $appId, '$title', $created, '$urls', $created)");
+    if (! ($messageCollectionId = mysqli_insert_id($this->db))) {
+      throw new SocialSpiException("Insertion failed.", ResponseError::$INTERNAL_ERROR);
+    } else {
+      // The message collection created is returned so the client code can get the id of the created message collection.
+      // Otherwise it's difficult for the client code to reference the created message collection.
+      $collection = new MessageCollection($messageCollectionId, $messageCollection['title']);
+      $collection->setUpdated($created);
+      $collection->setTotal(0);
+      $collection->setUnread(0);
+      $collection->setUrls($messageCollection['urls']);
+      return $collection;
     }
   }
 
+  public function updateMessageCollection($userId, $appId, $messageCollection) {
+    $this->checkDb();
+    $id = intval($messageCollection['id']);
+    $userId = intval($userId);
+    $appId = intval($appId);
+    $title = mysqli_real_escape_string($this->db, trim($messageCollection['title']));
+    if (strlen($title) == 0) {
+      throw new SocialSpiException("Can't set the title to empty.");
+    }
+    $urls = null;
+    if (isset($messageCollection['urls'])) {
+      $urls = mysqli_real_escape_string($this->db, json_encode($messageCollection['urls']));
+    }
+    $updated = time();
+    $query = "update message_collections set title = '$title', updated = $updated, urls = '$urls' where id = $id and app_id = $appId and person_id = $userId";
+    $ret = mysqli_query($this->db, $query);
+    if (mysqli_affected_rows($this->db) != 1) {
+      throw new SocialSpiException("Can't update the message collection. Please check the ownership.", ResponseError::$BAD_REQUEST);
+    }
+    return $ret;
+  }
+  
+  public function deleteMessageCollection($userId, $appId, $msgCollId) {
+    $this->checkDb();
+    $msgCollId = intval($msgCollId);
+    $appId = intval($appId);
+    $userId = intval($userId);
+    mysqli_query($this->db, "delete from message_collections where id = $msgCollId and app_id = $appId and person_id = $userId");
+    if (mysqli_affected_rows($this->db) != 1) {
+      throw new SocialSpiException("Can't delete the message collection. Please check the ownership.", ResponseError::$BAD_REQUEST);
+    }
+    return mysql_query($this->db, "delete from message_groups where message_collection_id = $msgCollId");
+  }
+  
+  public function getMessageCollections($userId, $appId, $fields, $options) {
+    // TODO: Supports filtered fields, options. Supports unread and total.
+    $this->checkDb();
+    $appId = intval($appId);
+    $userId = intval($userId);
+    
+    $countQuery = "select count(*) from message_collections where person_id = $userId and app_id = $appId";
+    $res = mysqli_query($this->db, $countQuery);
+    if ($res !== false) {
+      list($totalResults) = mysqli_fetch_row($res);
+    } else {
+      $totalResults = '0';
+    }
+    $startIndex = $options->getStartIndex();
+    $count = $options->getCount();
+    $collections = array();
+    $collections['totalResults'] = $totalResults;
+    $collections['startIndex'] = $startIndex;
+    $collections['count'] = $count;
+    
+    $query = "select id, title, updated, urls from message_collections where person_id = $userId and app_id = $appId limit $startIndex, $count";
+    $res = mysqli_query($this->db, $query);
+    if ($res) {
+      if (@mysqli_num_rows($res)) {
+        while ($row = @mysqli_fetch_array($res, MYSQLI_ASSOC)) {
+          $collection = new MessageCollection($row['id'], $row['title']);
+          $collection->setUpdated($row['updated']);
+          $collection->setTitle($row['title']);
+          if (isset($row['urls'])) {
+            $collection->setUrls(json_decode($row['urls']));
+          }
+          $collections[] = $collection;
+        }
+      }
+      return $collections;
+    } else {
+      throw new SocialSpiException("Can't retrieve message collections.", ResponseError::$INTERNAL_ERROR);
+    }
+  }
+  
   public function createActivity($person_id, $activity, $app_id = '0') {
     $this->checkDb();
     $app_id = intval($app_id);

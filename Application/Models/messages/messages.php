@@ -27,7 +27,7 @@ class messagesModel extends Model {
     $subject = $db->addslashes($subject);
     $body = $db->addslashes($body);
     $created = $_SERVER['REQUEST_TIME'];
-    $db->query("insert into messages (`from`, `to`, title, body, created) values ($from, $to, '$subject', '$body', $created)");
+    $db->query("insert into messages (`from`, `to`, title, body, app_id, updated, created) values ($from, $to, '$subject', '$body', 0, $created, $created)");
   }
 
   public function delete_message($message_id, $to_or_from) {
@@ -58,7 +58,7 @@ class messagesModel extends Model {
   public function mark_read($message_id) {
     global $db;
     $message_id = intval($message_id);
-    $db->query("update messages set `read` = 'yes' where id = $message_id");
+    $db->query("update messages set `status` = 'read' where id = $message_id");
   }
 
   public function get_inbox($userId, $start = false, $count = false) {
@@ -77,7 +77,7 @@ class messagesModel extends Model {
     		messages.title,
     		messages.body,
     		messages.created,
-    		messages.read,
+    		messages.status,
     		concat(persons.first_name, ' ' , persons.last_name) as name,
     		persons.thumbnail_url as thumbnail
     	from
@@ -93,6 +93,7 @@ class messagesModel extends Model {
     $res = $db->query($query);
     $ret = array();
     while ($message = $db->fetch_array($res, MYSQLI_ASSOC)) {
+      $message['read'] = $message['status'] == 'read' ? 'yes' : 'no'; 
       $ret[] = $message;
     }
     return $ret;

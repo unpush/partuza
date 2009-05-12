@@ -192,14 +192,57 @@ CREATE TABLE `messages` (
   `from` int(11) NOT NULL,
   `to` int(11) NOT NULL,
   `title` char(255) NOT NULL,
-  `body` mediumtext NOT NULL,
-  `read` enum('yes','no') DEFAULT 'no',
+  `body` mediumtext DEFAULT NULL,
+  `app_id` int(11) NOT NULL,
+  `body_id` char(32) DEFAULT NULL,
+  `title_id` char(32) DEFAULT NULL,
+  `in_reply_to` int(11) DEFAULT NULL,
+  `replies` mediumtext DEFAULT NULL,
+  `status` enum('new','read', 'deleted') DEFAULT 'new',
+  `type` enum('email','notification', 'private_message', 'public_message') DEFAULT 'private_message',
+  `recipients` mediumtext DEFAULT NULL,
+  `collection_ids` mediumtext DEFAULT NULL,
+  `urls` mediumtext DEFAULT NULL,
+  `updated` int(11) NOT NULL,
   `to_deleted` enum('yes','no') DEFAULT 'no',
   `from_deleted` enum('yes','no') DEFAULT 'no',
   `created` int(11) NOT NULL,
   KEY `id` (`id`),
   KEY `to` (`to`,`created`),
   KEY `from` (`from`,`created`)
+) ENGINE=MyISAM;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `message_collections`
+--
+
+DROP TABLE IF EXISTS `message_collections`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `message_collections` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `person_id` int(11) NOT NULL,
+  `app_id` int(11) NOT NULL,
+  `title` char(255) NOT NULL,
+  `updated` int(11) NOT NULL,
+  `urls` mediumtext DEFAULT NULL,
+  `created` int(11) NOT NULL,
+  KEY `id` (`id`)
+) ENGINE=MyISAM;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `message_collections`
+--
+
+DROP TABLE IF EXISTS `message_groups`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `message_groups` (
+  `message_id` int(11) NOT NULL,
+  `message_collection_id` int(11) NOT NULL,
+  UNIQUE KEY `message_id` (`message_id`,`message_collection_id`)
 ) ENGINE=MyISAM;
 SET character_set_client = @saved_cs_client;
 
