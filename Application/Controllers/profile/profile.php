@@ -117,7 +117,7 @@ class profileController extends baseController {
     }
     $messages = $this->model('messages');
     $message = $messages->get_message($messageId);
-    if (isset($message['read']) && $message['read'] == 'no') {
+    if (isset($message['status']) && $message['status'] == 'new') {
       $messages->mark_read($messageId);
     }
     $this->template('/profile/profile_show_message.php', array('message' => $message, 'messageId' => $messageId, 'messageType' => $messageType));
