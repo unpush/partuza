@@ -440,7 +440,7 @@ class PartuzaDbFetcher {
     if (mysqli_affected_rows($this->db) != 1) {
       throw new SocialSpiException("Can't delete the message collection. Please check the ownership.", ResponseError::$BAD_REQUEST);
     }
-    return mysql_query($this->db, "delete from message_groups where message_collection_id = $msgCollId");
+    return mysqli_query($this->db, "delete from message_groups where message_collection_id = $msgCollId");
   }
   
   public function getMessageCollections($userId, $appId, $fields, $options) {
@@ -778,7 +778,7 @@ class PartuzaDbFetcher {
         if (isset($fields['bodyType']) || in_array('@all', $fields)) {
           $res2 = mysqli_query($this->db, "select * from person_body_type where person_id = " . $person_id);
           if (@mysqli_num_rows($res2)) {
-            $row = @mysql_fetch_array($res2, MYSQLI_ASSOC);
+            $row = @mysqli_fetch_array($res2, MYSQLI_ASSOC);
             $bodyType = new BodyType();
             $bodyType->setBuild($row['build']);
             $bodyType->setEyeColor($row['eye_color']);
