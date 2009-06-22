@@ -26,7 +26,7 @@ if (! empty($_SESSION['message'])) {
 }
 foreach ($vars['applications'] as $gadget) {
   $width = 488;
-  $view = 'home';
+  $view = isset($_GET['view']) ? $_GET['view'] : 'home';
   $this->template('/gadget/gadget.php', array('width' => $width, 'gadget' => $gadget, 
       'person' => $vars['person'], 'view' => $view));
 }

@@ -100,12 +100,12 @@ var Container = Class.extend({
 	 * Internal function that returns the correct URL prefix based on the requested view, used by requestNagivateTo
 	 */
 	_getUrlForView: function(view, person, app, mod) {
-		if (view === 'home') {
-			return '/home';
-		} else if (view === 'profile') {
-			return '/profile/'+person;
-		} else if (view === 'canvas') {
-			return '/profile/application/'+person+'/'+app+'/'+mod;
+		if (view.indexOf('home') == 0) {
+			return '/home'+'?view='+view;
+		} else if (view.indexOf('profile') == 0) {
+			return '/profile/'+person+'?view='+view;
+		} else if (view.indexOf('canvas') == 0) {
+			return '/profile/application/'+person+'/'+app+'/'+mod+'?view='+view;
 		} else {
 			return null;
 		}
@@ -125,7 +125,7 @@ var Container = Class.extend({
 					url += '?appParams=' + encodeURIComponent(paramStr);
 				}
 			}
-			if (url && document.location.href.indexOf(url) == -1) {
+			if (url) {
 	 			document.location.href = url;
 			}
 		}

@@ -5,7 +5,7 @@ $this->template('/common/header.php');
 <?
 $gadget = $vars['application'];
 $width = 960;
-$view = 'canvas';
+$view = isset($_GET['view']) ? $_GET['view'] : 'canvas';
 $this->template('/gadget/gadget.php', array('width' => $width, 'gadget' => $gadget, 'person' => $vars['person'], 
     'view' => $view));
 ?>
