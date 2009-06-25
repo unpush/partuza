@@ -695,6 +695,21 @@ class PartuzaDbFetcher {
       $filterQuery = " and id in (select person_id from person_applications where application_id = $appId)";
     } elseif ($options->getFilterBy() == 'all') {
       $options->setFilterBy(null);
+    } elseif ($options->getFilterBy() == '@friends') {
+      $options->setFilterBy(null);
+      $somePersonId = $options->getFilterValue();
+      if ($options->getFilterValue() == '@viewer') {
+        $somePersonId = $token->getViewerId();
+      } elseif ($options->getFilterValue() == '@owner') {
+        $somePersonId = $token->getOwnerId();
+      }
+      $filteredIds = array();
+      foreach ($ids as $personId) {
+        if (in_array($somePersonId, $this->getFriendIds($personId))) {
+          $filteredIds[] = $personId;
+        }
+      }
+      $ids = $filteredIds;
     }
     $query = "select * from persons where id in (" . implode(',', $ids) . ") $filterQuery order by id ";
     $res = mysqli_query($this->db, $query);
