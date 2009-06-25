@@ -7,8 +7,13 @@ if (! empty($vars['gadget']['error'])) {
   }
   $width = $vars['width'];
   $gadget = $vars['gadget'];
-  $view = $vars['view'];
   $user_prefs = isset($gadget['user_prefs']) ? $gadget['user_prefs'] : array();
+  
+  if (isset($_GET['view']) && isset($_GET['mod']) && $_GET['mod'] == $gadget['mod_id']) {
+    $view = $_GET['view'];
+  } else {
+    $view = $vars['view'];
+  }
 
   // Fill in the default values of settings that haven't been 'set'
   $prefs = '';

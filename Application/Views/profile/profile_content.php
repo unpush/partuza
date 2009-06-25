@@ -3,7 +3,7 @@ if ($vars['is_owner']) {
   $this->template('profile/profile_friendrequests.php', $vars);
 }
 $width = 488;
-$view = isset($_GET['view']) ? $_GET['view'] : 'profile';
+$view = 'profile';
 foreach ($vars['applications'] as $gadget) {
   $has_app = false;
   if (isset($person_apps) && !$vars['is_owner']) {

@@ -101,14 +101,25 @@ var Container = Class.extend({
 	 */
 	_getUrlForView: function(view, person, app, mod) {
 		if (view.indexOf('home') == 0) {
-			return '/home'+'?view='+view;
+			return '/home' + '?view=' + view + '&mod=' + mod;
 		} else if (view.indexOf('profile') == 0) {
-			return '/profile/'+person+'?view='+view;
+			return '/profile/' + person + '?view=' + view + '&mod=' + mod;
 		} else if (view.indexOf('canvas') == 0) {
-			return '/profile/application/'+person+'/'+app+'/'+mod+'?view='+view;
+			return '/profile/application/' + person + '/' + app + '/' + mod + '?view=' + view + '&mod=' + mod;
 		} else {
 			return null;
 		}
+	},
+	
+	/**
+	 * Internal function that returns an object with surface/secondary for view.
+	 */
+	_getViewFromString: function(view) {
+		if (view.indexOf('.') == -1) {
+			return { surface : view };
+		}
+		var viewArray = view.split('.');
+		return { surface : viewArray[0], secondary : viewArray[1] };
 	},
 	
 	/**
@@ -118,6 +129,23 @@ var Container = Class.extend({
 		var elm = $('#' + this.f);
 		if (elm != undefined) {
 			var params = gadgets.container._parseIframeUrl(elm.attr('src'));
+			var fromView = gadgets.container._getViewFromString(params.view);
+			var toView = gadgets.container._getViewFromString(view);
+			if (toView.surface == fromView.surface) {
+				var iframe = $('#remote_iframe_' + params.mid);
+				var url = elm.attr('src');
+				url = url.replace('view=' + params.view, 'view=' + view);
+				if (opt_params) {
+					if (url.indexOf('view-params=') == -1) {
+						url += '&view-params=' + $.toJSON(opt_params);
+					} else {
+						// Replace old view-params with opt_param and keep other params.
+						url = url.replace(/([?&])view-params=.*?(&|$)/, '$1' + $.toJSON(opt_params) + '$2')
+					}
+				}
+				iframe.attr('src', url);
+				return;
+			}
 			var url = gadgets.container._getUrlForView(view, params.owner, params.aid, params.mid);
 			if (opt_params) {
 				var paramStr = $.toJSON(opt_params);
