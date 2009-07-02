@@ -29,7 +29,7 @@ $config = array(
 // Note: your shindig config/container.js needs to match this key, so if you changed this to 'partuza'
 // you need to edit container.js and change the container key there like:
 // {"gadgets.container" : ["partuza"],
-'container' => 'partuza',
+'container' => 'default',
 
 // gadget server url
 'gadget_server' => 'http://shindig',
@@ -54,7 +54,7 @@ $config = array(
 'db_database' => 'partuza',
 'db_port' => '3306',
 
-'data_cache' => 'CacheStorageApc',
+'data_cache' => 'CacheStorageFile',
 // If you use CacheStorageMemcache as caching backend, change these to the memcache server settings
 'cache_host' => 'localhost',
 'cache_port' => 11211,
