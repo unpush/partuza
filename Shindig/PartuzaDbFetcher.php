@@ -22,7 +22,8 @@ class PartuzaDbFetcher {
   private $db;
   private $url_prefix;
   // private $cache;
-  
+
+
   // Singleton
   private static $fetcher;
 
@@ -50,8 +51,8 @@ class PartuzaDbFetcher {
     }
   }
 
-  private function __construct() {  // Not currently used
-  //$this->cache = Cache::createCache(Config::get('data_cache'), 'PartuzaDbFetcher');
+  private function __construct() {// Not currently used
+//$this->cache = Cache::createCache(Config::get('data_cache'), 'PartuzaDbFetcher');
   }
 
   private function checkDb() {
@@ -61,7 +62,7 @@ class PartuzaDbFetcher {
   }
 
   private function __clone() {// private, don't allow cloning of a singleton
-  }
+}
 
   static function get() {
     // This object is a singleton
@@ -91,48 +92,48 @@ class PartuzaDbFetcher {
     $body = mysqli_real_escape_string($this->db, trim($message['body']));
     $bodyId = mysqli_real_escape_string($this->db, trim($message['bodyId']));
     $titleId = mysqli_real_escape_string($this->db, trim($message['titleId']));
-    
+
     // People can only send message to their friends.
-    if (!isset($message['recipients'])) {
+    if (! isset($message['recipients'])) {
       throw new SocialSpiException("Invalid recipients");
     }
-    if (!is_array($message['recipients'])) {
+    if (! is_array($message['recipients'])) {
       $message['recipients'] = array($message['recipients']);
     }
     $friends = $this->getFriendIds($from);
     foreach ($message['recipients'] as $to) {
-      if (!in_array($to, $friends)) {
+      if (! in_array($to, $friends)) {
         throw new SocialSpiException("Can't send message to none friend: $to", ResponseError::$BAD_REQUEST);
       }
     }
     $jsonRecipients = mysqli_real_escape_string($this->db, json_encode($message['recipients']));
-    
-    // Checks whether the specified message collections are in the repository.  
-    $collectionIds = array();      
+
+    // Checks whether the specified message collections are in the repository.
+    $collectionIds = array();
     if ($msgCollId != MessageCollection::$OUTBOX && $msgCollId != MessageCollection::$ALL) {
       $collectionIds[] = $msgCollId;
     }
     if (isset($message['collectionIds'])) {
-      if (!is_array($message['collectionIds'])) {
+      if (! is_array($message['collectionIds'])) {
         $message['collectionIds'] = array($message['collectionIds']);
       }
       $collectionIds = array_merge($collectionIds, $message['collectionIds']);
       $collectionIds = array_unique($collectionIds);
     }
     $collectionIds = array_map('intval', $collectionIds);
-    $jsonCollectionIds = ''; 
+    $jsonCollectionIds = '';
     $appId = intval($appId);
     if (count($collectionIds) > 0) {
       $query = "select id from message_collections where person_id = $from and app_id = $appId and id in (" . implode(',', $collectionIds) . ")";
       $res = mysqli_query($this->db, $query);
-      if (!$res || @mysqli_num_rows($res) != count($collectionIds)) {
+      if (! $res || @mysqli_num_rows($res) != count($collectionIds)) {
         throw new SocialSpiException("Can't find message collections.", ResponseError::$BAD_REQUEST);
       }
       $jsonCollectionIds = mysqli_real_escape_string($this->db, json_encode($collectionIds));
     }
     $urls = '';
     if (isset($messageCollection['urls'])) {
-      $urls = mysqli_real_escape_string($this->db, json_encode($messageCollection['urls']));  
+      $urls = mysqli_real_escape_string($this->db, json_encode($messageCollection['urls']));
     }
     $created = time();
     // The 'from_deleted' field of the first message is set to 'no' all the remaining
@@ -141,12 +142,11 @@ class PartuzaDbFetcher {
     $fromDeleted = 'no';
     foreach ($message['recipients'] as $to) {
       $to = intval($to);
-      $query = "insert into messages (`from`, `to`, app_id, title, body, title_id, body_id, urls, recipients, collection_ids, from_deleted, updated, created)" .
-          " values ($from, $to, $appId, '$title', '$body', '$titleId', '$bodyId', '$urls', '$jsonRecipients', '$jsonCollectionIds', '$fromDeleted', $created, $created)";
+      $query = "insert into messages (`from`, `to`, app_id, title, body, title_id, body_id, urls, recipients, collection_ids, from_deleted, updated, created)" . " values ($from, $to, $appId, '$title', '$body', '$titleId', '$bodyId', '$urls', '$jsonRecipients', '$jsonCollectionIds', '$fromDeleted', $created, $created)";
       $fromDeleted = 'yes';
       mysqli_query($this->db, $query);
       $messageId = mysqli_insert_id($this->db);
-      if (!$messageId) {
+      if (! $messageId) {
         return false;
       } else {
         foreach ($collectionIds as $collectionId) {
@@ -156,7 +156,7 @@ class PartuzaDbFetcher {
     }
     return true;
   }
-  
+
   public function getMessages($userId, $msgCollId, $fields, $msgIds, $options) {
     // TODO: Supports fields and options. Currently deleted messages couldn't be retrieved.
     $this->checkDb();
@@ -174,16 +174,16 @@ class PartuzaDbFetcher {
       $basicQuery = " ( " . $fromQuery . " or " . $toQuery . ")";
     } else {
       $msgCollId = intval($msgCollId);
-      $groupTable = ', message_groups'; 
+      $groupTable = ', message_groups';
       $basicQuery = " messages.id = message_groups.message_id and " . " ( " . $fromQuery . " or " . $toQuery . ")" . " and message_groups.message_collection_id = $msgCollId";
     }
-    
+
     $messageIdQuery = '';
     if (isset($msgIds) && is_array($msgIds) && count($msgIds) > 0) {
       $msgIds = array_map('intval', $msgIds);
       $messageIdQuery = " and messages.id in (" . implode(',', $msgIds) . ")";
     }
-    
+
     $countQuery = "select count(*) from messages $groupTable where $basicQuery $messageIdQuery";
     $res = mysqli_query($this->db, $countQuery);
     if ($res !== false) {
@@ -197,7 +197,7 @@ class PartuzaDbFetcher {
     $messages['totalResults'] = $totalResults;
     $messages['startIndex'] = $startIndex;
     $messages['count'] = $count;
-    
+
     $query = "select messages.from as `from`,
                      messages.to as `to`,
                      messages.id as id,
@@ -223,16 +223,16 @@ class PartuzaDbFetcher {
           }
           $messages[] = $message;
         }
-      } else if($messageIdQuery) {
+      } else if ($messageIdQuery) {
         throw new SocialSpiException("Message not found", ResponseError::$NOT_FOUND);
       }
       return $messages;
     }
   }
-  
+
   /**
    * Only the 'status' and the 'collectionids' can be updated. A new message should be created
-   * instead of updating fields like title, body and etc. 
+   * instead of updating fields like title, body and etc.
    */
   public function updateMessage($userId, $appId, $msgCollId, $message) {
     $this->checkDb();
@@ -243,18 +243,17 @@ class PartuzaDbFetcher {
     $personQuery = " ((`from` = $userId and from_deleted = 'no') or (`to` = $userId and to_deleted = 'no'))";
     $query = "select * from messages where id = $id and app_id = $appId and " . $personQuery;
     $res = mysqli_query($this->db, $query);
-    if (!$res || @mysqli_num_rows($res) != 1) {
+    if (! $res || @mysqli_num_rows($res) != 1) {
       throw new SocialSpiException("Message not found.", ResponseError::$NOT_FOUND);
     }
     // Checks whether the specified message collections are valid.
     $newIds = array();
-    if ($msgCollId != MessageCollection::$OUTBOX && $msgCollId != MessageCollection::$ALL
-        && $msgCollId != MessageCollection::$INBOX) {
+    if ($msgCollId != MessageCollection::$OUTBOX && $msgCollId != MessageCollection::$ALL && $msgCollId != MessageCollection::$INBOX) {
       $newIds[] = $msgCollId;
     }
     if (isset($message['collectionIds'])) {
-      if (!is_array($message['collectionIds'])) {
-        $newIds = array($message['collectionIds']);  
+      if (! is_array($message['collectionIds'])) {
+        $newIds = array($message['collectionIds']);
       }
       $newIds = array_merge($newIds, array($message['collectionIds']));
       $newIds = array_unique($newIds);
@@ -263,14 +262,14 @@ class PartuzaDbFetcher {
     if (count($newIds) > 0) {
       $query = "select id from message_collections where person_id = $userId and app_id = $appId and id in (" . implode(',', $newIds) . ")";
       $res = mysqli_query($this->db, $query);
-      if (!$res || @mysqli_num_rows($res) != count($newIds)) {
+      if (! $res || @mysqli_num_rows($res) != count($newIds)) {
         throw new SocialSpiException("Can't find message collections.", ResponseError::$BAD_REQUEST);
       }
     }
-    
+
     $collectionIds = '';
-    if (!empty($newIds)) {
-      $collectionIds = json_encode($newIds);  
+    if (! empty($newIds)) {
+      $collectionIds = json_encode($newIds);
     }
     $status = '';
     if (isset($message['status'])) {
@@ -287,7 +286,7 @@ class PartuzaDbFetcher {
     if ($status) {
       $query .= ", status = '$status' where id = $id";
     }
-    if (!mysqli_query($this->db, $query)) {
+    if (! mysqli_query($this->db, $query)) {
       throw new SocialSpiException("Update failed.", ResponseError::$INTERNAL_ERROR);
     }
     $oldIds = array();
@@ -309,19 +308,18 @@ class PartuzaDbFetcher {
     }
     return true;
   }
-  
+
   private function deleteMessageGroups($msgCollId, $messageIds) {
     $collectionQuery = '';
-    if ($msgCollId != MessageCollection::$INBOX && $msgCollId != MessageCollection::$OUTBOX
-        && $msgCollId != MessageCollection::$ALL) {
+    if ($msgCollId != MessageCollection::$INBOX && $msgCollId != MessageCollection::$OUTBOX && $msgCollId != MessageCollection::$ALL) {
       $msgCollId = intval($msgCollId);
-      $collectionQuery = " and message_collection_id = $msgCollId"; 
+      $collectionQuery = " and message_collection_id = $msgCollId";
     }
-    $query = "delete from message_groups where message_id in (" . implode(',', $messageIds) . ") $collectionQuery";    
+    $query = "delete from message_groups where message_id in (" . implode(',', $messageIds) . ") $collectionQuery";
     mysqli_query($this->db, $query);
     return mysqli_affected_rows($this->db) > 0;
   }
-  
+
   public function deleteMessages($userId, $appId, $msgCollId, $messageIds) {
     $this->checkDb();
     $userId = intval($userId);
@@ -342,7 +340,7 @@ class PartuzaDbFetcher {
             throw new SocialSpiException("Message not found.", ResponseError::$NOT_FOUND);
           } else {
             $fromDeleteIds[] = $row['id'];
-          }  
+          }
         } else if ($row['to'] == $userId) {
           if ($row['to_deleted'] == 'yes') {
             throw new SocialSpiException("Message not found.", ResponseError::$NOT_FOUND);
@@ -354,7 +352,7 @@ class PartuzaDbFetcher {
     } else {
       throw new SocialSpiException("Messages not found.", ResponseError::$BAD_REQUEST);
     }
-    
+
     if ($msgCollId == '@inbox' || $msgCollId == '@outbox' || $msgCollId == '@all') {
       $cnt = 0;
       if (count($fromDeleteIds) > 0) {
@@ -376,10 +374,10 @@ class PartuzaDbFetcher {
         throw new SocialSpiException("Deletes failed.", ResponseError::$INTERNAL_ERROR);
       }
     }
-    // Deletes the relations 
+    // Deletes the relations
     return $this->deleteMessageGroups($msgCollId, $filteredIds);
   }
-  
+
   public function createMessageCollection($userId, $appId, $messageCollection) {
     $this->checkDb();
     $userId = intval($userId);
@@ -391,7 +389,7 @@ class PartuzaDbFetcher {
     // Stores urls as a json string.
     $urls = '';
     if (isset($messageCollection['urls'])) {
-      $urls = mysqli_real_escape_string($this->db, json_encode($messageCollection['urls']));  
+      $urls = mysqli_real_escape_string($this->db, json_encode($messageCollection['urls']));
     }
     $created = time();
     mysqli_query($this->db, "insert into message_collections (person_id, app_id, title, updated, urls, created) values ($userId, $appId, '$title', $created, '$urls', $created)");
@@ -430,7 +428,7 @@ class PartuzaDbFetcher {
     }
     return $ret;
   }
-  
+
   public function deleteMessageCollection($userId, $appId, $msgCollId) {
     $this->checkDb();
     $msgCollId = intval($msgCollId);
@@ -442,13 +440,13 @@ class PartuzaDbFetcher {
     }
     return mysqli_query($this->db, "delete from message_groups where message_collection_id = $msgCollId");
   }
-  
+
   public function getMessageCollections($userId, $appId, $fields, $options) {
     // TODO: Supports filtered fields, options. Supports unread and total.
     $this->checkDb();
     $appId = intval($appId);
     $userId = intval($userId);
-    
+
     $countQuery = "select count(*) from message_collections where person_id = $userId and app_id = $appId";
     $res = mysqli_query($this->db, $countQuery);
     if ($res !== false) {
@@ -462,7 +460,7 @@ class PartuzaDbFetcher {
     $collections['totalResults'] = $totalResults;
     $collections['startIndex'] = $startIndex;
     $collections['count'] = $count;
-    
+
     $query = "select id, title, updated, urls from message_collections where person_id = $userId and app_id = $appId limit $startIndex, $count";
     $res = mysqli_query($this->db, $query);
     if ($res) {
@@ -482,7 +480,7 @@ class PartuzaDbFetcher {
       throw new SocialSpiException("Can't retrieve message collections.", ResponseError::$INTERNAL_ERROR);
     }
   }
-  
+
   public function createActivity($person_id, $activity, $app_id = '0') {
     $this->checkDb();
     $app_id = intval($app_id);
@@ -716,9 +714,7 @@ class PartuzaDbFetcher {
     if ($res) {
       while ($row = @mysqli_fetch_array($res, MYSQLI_ASSOC)) {
         $person_id = $row['id'];
-        $name = new Name($row['first_name'] . ' ' . $row['last_name']);
-        $name->setGivenName($row['first_name']);
-        $name->setFamilyName($row['last_name']);
+        $name = $this->buildName($row);
         $person = new Person($row['id'], $name);
         $person->setDisplayName($name->getFormatted());
         $person->setAboutMe($row['about_me']);
@@ -747,7 +743,8 @@ class PartuzaDbFetcher {
         $person->setThumbnailUrl(! empty($row['thumbnail_url']) ? $this->url_prefix . $row['thumbnail_url'] : '');
         if (! empty($row['thumbnail_url'])) {
           // also report thumbnail_url in standard photos field (this is the only photo supported by partuza)
-          $person->setPhotos(array(new Photo($this->url_prefix . $row['thumbnail_url'], 'thumbnail', true)));
+          $person->setPhotos(array(
+              new Photo($this->url_prefix . $row['thumbnail_url'], 'thumbnail', true)));
         }
         $person->setUtcOffset(sprintf('%+03d:00', $row['time_zone'])); // force "-00:00" utc-offset format
         if (! empty($row['drinker'])) {
@@ -775,18 +772,10 @@ class PartuzaDbFetcher {
             if (empty($row['unstructured_address'])) {
               $row['unstructured_address'] = trim($row['street_address'] . " " . $row['region'] . " " . $row['country']);
             }
-            $addres = new Address($row['unstructured_address']);
-            $addres->setCountry($row['country']);
-            $addres->setLatitude($row['latitude']);
-            $addres->setLongitude($row['longitude']);
-            $addres->setLocality($row['locality']);
-            $addres->setPostalCode($row['postal_code']);
-            $addres->setRegion($row['region']);
-            $addres->setStreetAddress($row['street_address']);
-            $addres->setType($row['address_type']);
+            $address = $this->buildAddress($row);
             //FIXME quick and dirty hack to demo PC
-            $addres->setPrimary(true);
-            $addresses[] = $addres;
+            $address->setPrimary(true);
+            $addresses[] = $address;
           }
           $person->setAddresses($addresses);
         }
@@ -827,16 +816,8 @@ class PartuzaDbFetcher {
             if (empty($row['unstructured_address'])) {
               $row['unstructured_address'] = trim($row['street_address'] . " " . $row['region'] . " " . $row['country']);
             }
-            $addres = new Address($row['unstructured_address']);
-            $addres->setCountry($row['country']);
-            $addres->setLatitude($row['latitude']);
-            $addres->setLongitude($row['longitude']);
-            $addres->setLocality($row['locality']);
-            $addres->setPostalCode($row['postal_code']);
-            $addres->setRegion($row['region']);
-            $addres->setStreetAddress($row['street_address']);
-            $addres->setType($row['address_type']);
-            $person->setCurrentLocation($addres);
+            $address = $this->buildAddress($row);
+            $person->setCurrentLocation($address);
           }
         }
         if (isset($fields['emails']) || in_array('@all', $fields)) {
@@ -876,36 +857,7 @@ class PartuzaDbFetcher {
         if (isset($fields['jobs']) || in_array('@all', $fields)) {
           $res2 = mysqli_query($this->db, "select organizations.* from person_jobs, organizations where organizations.id = person_jobs.organization_id and person_jobs.person_id = " . $person_id);
           while ($row = mysqli_fetch_array($res2, MYSQLI_ASSOC)) {
-            $organization = new Organization();
-            $organization->setDescription($row['description']);
-            $organization->setEndDate($row['end_date']);
-            $organization->setField($row['field']);
-            $organization->setName($row['name']);
-            $organization->setSalary($row['salary']);
-            $organization->setStartDate($row['start_date']);
-            $organization->setSubField($row['sub_field']);
-            $organization->setTitle($row['title']);
-            $organization->setWebpage($row['webpage']);
-            $organization->setType('job');
-            if ($row['address_id']) {
-              $res3 = mysqli_query($this->db, "select * from addresses where id = " . $row['address_id']);
-              if (mysqli_num_rows($res3)) {
-                $row = mysqli_fetch_array($res3, MYSQLI_ASSOC);
-                if (empty($row['unstructured_address'])) {
-                  $row['unstructured_address'] = trim($row['street_address'] . " " . $row['region'] . " " . $row['country']);
-                }
-                $addres = new Address($row['unstructured_address']);
-                $addres->setCountry($row['country']);
-                $addres->setLatitude($row['latitude']);
-                $addres->setLongitude($row['longitude']);
-                $addres->setLocality($row['locality']);
-                $addres->setPostalCode($row['postal_code']);
-                $addres->setRegion($row['region']);
-                $addres->setStreetAddress($row['street_address']);
-                $addres->setType($row['address_type']);
-                $organization->setAddress($address);
-              }
-            }
+            $organization = $this->buildOrganization($row, 'job');
             $organizations[] = $organization;
           }
           $fetchedOrg = true;
@@ -913,36 +865,7 @@ class PartuzaDbFetcher {
         if (isset($fields['schools']) || in_array('@all', $fields)) {
           $res2 = mysqli_query($this->db, "select organizations.* from person_schools, organizations where organizations.id = person_schools.organization_id and person_schools.person_id = " . $person_id);
           while ($row = mysqli_fetch_array($res2, MYSQLI_ASSOC)) {
-            $organization = new Organization();
-            $organization->setDescription($row['description']);
-            $organization->setEndDate($row['end_date']);
-            $organization->setField($row['field']);
-            $organization->setName($row['name']);
-            $organization->setSalary($row['salary']);
-            $organization->setStartDate($row['start_date']);
-            $organization->setSubField($row['sub_field']);
-            $organization->setTitle($row['title']);
-            $organization->setWebpage($row['webpage']);
-            $organization->setType($row['school']);
-            if ($row['address_id']) {
-              $res3 = mysqli_query($this->db, "select * from addresses where id = " . $row['address_id']);
-              if (mysqli_num_rows($res3)) {
-                $row = mysqli_fetch_array($res3, MYSQLI_ASSOC);
-                if (empty($row['unstructured_address'])) {
-                  $row['unstructured_address'] = trim($row['street_address'] . " " . $row['region'] . " " . $row['country']);
-                }
-                $addres = new Address($row['unstructured_address']);
-                $addres->setCountry($row['country']);
-                $addres->setLatitude($row['latitude']);
-                $addres->setLongitude($row['longitude']);
-                $addres->setLocality($row['locality']);
-                $addres->setPostalCode($row['postal_code']);
-                $addres->setRegion($row['region']);
-                $addres->setStreetAddress($row['street_address']);
-                $addres->setType($row['address_type']);
-                $organization->setAddress($address);
-              }
-            }
+            $organization = $this->buildOrganization($row, 'school');
             $organizations[] = $organization;
           }
           $fetchedOrg = true;
@@ -1141,5 +1064,52 @@ class PartuzaDbFetcher {
       default:
         throw new Exception('unrecognized filterOp');
     }
+  }
+
+  private function buildName($row) {
+    $name = new Name($row['first_name'] . ' ' . $row['last_name']);
+    $name->setGivenName($row['first_name']);
+    $name->setFamilyName($row['last_name']);
+    return $name;
+  }
+
+  private function buildAddress($row) {
+    $address = new Address($row['unstructured_address']);
+    $address->setCountry($row['country']);
+    $address->setLatitude($row['latitude']);
+    $address->setLongitude($row['longitude']);
+    $address->setLocality($row['locality']);
+    $address->setPostalCode($row['postal_code']);
+    $address->setRegion($row['region']);
+    $address->setStreetAddress($row['street_address']);
+    $address->setType($row['address_type']);
+    return $address;
+  }
+
+  private function buildOrganization($row, $type) {
+    $organization = new Organization();
+    $organization->setDescription($row['description']);
+    $organization->setEndDate($row['end_date']);
+    $organization->setField($row['field']);
+    $organization->setName($row['name']);
+    $organization->setSalary($row['salary']);
+    $organization->setStartDate($row['start_date']);
+    $organization->setSubField($row['sub_field']);
+    $organization->setTitle($row['title']);
+    $organization->setType($type);
+    $organization->setWebpage($row['webpage']);
+
+    if ($row['address_id']) {
+      $res3 = mysqli_query($this->db, "select * from addresses where id = " . $row['address_id']);
+      if (mysqli_num_rows($res3)) {
+        $row = mysqli_fetch_array($res3, MYSQLI_ASSOC);
+        if (empty($row['unstructured_address'])) {
+          $row['unstructured_address'] = trim($row['street_address'] . " " . $row['region'] . " " . $row['country']);
+        }
+        $address = $this->buildAddress($row);
+        $organization->setLocation($address);
+      }
+    }
+    return $organization;
   }
 }
