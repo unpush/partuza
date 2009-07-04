@@ -1,13 +1,11 @@
-<?
+<?php
 $this->template('/common/header.php');
 ?>
-
 <div id="profileInfo" class="blue">
-	<?
+<?php
 $this->template('profile/profile_info.php', $vars);
 ?>
 </div>
-
 <div id="profileContentWide">
 <div class="gadgets-gadget-chrome" style="width: 790px">
 <div class="gadgets-gadget-title-bar">
@@ -15,7 +13,7 @@ $this->template('profile/profile_info.php', $vars);
 		</div>
 <div style="padding: 12px">
 <form method="post">
-		<?
+<?
   if (! empty($vars['application']['settings'])) {
     $settings = unserialize($vars['application']['settings']);
     foreach ($settings as $key => $setting) {
@@ -23,6 +21,9 @@ $this->template('profile/profile_info.php', $vars);
       $default = isset($setting->default) ? $setting->default : '';
       $value = isset($vars['application']['user_prefs'][$key]) ? $vars['application']['user_prefs'][$key] : $default;
       echo "<div><div class=\"settings_label\">$name</div>";
+      if (!isset($setting->type)) {
+        $setting->type = 'STRING';
+      }
       switch ($setting->type) {
         case 'ENUM':
           echo "<select name=\"$key\">\n";
@@ -53,16 +54,8 @@ $this->template('profile/profile_info.php', $vars);
     echo "<br /><input type=\"submit\" value=\"Save\" />\n</form>\n";
   }
   ?>
-	
-
-
-
-
-
 </div>
 </div>
 <div style="clear: both"></div>
-
-<?
+<?php
 $this->template('/common/footer.php');
-?>
