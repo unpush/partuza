@@ -12,7 +12,7 @@ if (! count($vars['activities'])) {
     if (count($activity['media_items'])) {
       echo "<div style=\"clear:both\">";
       foreach ($activity['media_items'] as $mediaItem) {
-        if ($mediaItem['media_type'] == 'IMAGE') {
+        if ($mediaItem['type'] == 'IMAGE') {
           echo "<div class=\" ui-corner-all\" style=\"float:left\"><img src=\"" . $mediaItem['url'] . "\" width=\"50\"></img></div>";
         }
       }

@@ -36,20 +36,62 @@ CREATE TABLE `activities` (
 SET character_set_client = @saved_cs_client;
 
 --
--- Table structure for table `activity_media_items`
+-- Table structure for table `media_items`
 --
 
-DROP TABLE IF EXISTS `activity_media_items`;
+DROP TABLE IF EXISTS `media_items`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-CREATE TABLE `activity_media_items` (
+CREATE TABLE `media_items` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `activity_id` int(11) NOT NULL,
+  `activity_id` int(11) DEFAULT NULL,
+  `album_id` int(11) DEFAULT NULL,
+  `owner_id` int(11) NOT NULL,
   `mime_type` char(64) NOT NULL,
-  `media_type` enum('AUDIO','IMAGE','VIDEO') NOT NULL,
+  `file_size` int(11) DEFAULT NULL,
+  `duration` int(11) DEFAULT NULL,
+  `created` int(11) NOT NULL,
+  `last_updated` int(11) DEFAULT NULL,
+  `language` char(64) DEFAULT NULL,
+  `address_id` int(11) DEFAULT NULL,
+  `num_comments` int(11) DEFAULT NULL,
+  `num_views` int(11) DEFAULT NULL,
+  `num_votes` int(11) DEFAULT NULL,
+  `rating` tinyint DEFAULT NULL,
+  `start_time` char(64) DEFAULT NULL,
+  `title` char(255) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `tagged_people` text DEFAULT NULL,
+  `tags` text DEFAULT NULL,
+  `thumbnail_url` char(128) DEFAULT NULL,
+  `type` enum('AUDIO','IMAGE','VIDEO') NOT NULL,
   `url` char(128) NOT NULL,
+  `app_id` int(11) DEFAULT 0,
   KEY `id` (`id`),
-  KEY `activity_id` (`activity_id`)
+  KEY `activity_id` (`activity_id`),
+  KEY `album_id` (`album_id`)
+) ENGINE=MyISAM;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `albums`
+--
+
+DROP TABLE IF EXISTS `albums`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `albums` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` char(255) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `address_id` int(11) DEFAULT NULL,
+  `owner_id` int(11) NOT NULL,
+  `media_mime_type` char(64) DEFAULT NULL,
+  `media_type` enum('AUDIO','IMAGE','VIDEO') NOT NULL,
+  `thumbnail_url` char(128) DEFAULT NULL,
+  `app_id` int(11) DEFAULT 0,
+  KEY `id` (`id`),
+  KEY `owner_id` (`owner_id`)
 ) ENGINE=MyISAM;
 SET character_set_client = @saved_cs_client;
 

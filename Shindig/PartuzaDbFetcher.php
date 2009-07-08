@@ -481,6 +481,294 @@ class PartuzaDbFetcher {
     }
   }
 
+  public function createAlbum($userId, $groupId, $appId, $album) {
+    $this->checkDb();
+
+    $userId = intval($userId);
+    $appId = intval($appId);
+    $title = $this->getEscapedField($album, 'title');
+    $description = $this->getEscapedField($album, 'description');
+    $thumbnailUrl = $this->getEscapedField($album, 'thumbnailUrl');
+    $mediaMimeType = $this->getEscapedField($album, 'mediaMimeType');
+    if (! isset($album['mediaType']) || ! in_array(strtoupper($album['mediaType']), MediaItem::$TYPES)) {
+      throw new SocialSpiException("MediaType not correct.", ResponseError::$BAD_REQUEST);
+    }
+    $mediaType = $this->getEscapedValue(strtoupper($album['mediaType']));
+    $addressId = $this->getEscapedValue(null);
+    if (isset($album['location'])) {
+      $addressId = $this->createAddress($album['location']);
+    }
+
+    $query = "insert into albums (title, description, address_id, owner_id, media_mime_type, " . "media_type, thumbnail_url, app_id) values ($title, $description, $addressId, " . "$userId, $mediaMimeType, $mediaType, $thumbnailUrl, $appId)";
+    if (! mysqli_query($this->db, $query) || ! ($albumId = mysqli_insert_id($this->db))) {
+      throw new SocialSpiException("Insert album failed.", ResponseError::$INTERNAL_ERROR);
+    } else {
+      if ($addressId) {
+        // Best effort to update the album_id field that is used for deletion.
+        $query = "update addresses set album_id = $albumId where id = $addressId";
+        mysqli_query($this->db, $query);
+      }
+      $album['id'] = $albumId;
+      return $album;
+    }
+  }
+
+  public function updateAlbum($userId, $groupId, $appId, $album) {
+    $this->checkDb();
+
+    $id = intval($album['id']);
+    $userId = intval($userId);
+    $query = "select * from albums where id = $id and owner_id = $userId and app_id = $appId";
+    $res = mysqli_query($this->db, $query);
+    if (! $res || @mysqli_num_rows($res) != 1) {
+      throw new SocialSpiException("Album $id not found.", ResponseError::$NOT_FOUND);
+    }
+    $row = @mysqli_fetch_array($res, MYSQLI_ASSOC);
+
+    $addressId = $this->getEscapedValue(null);
+    $oldAddressId = isset($row['address_id']) ? $row['address_id'] : null;
+    if ($oldAddressId && isset($album['location'])) {
+      // Updates the item in address table.
+      $addressId = $row['address_id'];
+      $this->updateAddress($addressId, $album['location']);
+    } elseif ($oldAddressId && ! isset($album['location'])) {
+      // Deletes the item in address table.
+      $addressId = $row['address_id'];
+      $this->deleteAddress($addressId);
+    } elseif (! $oldAddressId && isset($album['location'])) {
+      // Inserts the address into the address table.
+      $addressId = $this->createAddress($album['location']);
+    }
+    $title = $this->getEscapedField($album, 'title');
+    $description = $this->getEscapedField($album, 'description');
+    $thumbnailUrl = $this->getEscapedField($album, 'thumbnailUrl');
+    $mediaMimeType = $this->getEscapedField($album, 'mediaMimeType');
+    if (! isset($album['mediaType']) || ! in_array(strtoupper($album['mediaType']), MediaItem::$TYPES)) {
+      throw new SocialSpiException("MediaType not correct.", ResponseError::$BAD_REQUEST);
+    }
+    $mediaType = $this->getEscapedValue(strtoupper($album['mediaType']));
+
+    $query = "update albums set title = $title, description = $description, " . "address_id = $addressId, media_mime_type = $mediaMimeType, media_type = $mediaType, " . "thumbnail_url = $thumbnailUrl where id = $id";
+    if (! mysqli_query($this->db, $query)) {
+      throw new SocialSpiException("Update album failed.", ResponseError::$INTERNAL_ERROR);
+    }
+    if (! $oldAddressId && $addressId) {
+      // Best effort to update the album_id field used for deletion.
+      $query = "update addresses set album_id = $id where id = $addressId";
+      mysqli_query($this->db, $query);
+    }
+  }
+
+  public function deleteAlbum($userId, $groupId, $appId, $albumId) {
+    $this->checkDb();
+
+    $userId = intval($userId);
+    $albumId = intval($albumId);
+
+    $query = "delete from addresses where addresses.id in (select albums.address_id from albums " . " where albums.id = $albumId and albums.app_id = $appId and albums.owner_id = $userId)";
+    if (! mysqli_query($this->db, $query)) {
+      throw new SocialSpiException("Can't delete the album address.", ResponseError::$INTERNAL_ERROR);
+    }
+
+    $query = "delete from albums where albums.id = $albumId and albums.app_id = $appId and albums.owner_id = $userId";
+    $res = mysqli_query($this->db, $query);
+    if (! $res || @mysqli_affected_rows($this->db) == 0) {
+      throw new SocialSpiException("Album $albumId not found.", ResponseError::$NOT_FOUND);
+    }
+
+    // Deletes the media items.
+    $query = "delete from addresses where addresses.id in (select media_items.address_id from" . " media_items where media_items.album_id = $albumId and media_items.app_id = $appId and media_items.owner_id = $userId)";
+    if (! mysqli_query($this->db, $query)) {
+      throw new SocialSpiException("Can't delete the media item address.", ResponseError::$INTERNAL_ERROR);
+    }
+    $query = "delete from media_items where album_id = $albumId and app_id = $appId and owner_id = $userId";
+    if (! mysqli_query($this->db, $query)) {
+      throw new SocialSpiException("Delete media items failed.", ResponseError::$INTERNAL_ERROR);
+    }
+  }
+
+  public function getAlbums($userId, $groupId, $appId, $albumIds, $options, $fields) {
+    $this->checkDb();
+    $userId = intval($userId);
+
+    $startIndex = $options->getStartIndex();
+    $count = $options->getCount();
+    $albums = array();
+    $albums['startIndex'] = $startIndex;
+    $albums['count'] = $count;
+    $countQuery = "select count(*) from albums where owner_id = $userId and app_id = $appId";
+    $albums['totalResults'] = $this->getCount($countQuery);
+    if (! $albums['totalResults']) {
+      return $albums;
+    }
+
+    $albumIdQuery = '';
+    if (is_array($albumIds) && count($albumIds) > 0) {
+      $albumIds = array_map('intval', $albumIds);
+      $albumIdQuery = " and id in (" . implode(',', $albumIds) . ")";
+    }
+
+    $query = "select id, title, description, address_id, media_mime_type, media_type, " . "thumbnail_url from albums where owner_id = $userId and app_id = $appId $albumIdQuery limit $startIndex, $count";
+    $res = mysqli_query($this->db, $query);
+    if ($res) {
+      if (@mysqli_num_rows($res)) {
+        while ($row = @mysqli_fetch_array($res, MYSQLI_ASSOC)) {
+          $albums[] = $this->convertAlbum($row);
+        }
+      }
+      return $albums;
+    } else {
+      throw new SocialSpiException("Can't retrieve albums.", ResponseError::$INTERNAL_ERROR);
+    }
+  }
+
+  /**
+   * Activity and the album share the same media item table. There are 3 cases for the activity_id
+   * and the album_id for a media item.
+   * activity_id = 0  album_id > 0  The media item is associated with the album.
+   * activity_id > 0  album_id = 0  The media item is associated with the activity.
+   * activity_id > 0  album_id > 0  The media item is associated with both the album and the activity.
+   * So if the a media item is created in a album and an activity is created for the media item.
+   * The activity_id for that media item should be updated instead of creating a duplicated media
+   * item.
+   * When an activity is deleted the associated media items are either deleted or updated
+   * (set the activity id to 0).
+   * When an album is deleted the associated media items are deleted no matter there is an activity
+   * associated with them or not.
+   */
+  public function createMediaItem($userId, $groupId, $appId, $mediaItem) {
+    $this->checkDb();
+    $albumId = intval($mediaItem['albumId']);
+    $countQuery = "select count(*) from albums where owner_id = $userId and id = $albumId";
+    $cnt = $this->getCount($countQuery);
+    if ($cnt != 1) {
+      throw new SocialSpiException("Album $albumId not found.", ResponseError::$BAD_REQUEST);
+    }
+    return $this->createMediaItemInternal($userId, $appId, $mediaItem, 0);
+  }
+
+  public function updateMediaItem($userId, $groupId, $appId, $mediaItem) {
+    $this->checkDb();
+
+    $id = intval($mediaItem['id']);
+    $userId = intval($userId);
+    $query = "select * from media_items where id = $id and owner_id = $userId and app_id = $appId";
+    $res = mysqli_query($this->db, $query);
+    if (! $res || @mysqli_num_rows($res) != 1) {
+      throw new SocialSpiException("Media item $id not found.", ResponseError::$NOT_FOUND);
+    }
+    $row = @mysqli_fetch_array($res, MYSQLI_ASSOC);
+
+    $addressId = $this->getEscapedValue(null);
+    $oldAddressId = isset($row['address_id']) ? $row['address_id'] : null;
+    if ($oldAddressId && isset($mediaItem['location'])) {
+      // Updates the item in address table.
+      $addressId = $row['address_id'];
+      $this->updateAddress($addressId, $mediaItem['location']);
+    } elseif ($oldAddressId && ! isset($mediaItem['location'])) {
+      // Deletes the item in address table.
+      $addressId = $row['address_id'];
+      $this->deleteAddress($addressId);
+    } elseif (! $oldAddressId && isset($mediaItem['location'])) {
+      // Inserts the address into the address table.
+      $addressId = $this->createAddress($mediaItem['location']);
+    }
+
+    $lastUpdated = time();
+    $startTime = $this->getEscapedField($mediaItem, 'startTime');
+    $title = $this->getEscapedField($mediaItem, 'title');
+    $description = $this->getEscapedField($mediaItem, 'description');
+    $thumbnailUrl = $this->getEscapedField($mediaItem, 'thumbnailUrl');
+    $mimeType = $this->getEscapedField($mediaItem, 'mimeType');
+    $language = $this->getEscapedField($mediaItem, 'language');
+
+    $albumId = $this->getEscapedField($mediaItem, 'albumId');
+    $fileSize = $this->getEscapedField($mediaItem, 'fileSize');
+    $duration = $this->getEscapedField($mediaItem, 'duration');
+    $numComments = $this->getEscapedField($mediaItem, 'numComments');
+    $numViews = $this->getEscapedField($mediaItem, 'numViews');
+    $numVotes = $this->getEscapedField($mediaItem, 'numVotes');
+    $rating = $this->getEscapedField($mediaItem, 'rating');
+    if (is_numeric($rating) && ($rating < 0 || $rating > 10)) {
+      $rating = $this->getEscapedValue(null);
+    }
+    // Stores tagged_people and tags as json string.
+    $taggedPeople = $this->getJsonEscapedField($mediaItem, 'taggedPeople');
+    $tags = $this->getJsonEscapedField($mediaItem, 'tags');
+    if (! isset($mediaItem['type']) || ! in_array(strtoupper($mediaItem['type']), MediaItem::$TYPES)) {
+      throw new SocialSpiException("Type not correct.", ResponseError::$BAD_REQUEST);
+    }
+    $type = $this->getEscapedValue(strtoupper($mediaItem['type']));
+    $url = $this->getEscapedField($mediaItem, 'url');
+
+    $query = "update media_items set album_id = $albumId, mime_type = $mimeType, " . "file_size = $fileSize, duration = $duration, last_updated = $lastUpdated, " . "language = $language, address_id = $addressId, num_comments = $numComments, " . "num_views = $numViews, num_votes = $numVotes, rating = $rating, " . "start_time = $startTime, title = $title, description = $description, " . "tagged_people = $taggedPeople, tags = $tags, thumbnail_url = $thumbnailUrl, " . "type = $type, url = $url where id = $id";
+    if (! mysqli_query($this->db, $query)) {
+      throw new SocialSpiException("Update media item failed.", ResponseError::$INTERNAL_ERROR);
+    }
+    if (! $oldAddressId && $addressId) {
+      // Best effort to update the album_id field used for deletion.
+      $query = "update addresses set media_item_id = $id where id = $addressId";
+      mysqli_query($this->db, $query);
+    }
+  }
+
+  public function deleteMediaItems($userId, $groupId, $appId, $albumId, $mediaItemIds) {
+    $this->checkDb();
+
+    $userId = intval($userId);
+    $albumId = intval($albumId);
+    $mediaItemIdQuery = '';
+    if (is_array($mediaItemIds) && count($mediaItemIds) > 0) {
+      $mediaItemIds = array_map('intval', $mediaItemIds);
+      $mediaItemIdQuery = " and media_items.id in (" . implode(',', $mediaItemIds) . ")";
+    }
+
+    $query = "delete from addresses where addresses.id in (select media_items.address_id from" . " media_items where media_items.album_id = $albumId and media_items.app_id = $appId and " . " media_items.owner_id = $userId $mediaItemIdQuery)";
+    if (! mysqli_query($this->db, $query)) {
+      throw new SocialSpiException("Album $albumId not found.", ResponseError::$NOT_FOUND);
+    }
+
+    $query = "delete from media_items where media_items.album_id = $albumId and " . " media_items.app_id = $appId and media_items.owner_id = $userId $mediaItemIdQuery";
+    if (! mysqli_query($this->db, $query)) {
+      throw new SocialSpiException("Delete media item failed.", ResponseError::$INTERNAL_ERROR);
+    }
+  }
+
+  public function getMediaItems($userId, $groupId, $appId, $albumId, $mediaItemIds, $options, $fields) {
+    $this->checkDb();
+
+    $userId = intval($userId);
+    $albumId = intval($albumId);
+    $startIndex = $options->getStartIndex();
+    $count = $options->getCount();
+    $mediaItems = array();
+    $mediaItems['startIndex'] = $startIndex;
+    $mediaItems['count'] = $count;
+    $countQuery = "select count(*) from media_items where album_id = $albumId and app_id = $appId";
+    $mediaItems['totalResults'] = $this->getCount($countQuery);
+    if (! $mediaItems['totalResults']) {
+      return $mediaItems;
+    }
+
+    $mediaItemIdQuery = '';
+    if (is_array($mediaItemIds) && count($mediaItemIds) > 0) {
+      $mediaItemIds = array_map('intval', $mediaItemIds);
+      $mediaItemIdQuery = " and id in (" . implode(',', $mediaItemIds) . ")";
+    }
+    $query = "select * from media_items where album_id = $albumId and app_id = $appId $mediaItemIdQuery limit $startIndex, $count";
+    $res = mysqli_query($this->db, $query);
+    if ($res) {
+      if (@mysqli_num_rows($res)) {
+        while ($row = @mysqli_fetch_array($res, MYSQLI_ASSOC)) {
+          $mediaItems[] = $this->convertMediaItem($row);
+        }
+      }
+      return $mediaItems;
+    } else {
+      throw new SocialSpiException("Can't retrieve media items.", ResponseError::$INTERNAL_ERROR);
+    }
+  }
+
   public function createActivity($person_id, $activity, $app_id = '0') {
     $this->checkDb();
     $app_id = intval($app_id);
@@ -500,20 +788,18 @@ class PartuzaDbFetcher {
     $mediaItems = isset($activity['mediaItems']) ? $activity['mediaItems'] : array();
     if (count($mediaItems)) {
       foreach ($mediaItems as $mediaItem) {
-        $type = isset($mediaItem['type']) ? $mediaItem['type'] : '';
-        $mimeType = isset($mediaItem['mimeType']) ? $mediaItem['mimeType'] : '';
-        $url = isset($mediaItem['url']) ? $mediaItem['url'] : '';
-        $type = mysqli_real_escape_string($this->db, trim($type));
-        $mimeType = mysqli_real_escape_string($this->db, trim($mimeType));
-        $url = mysqli_real_escape_string($this->db, trim($url));
-        if (! empty($mimeType) && ! empty($type) && ! empty($url)) {
-          mysqli_query($this->db, "insert into activity_media_items (id, activity_id, mime_type, media_type, url) values (0, $activityId, '$mimeType', '$type', '$url')");
-          if (! mysqli_insert_id($this->db)) {
-            return false;
+        // Updates the activityId of the media item if the activity is bound with the existing media item.
+        if (isset($mediaItem['id']) && isset($mediaItem['albumId'])) {
+          $mediaItemId = intval($mediaItem['id']);
+          $albumId = intval($mediaItem['albumId']);
+          $query = "update media_items set activity_id = $activityId where id = $mediaItemId and album_id = $albumId and owner_id = $person_id";
+          $res = mysqli_query($this->db, $query);
+          if ($res && @mysqli_affected_rows($this->db) == 1) {
+            continue;
           }
-        } else {
-          return false;
         }
+        $mediaItem['albumId'] = 0;
+        $this->createMediaItemInternal($person_id, $app_id, $mediaItem, $activityId);
       }
     }
     return true;
@@ -572,7 +858,7 @@ class PartuzaDbFetcher {
           $activity->setTitle($row['activity_title']);
           $activity->setBody($row['activity_body']);
           $activity->setPostedTime($row['created']);
-          $activity->setMediaItems($this->getMediaItems($row['activity_id']));
+          $activity->setMediaItems($this->getMediaItemsByActivityId($row['activity_id']));
           $activities[] = $activity;
         }
       } elseif (isset($activityIds) && is_array($activityIds)) {
@@ -591,18 +877,29 @@ class PartuzaDbFetcher {
     $activityIds = implode(',', $activityIds);
     $userId = intval($userId);
     $appId = intval($appId);
+
+    $query = "delete media_items, addresses from media_items left join addresses on media_items.id = addresses.media_item_id" . " where media_items.activity_id in ($activityIds) and media_items.app_id = $appId and media_items.owner_id = $userId and media_items.album_id = 0";
+    if (! mysqli_query($this->db, $query)) {
+      throw new SocialSpiException("Delete media item failed.", ResponseError::$INTERNAL_ERROR);
+    }
+    $query = "update media_items set activity_id = '0' where activity_id in ($activityIds) and owner_id = $userId and app_id = $appId";
+    if (! mysqli_query($this->db, $query)) {
+      throw new SocialSpiException("Delete media item failed.", ResponseError::$INTERNAL_ERROR);
+    }
     mysqli_query($this->db, "delete from activities where person_id = $userId and app_id = $appId and id in ($activityIds)");
     return (mysqli_affected_rows($this->db) != 0);
   }
 
-  private function getMediaItems($activity_id) {
-    $media = array();
+  private function getMediaItemsByActivityId($activity_id) {
+    $mediaItems = array();
     $activity_id = intval($activity_id);
-    $res = mysqli_query($this->db, "select mime_type, media_type, url from activity_media_items where activity_id = $activity_id");
-    while (list($mime_type, $type, $url) = @mysqli_fetch_row($res)) {
-      $media[] = new MediaItem($mime_type, $type, $url);
+    $res = mysqli_query($this->db, "select * from media_items where activity_id = $activity_id");
+    if ($res && @mysqli_num_rows($res)) {
+      while ($row = @mysqli_fetch_array($res, MYSQLI_ASSOC)) {
+        $mediaItems[] = $this->convertMediaItem($row);
+      }
     }
-    return $media;
+    return $mediaItems;
   }
 
   public function getFriendIds($person_id) {
@@ -714,7 +1011,7 @@ class PartuzaDbFetcher {
     if ($res) {
       while ($row = @mysqli_fetch_array($res, MYSQLI_ASSOC)) {
         $person_id = $row['id'];
-        $name = $this->buildName($row);
+        $name = $this->convertName($row);
         $person = new Person($row['id'], $name);
         $person->setDisplayName($name->getFormatted());
         $person->setAboutMe($row['about_me']);
@@ -769,10 +1066,7 @@ class PartuzaDbFetcher {
           $addresses = array();
           $res2 = mysqli_query($this->db, "select addresses.* from person_addresses, addresses where addresses.id = person_addresses.address_id and person_addresses.person_id = " . $person_id);
           while ($row = @mysqli_fetch_array($res2, MYSQLI_ASSOC)) {
-            if (empty($row['unstructured_address'])) {
-              $row['unstructured_address'] = trim($row['street_address'] . " " . $row['region'] . " " . $row['country']);
-            }
-            $address = $this->buildAddress($row);
+            $address = $this->convertAddress($row);
             //FIXME quick and dirty hack to demo PC
             $address->setPrimary(true);
             $addresses[] = $address;
@@ -813,11 +1107,8 @@ class PartuzaDbFetcher {
           $res2 = mysqli_query($this->db, "select addresses.* from person_current_location, person_addresses, addresses where addresses.id = person_current_location.address_id and person_addresses.person_id = " . $person_id);
           if (@mysqli_num_rows($res2)) {
             $row = mysqli_fetch_array($res2, MYSQLI_ASSOC);
-            if (empty($row['unstructured_address'])) {
-              $row['unstructured_address'] = trim($row['street_address'] . " " . $row['region'] . " " . $row['country']);
-            }
-            $address = $this->buildAddress($row);
-            $person->setCurrentLocation($address);
+            $addres = $this->convertAddress($row);
+            $person->setCurrentLocation($addres);
           }
         }
         if (isset($fields['emails']) || in_array('@all', $fields)) {
@@ -857,16 +1148,14 @@ class PartuzaDbFetcher {
         if (isset($fields['jobs']) || in_array('@all', $fields)) {
           $res2 = mysqli_query($this->db, "select organizations.* from person_jobs, organizations where organizations.id = person_jobs.organization_id and person_jobs.person_id = " . $person_id);
           while ($row = mysqli_fetch_array($res2, MYSQLI_ASSOC)) {
-            $organization = $this->buildOrganization($row, 'job');
-            $organizations[] = $organization;
+            $organizations[] = $this->convertOrganization($row, 'job');
           }
           $fetchedOrg = true;
         }
         if (isset($fields['schools']) || in_array('@all', $fields)) {
           $res2 = mysqli_query($this->db, "select organizations.* from person_schools, organizations where organizations.id = person_schools.organization_id and person_schools.person_id = " . $person_id);
           while ($row = mysqli_fetch_array($res2, MYSQLI_ASSOC)) {
-            $organization = $this->buildOrganization($row, 'school');
-            $organizations[] = $organization;
+            $organizations[] = $this->convertOrganization($row, 'school');
           }
           $fetchedOrg = true;
         }
@@ -1066,15 +1355,168 @@ class PartuzaDbFetcher {
     }
   }
 
-  private function buildName($row) {
-    $name = new Name($row['first_name'] . ' ' . $row['last_name']);
-    $name->setGivenName($row['first_name']);
-    $name->setFamilyName($row['last_name']);
-    return $name;
+  /**
+   * Returns the escaped string if the field is set otherwise returns the sting 'null'.
+   * There is no need to add single quote in the SQL expression.
+   */
+  private function getEscapedField($obj, $field) {
+    if (isset($obj[$field])) {
+      return "'" . mysqli_real_escape_string($this->db, $obj[$field]) . "'";
+    }
+    return 'null';
   }
 
-  private function buildAddress($row) {
-    $address = new Address($row['unstructured_address']);
+  private function getEscapedValue($value) {
+    if (isset($value)) {
+      return "'" . mysqli_real_escape_string($this->db, $value) . "'";
+    }
+    return 'null';
+  }
+
+  private function getJsonEscapedField($obj, $field) {
+    if (isset($obj[$field])) {
+      return mysqli_real_escape_string($this->db, json_encode($obj[$field]));
+    }
+    return 'null';
+  }
+
+  public function createMediaItemInternal($userId, $appId, $mediaItem, $activityId) {
+    $this->checkDb();
+
+    $userId = intval($userId);
+    $appId = intval($appId);
+
+    $activityId = $this->getEscapedValue($activityId);
+    $created = time();
+    $lastUpdated = $created;
+    $startTime = $this->getEscapedField($mediaItem, 'startTime');
+    $title = $this->getEscapedField($mediaItem, 'title');
+    $description = $this->getEscapedField($mediaItem, 'description');
+    $thumbnailUrl = $this->getEscapedField($mediaItem, 'thumbnailUrl');
+    $language = $this->getEscapedField($mediaItem, 'language');
+    $albumId = $this->getEscapedField($mediaItem, 'albumId');
+    $fileSize = $this->getEscapedField($mediaItem, 'fileSize');
+    $duration = $this->getEscapedField($mediaItem, 'duration');
+    $numComments = $this->getEscapedField($mediaItem, 'numComments');
+    $numViews = $this->getEscapedField($mediaItem, 'numViews');
+    $numVotes = $this->getEscapedField($mediaItem, 'numVotes');
+    $rating = $this->getEscapedField($mediaItem, 'rating');
+    if (is_numeric($rating) && ($rating < 0 || $rating > 10)) {
+      $rating = $this->getEscapedValue(null);
+    }
+    // Stores tagged_people and tags as json string.
+    $taggedPeople = $this->getJsonEscapedField($mediaItem, 'taggedPeople');
+    $tags = $this->getJsonEscapedField($mediaItem, 'tags');
+    if (! isset($mediaItem['type']) || ! in_array(strtoupper($mediaItem['type']), MediaItem::$TYPES)) {
+      throw new SocialSpiException("Type not correct.", ResponseError::$BAD_REQUEST);
+    }
+    $type = $this->getEscapedValue(strtoupper($mediaItem['type']));
+    if (! isset($mediaItem['mimeType'])) {
+      throw new SocialSpiException("MediaMimeType not correct.", ResponseError::$BAD_REQUEST);
+    }
+    $mimeType = $this->getEscapedField($mediaItem, 'mimeType');
+
+    $url = $this->getEscapedField($mediaItem, 'url');
+
+    $addressId = $this->getEscapedValue(null);
+    if (isset($mediaItem['location'])) {
+      $addressId = $this->createAddress($mediaItem['location']);
+    }
+
+    $query = "insert into media_items (album_id, mime_type, file_size, duration, created, " . "last_updated, language, address_id, num_comments, num_views, num_votes, rating, " . "start_time, title, description, tagged_people, tags, thumbnail_url, type, url, app_id, owner_id, activity_id) " . "values ($albumId, $mimeType, $fileSize, $duration, $created, $lastUpdated, $language, " . "$addressId, $numComments, $numViews, $numVotes, $rating, $startTime, $title, " . "$description, $taggedPeople, $tags, $thumbnailUrl, $type, $url, $appId, $userId, $activityId)";
+    mysqli_query($this->db, $query);
+    if (! ($mediaItemId = mysqli_insert_id($this->db))) {
+      throw new SocialSpiException("Insert media item failed.", ResponseError::$INTERNAL_ERROR);
+    } else {
+      if ($addressId) {
+        // Best effort to update the media_item_id field used for deletion.
+        $query = "update addresses set media_item_id = $mediaItemId where id = $addressId";
+        mysqli_query($this->db, $query);
+      }
+      $mediaItem['id'] = $mediaItemId;
+      return $mediaItem;
+    }
+  }
+
+  /**
+   * Returns the id of the created address.
+   */
+  private function createAddress($address) {
+    $country = $this->getEscapedField($address, 'country');
+    $extendedAddress = $this->getEscapedField($address, 'extendedAddress');
+    $latitude = $this->getEscapedField($address, 'latitude');
+    $locality = $this->getEscapedField($address, 'locality');
+    $longitude = $this->getEscapedField($address, 'longitude');
+    $poBox = $this->getEscapedField($address, 'poBox');
+    $postalCode = $this->getEscapedField($address, 'postalCode');
+    $region = $this->getEscapedField($address, 'region');
+    $streetAddress = $this->getEscapedField($address, 'streetAddress');
+    $addressType = $this->getEscapedField($address, 'type');
+    $unstructuredAddress = $this->getEscapedField($address, 'unstructuredAddress');
+
+    $query = "insert into addresses (country, extended_address, latitude, locality, longitude, " . "po_box, postal_code, region, street_address, address_type, unstructured_address) values " . "($country, $extendedAddress, $latitude, $locality, $longitude, $poBox, $postalCode, " . "$region, $streetAddress, $addressType, $unstructuredAddress)";
+    mysqli_query($this->db, $query);
+    if (! ($addressId = mysqli_insert_id($this->db))) {
+      throw new SocialSpiException("Insert address failed.", ResponseError::$INTERNAL_ERROR);
+    } else {
+      return $addressId;
+    }
+  }
+
+  /**
+   * Updates the address specified by id.
+   */
+  private function updateAddress($id, $address) {
+    $country = $this->getEscapedField($address, 'country');
+    $extendedAddress = $this->getEscapedField($address, 'extendedAddress');
+    $latitude = $this->getEscapedField($address, 'latitude');
+    $locality = $this->getEscapedField($address, 'locality');
+    $longitude = $this->getEscapedField($address, 'longitude');
+    $poBox = $this->getEscapedField($address, 'poBox');
+    $postalCode = $this->getEscapedField($address, 'postalCode');
+    $region = $this->getEscapedField($address, 'region');
+    $streetAddress = $this->getEscapedField($address, 'streetAddress');
+    $addressType = $this->getEscapedField($address, 'type');
+    $unstructuredAddress = $this->getEscapedField($address, 'unstructuredAddress');
+
+    $query = "update addresses set country = $country, extended_address = $extendedAddress, " . "latitude = $latitude, locality = $locality, longitude = $longitude, po_box = $poBox, " . "postal_code = $postalCode, region = $region, street_address = $streetAddress, " . "address_type = $addressType, unstructured_address = $unstructuredAddress where id = $id";
+    if (! mysqli_query($this->db, $query)) {
+      throw new SocialSpiException("Update address failed.", ResponseError::$INTERNAL_ERROR);
+    }
+  }
+
+  /**
+   * Deletes the address specified by id.
+   */
+  private function deleteAddress($id) {
+    $query = "delete from addresses where id = $id";
+    if (! mysqli_query($this->db, $query)) {
+      throw new SocialSpiException("Delete address failed.", ResponseError::$INTERNAL_ERROR);
+    }
+  }
+
+  private function getAddress($id) {
+    $query = "select * from addresses where id = $id";
+    $res = mysqli_query($this->db, $query);
+    if ($res) {
+      if (@mysqli_num_rows($res) == 1) {
+        $row = @mysqli_fetch_array($res, MYSQLI_ASSOC);
+        return $this->convertAddress($row);
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Converts the address fetched from the database to the Address object.
+   */
+  private function convertAddress($row) {
+    $formatted = $row['unstructured_address'];
+    if (empty($formatted)) {
+      $formatted = trim($row['street_address'] . " " . $row['region'] . " " . $row['country']);
+      $formatted = empty($formatted) ? $formatted : null;
+    }
+    $address = new Address($formatted);
     $address->setCountry($row['country']);
     $address->setLatitude($row['latitude']);
     $address->setLongitude($row['longitude']);
@@ -1083,10 +1525,75 @@ class PartuzaDbFetcher {
     $address->setRegion($row['region']);
     $address->setStreetAddress($row['street_address']);
     $address->setType($row['address_type']);
+    $address->setUnstructuredAddress($row['unstructured_address']);
+    $address->setExtendedAddress($row['extended_address']);
+    $address->setPoBox($row['po_box']);
     return $address;
   }
 
-  private function buildOrganization($row, $type) {
+  /**
+   * Converts the media item fetched from the database to the MediaItem object.
+   */
+  private function convertMediaItem($row) {
+    $mediaItem = new MediaItem($row['mime_type'], $row['type'], $row['url']);
+    $mediaItem->setId($row['id']);
+    $mediaItem->setAlbumId($row['album_id']);
+    $mediaItem->setFileSize($row['file_size']);
+    $mediaItem->setDuration($row['duration']);
+    $mediaItem->setCreated($row['created']);
+    $mediaItem->setLastUpdated($row['last_updated']);
+    $mediaItem->setLanguage($row['language']);
+    $mediaItem->setNumComments($row['num_comments']);
+    $mediaItem->setNumViews($row['num_views']);
+    $mediaItem->setNumVotes($row['num_votes']);
+    $mediaItem->setRating($row['rating']);
+    $mediaItem->setStartTime($row['start_time']);
+    $mediaItem->setTitle($row['title']);
+    $mediaItem->setDescription($row['description']);
+    $mediaItem->setTaggedPeople(json_decode($row['tagged_people']));
+    $mediaItem->setTags(json_decode($row['tags']));
+    $mediaItem->setThumbnailUrl($row['thumbnail_url']);
+    if (isset($row['address_id'])) {
+      $mediaItem->setLocation($this->getAddress($row['address_id']));
+    }
+    return $mediaItem;
+  }
+
+  /**
+   * Converts the album fetched from the database to the Album object.
+   */
+  private function convertAlbum($row) {
+    $album = new Album($row['id'], $row['owner_id']);
+    $album->setTitle($row['title']);
+    $album->setDescription($row['description']);
+    $album->setMediaMimeType($row['media_mime_type']);
+    $album->setThumbnailUrl($row['thumbnail_url']);
+    $album->setMediaType($row['media_type']);
+    $album->setMediaItemCount($row['media_item_count']);
+    if (isset($row['address_id'])) {
+      $album->setLocation($this->getAddress($row['address_id']));
+    }
+    $album->setMediaItemCount($this->getCount("select count(*) from media_items where album_id = " . $row['id']));
+    return $album;
+  }
+
+  private function getCount($query) {
+    $count = 0;
+    $res = mysqli_query($this->db, $query);
+    if ($res !== false) {
+      list($count) = mysqli_fetch_row($res);
+    }
+    return $count;
+  }
+
+  private function convertName($row) {
+    $name = new Name($row['first_name'] . ' ' . $row['last_name']);
+    $name->setGivenName($row['first_name']);
+    $name->setFamilyName($row['last_name']);
+    return $name;
+  }
+
+  private function convertOrganization($row, $type) {
     $organization = new Organization();
     $organization->setDescription($row['description']);
     $organization->setEndDate($row['end_date']);
@@ -1103,10 +1610,7 @@ class PartuzaDbFetcher {
       $res3 = mysqli_query($this->db, "select * from addresses where id = " . $row['address_id']);
       if (mysqli_num_rows($res3)) {
         $row = mysqli_fetch_array($res3, MYSQLI_ASSOC);
-        if (empty($row['unstructured_address'])) {
-          $row['unstructured_address'] = trim($row['street_address'] . " " . $row['region'] . " " . $row['country']);
-        }
-        $address = $this->buildAddress($row);
+        $address = $this->convertAddress($row);
         $organization->setLocation($address);
       }
     }

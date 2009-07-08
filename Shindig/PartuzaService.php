@@ -21,7 +21,7 @@
 /**
  * Implementation of supported services backed using Partuza's DB Fetcher
  */
-class PartuzaService implements ActivityService, PersonService, AppDataService, MessagesService {
+class PartuzaService implements ActivityService, PersonService, AppDataService, MessagesService, AlbumService, MediaItemService {
 
   public function getPerson($userId, $groupId, $fields, SecurityToken $token) {
     if (! is_object($userId)) {
@@ -143,7 +143,8 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
   }
 
   public function getActivity($userId, $groupId, $appdId, $fields, $activityId, SecurityToken $token) {
-    $activities = $this->getActivities($userId, $groupId, $appdId, null, null, null, null, 0, 20, $fields, array($activityId), $token);
+    $activities = $this->getActivities($userId, $groupId, $appdId, null, null, null, null, 0, 20, $fields, array(
+        $activityId), $token);
     if ($activities instanceof RestFulCollection) {
       $activities = $activities->getEntry();
       foreach ($activities as $activity) {
@@ -204,7 +205,7 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
       throw new SocialSpiException("Invalid create message request: " . $e->getMessage(), ResponseError::$INTERNAL_ERROR);
     }
   }
-  
+
   public function deleteMessages($userId, $msgCollId, $messageIds, $token) {
     if ($token->getOwnerId() != $token->getViewerId() || $token->getViewerId() != $userId->getUserId($token)) {
       throw new SocialSpiException("Delete message permission denied.", ResponseError::$UNAUTHORIZED);
@@ -217,7 +218,7 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
       throw new SocialSpiException("Server error: " . $e->getMessage(), ResponseError::$INTERNAL_ERROR);
     }
   }
-  
+
   public function updateMessage($userId, $msgCollId, $message, $token) {
     if ($token->getOwnerId() != $token->getViewerId() || $token->getViewerId() != $userId->getUserId($token)) {
       throw new SocialSpiException("Delete message permission denied.", ResponseError::$UNAUTHORIZED);
@@ -230,7 +231,7 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
       throw new SocialSpiException("Server error: " . $e->getMessage(), ResponseError::$INTERNAL_ERROR);
     }
   }
-  
+
   private function getRestfulCollection($results) {
     $totalResults = $results['totalResults'];
     $startIndex = $results['startIndex'];
@@ -242,26 +243,26 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
     $ret->setItemsPerPage($count);
     return $ret;
   }
-    
+
   public function getMessages($userId, $msgCollId, $fields, $msgIds, $options, $token) {
     if ($token->getOwnerId() != $token->getViewerId() || $token->getViewerId() != $userId->getUserId($token)) {
       throw new SocialSpiException("Get message permission denied.", ResponseError::$UNAUTHORIZED);
     }
-    $messages = PartuzaDbFetcher::get()->getMessages($userId->getUserId($token), $msgCollId, $fields, $msgIds, $options); 
+    $messages = PartuzaDbFetcher::get()->getMessages($userId->getUserId($token), $msgCollId, $fields, $msgIds, $options);
     if ($messages) {
       return $this->getRestfulCollection($messages);
     } else {
       throw new SocialSpiException("Message not found.", ResponseError::$NOT_FOUND);
     }
   }
-  
+
   public function createMessageCollection($userId, $msgCollection, $token) {
     if ($token->getOwnerId() != $token->getViewerId() || $token->getViewerId() != $userId->getUserId($token)) {
       throw new SocialSpiException("Create message collection permission denied.", ResponseError::$UNAUTHORIZED);
     }
     return PartuzaDbFetcher::get()->createMessageCollection($userId->getUserId($token), $token->getAppId(), $msgCollection);
   }
-  
+
   public function updateMessageCollection($userId, $msgCollection, $token) {
     if ($token->getOwnerId() != $token->getViewerId() || $token->getViewerId() != $userId->getUserId($token)) {
       throw new SocialSpiException("Update message collection permission denied.", ResponseError::$UNAUTHORIZED);
@@ -274,7 +275,7 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
       throw new SocialSpiException("Server error: " . $e->getMessage(), ResponseError::$INTERNAL_ERROR);
     }
   }
-  
+
   public function deleteMessageCollection($userId, $msgCollId, $token) {
     if ($token->getOwnerId() != $token->getViewerId() || $token->getViewerId() != $userId->getUserId($token)) {
       throw new SocialSpiException("Delete message collection permission denied.", ResponseError::$UNAUTHORIZED);
@@ -287,7 +288,7 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
       throw new SocialSpiException("Server error: " . $e->getMessage(), ResponseError::$INTERNAL_ERROR);
     }
   }
-  
+
   public function getMessageCollections($userId, $fields, $options, $token) {
     if ($token->getOwnerId() != $token->getViewerId() || $token->getViewerId() != $userId->getUserId($token)) {
       throw new SocialSpiException("Get message collection permission denied.", ResponseError::$UNAUTHORIZED);
@@ -296,10 +297,118 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
     if ($messageCollections) {
       return $this->getRestfulCollection($messageCollections);
     } else {
-      throw new SocialSpiException("Invalid activity specified", ResponseError::$NOT_FOUND);
+      throw new SocialSpiException("Message collection not found.", ResponseError::$NOT_FOUND);
     }
   }
-  
+
+  public function getAlbums($userId, $groupId, $albumIds, $options, $fields, $token) {
+    try {
+      $albums = PartuzaDbFetcher::get()->getAlbums($userId->getUserId($token), $groupId, $token->getAppId(), $albumIds, $options, $fields);
+    } catch (SocialSpiException $e) {
+      throw $e;
+    } catch (Exception $e) {
+      throw new SocialSpiException("Unable to fetch album." . $e->getMessage(), ResponseError::$INTERNAL_ERROR);
+    }
+    if ($albums) {
+      return $this->getRestfulCollection($albums);
+    } else {
+      throw new SocialSpiException("Albums not found.", ResponseError::$NOT_FOUND);
+    }
+  }
+
+  public function createAlbum($userId, $groupId, $album, $token) {
+    if ($token->getOwnerId() != $token->getViewerId() || $token->getViewerId() != $userId->getUserId($token)) {
+      throw new SocialSpiException("Create album permission denied.", ResponseError::$UNAUTHORIZED);
+    }
+    try {
+      return PartuzaDbFetcher::get()->createAlbum($userId->getUserId($token), $groupId, $token->getAppId(), $album);
+    } catch (SocialSpiException $e) {
+      throw $e;
+    } catch (Exception $e) {
+      throw new SocialSpiException("Unable to create album. " . $e->getMessage(), ResponseError::$INTERNAL_ERROR);
+    }
+  }
+
+  public function updateAlbum($userId, $groupId, $album, $token) {
+    if ($token->getOwnerId() != $token->getViewerId() || $token->getViewerId() != $userId->getUserId($token)) {
+      throw new SocialSpiException("Update album permission denied.", ResponseError::$UNAUTHORIZED);
+    }
+    try {
+      PartuzaDbFetcher::get()->updateAlbum($userId->getUserId($token), $groupId, $token->getAppId(), $album);
+    } catch (SocialSpiException $e) {
+      throw $e;
+    } catch (Exception $e) {
+      throw new SocialSpiException("Unable to update the album. " . $e->getMessage(), ResponseError::$INTERNAL_ERROR);
+    }
+  }
+
+  public function deleteAlbum($userId, $groupId, $albumId, $token) {
+    if ($token->getOwnerId() != $token->getViewerId() || $token->getViewerId() != $userId->getUserId($token)) {
+      throw new SocialSpiException("Delete album permission denied.", ResponseError::$UNAUTHORIZED);
+    }
+    try {
+      PartuzaDbFetcher::get()->deleteAlbum($userId->getUserId($token), $groupId, $token->getAppId(), $albumId);
+    } catch (SocialSpiException $e) {
+      throw $e;
+    } catch (Exception $e) {
+      throw new SocialSpiException("Unable to delete the album. " . $e->getMessage(), ResponseError::$INTERNAL_ERROR);
+    }
+  }
+
+  public function getMediaItems($userId, $groupId, $albumId, $mediaItemIds, $options, $fields, $token) {
+    try {
+      $mediaItems = PartuzaDbFetcher::get()->getMediaItems($userId->getUserId($token), $groupId, $token->getAppId(), $albumId, $mediaItemIds, $options, $fields);
+    } catch (SocialSpiException $e) {
+      throw $e;
+    } catch (Exception $e) {
+      throw new SocialSpiException("Unable to fetch media items. " . $e->getMessage(), ResponseError::$INTERNAL_ERROR);
+    }
+    if ($mediaItems) {
+      return $this->getRestfulCollection($mediaItems);
+    } else {
+      throw new SocialSpiException("media items not found.", ResponseError::$NOT_FOUND);
+    }
+  }
+
+  public function createMediaItem($userId, $groupId, $mediaItem, $data, $token) {
+    if ($token->getOwnerId() != $token->getViewerId() || $token->getViewerId() != $userId->getUserId($token)) {
+      throw new SocialSpiException("Create media item permission denied.", ResponseError::$UNAUTHORIZED);
+    }
+    try {
+      return PartuzaDbFetcher::get()->createMediaItem($userId->getUserId($token), $groupId, $token->getAppId(), $mediaItem);
+    } catch (SocialSpiException $e) {
+      throw $e;
+    } catch (Exception $e) {
+      throw new SocialSpiException("Unable to create media item. " . $e->getMessage(), ResponseError::$INTERNAL_ERROR);
+    }
+  }
+
+  public function updateMediaItem($userId, $groupId, $mediaItem, $data, $token) {
+    if ($token->getOwnerId() != $token->getViewerId() || $token->getViewerId() != $userId->getUserId($token)) {
+      throw new SocialSpiException("Update media item permission denied.", ResponseError::$UNAUTHORIZED);
+    }
+    try {
+      PartuzaDbFetcher::get()->updateMediaItem($userId->getUserId($token), $groupId, $token->getAppId(), $mediaItem);
+    } catch (SocialSpiException $e) {
+      throw $e;
+    } catch (Exception $e) {
+      throw new SocialSpiException("Unable to update the media item. " . $e->getMessage(), ResponseError::$INTERNAL_ERROR);
+    }
+  }
+
+  public function deleteMediaItems($userId, $groupId, $albumId, $mediaItemIds, $token) {
+    if ($token->getOwnerId() != $token->getViewerId() || $token->getViewerId() != $userId->getUserId($token)) {
+      throw new SocialSpiException("Delete media items permission denied.", ResponseError::$UNAUTHORIZED);
+    }
+    try {
+      PartuzaDbFetcher::get()->deleteMediaItems($userId->getUserId($token), $groupId, $token->getAppId(), $albumId, $mediaItemIds);
+    } catch (SocialSpiException $e) {
+      throw $e;
+    } catch (Exception $e) {
+      throw new SocialSpiException("Unable to delete the media items. " . $e->getMessage(), ResponseError::$INTERNAL_ERROR);
+    }
+  }
+
   /**
    * Get the set of user id's from a user or collection of users, and group
    */

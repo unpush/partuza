@@ -62,15 +62,8 @@ class activitiesModel extends Model {
     global $db;
     $activity_id = $db->addslashes($activity_id);
     $ret = array();
-    $res = $db->query("
-		select
-			mime_type,
-			media_type,
-			url
-		from activity_media_items
-		where
-			activity_id = $activity_id
-		");
+    $query = "select * from media_items where activity_id = $activity_id";
+    $res = $db->query($query);
     while ($row = $db->fetch_array($res, MYSQLI_ASSOC)) {
       $ret[] = $row;
     }
