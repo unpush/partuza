@@ -150,7 +150,7 @@ var Container = Class.extend({
 			if (opt_params) {
 				var paramStr = $.toJSON(opt_params);
 				if (paramStr.length > 0) {
-					url += '?appParams=' + encodeURIComponent(paramStr);
+					url += '&appParams=' + encodeURIComponent(paramStr);
 				}
 			}
 			if (url) {
