@@ -1,4 +1,4 @@
-<?
+<?php
 if (count($vars['friend_requests'])) {
   //TODO style and link to a page where u can view / accept them
   echo "<div id=\"friendRequests\"><b>You have " . count($vars['friend_requests']) . " pending friend requests.</b><br />

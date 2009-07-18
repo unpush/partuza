@@ -1,4 +1,4 @@
-<?
+<?php
 $this->template('/common/header.php');
 echo "<b>Search Results</b><br /><br />";
 if ($vars['error']) {

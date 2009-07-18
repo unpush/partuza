@@ -1,25 +1,25 @@
-<?
+<?php
 $this->template('/common/header.php');
 ?>
 
 <div id="profileInfo" class="blue">
-	<?
+	<?php
 $this->template('profile/profile_info.php', $vars);
 ?>
 </div>
 
 <div id="profileContent">
-<?
+<?php
 $this->template('profile/profile_friendrequests.php', $vars);
 ?>
 <div class="gadgets-gadget-chrome">
 <div class="gadgets-gadget-title-bar"><span class="gadgets-gadget-title">Friend's
 activities</span></div>
-	<?
+	<?php
 $this->template('profile/profile_activities.php', $vars);
 ?>
 </div>
-<?
+<?php
 if (! empty($_SESSION['message'])) {
   echo "<b>{$_SESSION['message']}</b><br /><br />";
   unset($_SESSION['message']);
@@ -33,13 +33,13 @@ foreach ($vars['applications'] as $gadget) {
 ?>
 </div>
 <div id="profileRight">
-<?
+<?php
 $this->template('profile/profile_friends.php', $vars);
 ?>
 </div>
 
 <div style="clear: both"></div>
 
-<?
+<?php
 $this->template('/common/footer.php');
 ?>

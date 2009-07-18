@@ -25,19 +25,19 @@ $date_of_birth_year = date('Y', $vars['person']['date_of_birth']);
     <div class="form_entry">
     <div class="form_label"><label for="first_name">first name</label></div>
     <input type="text" name="first_name" id="first_name"
-    	value="<?=isset($vars['person']['first_name']) ? $vars['person']['first_name'] : ''?>" />
+    	value="<?php echo isset($vars['person']['first_name']) ? $vars['person']['first_name'] : ''?>" />
     </div>
 
     <div class="form_entry">
     <div class="form_label"><label for="last_name">last name</label></div>
     <input type="text" name="last_name" id="last_name"
-    	value="<?=isset($vars['person']['last_name']) ? $vars['person']['last_name'] : ''?>" />
+    	value="<?php echo isset($vars['person']['last_name']) ? $vars['person']['last_name'] : ''?>" />
     </div>
 
     <div class="form_entry">
     <div class="form_label"><label for="nickname">nickname</label></div>
     <input type="text" name="nickname" id="nickname"
-    	value="<?=isset($vars['person']['nickname']) ? $vars['person']['nickname'] : ''?>" />
+    	value="<?php echo isset($vars['person']['nickname']) ? $vars['person']['nickname'] : ''?>" />
     </div>
 
     <div class="form_entry">
@@ -45,9 +45,9 @@ $date_of_birth_year = date('Y', $vars['person']['date_of_birth']);
     <select name="gender" id="gender">
     	<option value="-">-</option>
     	<option value='FEMALE'
-    		<?=$vars['person']['gender'] == 'FEMALE' ? ' SELECTED' : ''?>>Female</option>
+    		<?php echo $vars['person']['gender'] == 'FEMALE' ? ' SELECTED' : ''?>>Female</option>
     	<option value='MALE'
-    		<?=$vars['person']['gender'] == 'MALE' ? ' SELECTED' : ''?>>Male</option>
+    		<?php echo $vars['person']['gender'] == 'MALE' ? ' SELECTED' : ''?>>Male</option>
     </select></div>
 
     <div class="form_entry">
@@ -55,7 +55,7 @@ $date_of_birth_year = date('Y', $vars['person']['date_of_birth']);
     <select name="date_of_birth_month" id="date_of_birth_month"
     	style="width: auto">
     	<option value="-">-</option>
-    					<?
+    					<?php
         for ($month = 1; $month <= 12; $month ++) {
           $sel = $month == $date_of_birth_month && $vars['person']['date_of_birth'] != 0 ? ' SELECTED' : '';
           echo "<option value=\"$month\"$sel>$month</option>\n";
@@ -64,7 +64,7 @@ $date_of_birth_year = date('Y', $vars['person']['date_of_birth']);
     					</select> <select name="date_of_birth_day" id="date_of_birth_day"
     	style="width: auto">
     	<option value="-">-</option>
-    					<?
+    					<?php
         for ($day = 1; $day <= 31; $day ++) {
           $sel = $day == $date_of_birth_day && $vars['person']['date_of_birth'] != 0 ? ' SELECTED' : '';
           echo "<option value=\"$day\"$sel>$day</option>\n";
@@ -73,7 +73,7 @@ $date_of_birth_year = date('Y', $vars['person']['date_of_birth']);
     					</select> <select name="date_of_birth_year" id="date_of_birth_year"
     	style="width: auto">
     	<option value="-">-</option>
-    					<?
+    					<?php
         for ($year = 1940; $year <= 2008; $year ++) {
           $sel = $year == $date_of_birth_year && $vars['person']['date_of_birth'] != 0 ? ' SELECTED' : '';
           echo "<option value=\"$year\"$sel>$year</option>\n";
@@ -84,13 +84,13 @@ $date_of_birth_year = date('Y', $vars['person']['date_of_birth']);
     <div class="form_entry">
     <div class="form_label"><label for="political_views">political views</label></div>
     <input type="text" name="political_views" id="political_views"
-    	value="<?=isset($vars['person']['political_views']) ? $vars['person']['political_views'] : ''?>" />
+    	value="<?php echo isset($vars['person']['political_views']) ? $vars['person']['political_views'] : ''?>" />
     </div>
 
     <div class="form_entry">
     <div class="form_label"><label for="religion">religion</label></div>
     <input type="text" name="religion" id="religion"
-    	value="<?=isset($vars['person']['religion']) ? $vars['person']['religion'] : ''?>" />
+    	value="<?php echo isset($vars['person']['religion']) ? $vars['person']['religion'] : ''?>" />
     </div>
 
     <div class="form_entry">
@@ -98,8 +98,8 @@ $date_of_birth_year = date('Y', $vars['person']['date_of_birth']);
     <select name="children" id="children">
     	<option value="-">-</option>
     	<option value="none"
-    		<?=$vars['person']['children'] == 'none' ? ' SELECTED' : ''?>>none</option>
-    					<?
+    		<?php echo $vars['person']['children'] == 'none' ? ' SELECTED' : ''?>>none</option>
+    					<?php
         for ($children = 1; $children <= 4; $children ++) {
           $sel = $vars['person']['children'] == $children ? ' SELECTED' : '';
           echo "<option value=\"$children\"$sel>$children</option>\n";
@@ -113,21 +113,21 @@ $date_of_birth_year = date('Y', $vars['person']['date_of_birth']);
     <select name="drinker" id="drinker">
     	<option value="-">-</option>
     	<option value='HEAVILY'
-    		<?=$vars['person']['drinker'] == 'HEAVILY' ? ' SELECTED' : ''?>>Heavily</option>
+    		<?php echo $vars['person']['drinker'] == 'HEAVILY' ? ' SELECTED' : ''?>>Heavily</option>
     	<option value='NO'
-    		<?=$vars['person']['drinker'] == 'NO' ? ' SELECTED' : ''?>>No</option>
+    		<?php echo $vars['person']['drinker'] == 'NO' ? ' SELECTED' : ''?>>No</option>
     	<option value='OCCASIONALLY'
-    		<?=$vars['person']['drinker'] == 'OCCASIONALLY' ? ' SELECTED' : ''?>>Occasionally</option>
+    		<?php echo $vars['person']['drinker'] == 'OCCASIONALLY' ? ' SELECTED' : ''?>>Occasionally</option>
     	<option value='QUIT'
-    		<?=$vars['person']['drinker'] == 'QUIT' ? ' SELECTED' : ''?>>Quit</option>
+    		<?php echo $vars['person']['drinker'] == 'QUIT' ? ' SELECTED' : ''?>>Quit</option>
     	<option value='QUITTING'
-    		<?=$vars['person']['drinker'] == 'QUITTING' ? ' SELECTED' : ''?>>Quitting</option>
+    		<?php echo $vars['person']['drinker'] == 'QUITTING' ? ' SELECTED' : ''?>>Quitting</option>
     	<option value='REGULARLY'
-    		<?=$vars['person']['drinker'] == 'REGULARLY' ? ' SELECTED' : ''?>>Regularly</option>
+    		<?php echo $vars['person']['drinker'] == 'REGULARLY' ? ' SELECTED' : ''?>>Regularly</option>
     	<option value='SOCIALLY'
-    		<?=$vars['person']['drinker'] == 'SOCIALLY' ? ' SELECTED' : ''?>>Socially</option>
+    		<?php echo $vars['person']['drinker'] == 'SOCIALLY' ? ' SELECTED' : ''?>>Socially</option>
     	<option value='YES'
-    		<?=$vars['person']['drinker'] == 'YES' ? ' SELECTED' : ''?>>Yes</option>
+    		<?php echo $vars['person']['drinker'] == 'YES' ? ' SELECTED' : ''?>>Yes</option>
     </select></div>
 
     <div class="form_entry">
@@ -135,21 +135,21 @@ $date_of_birth_year = date('Y', $vars['person']['date_of_birth']);
     <select name="smoker" id="smoker">
     	<option value="-">-</option>
     	<option value='HEAVILY'
-    		<?=$vars['person']['smoker'] == 'HEAVILY' ? ' SELECTED' : ''?>>Heavily</option>
+    		<?php echo $vars['person']['smoker'] == 'HEAVILY' ? ' SELECTED' : ''?>>Heavily</option>
     	<option value='NO'
-    		<?=$vars['person']['smoker'] == 'NO' ? ' SELECTED' : ''?>>No</option>
+    		<?php echo $vars['person']['smoker'] == 'NO' ? ' SELECTED' : ''?>>No</option>
     	<option value='OCCASIONALLY'
-    		<?=$vars['person']['smoker'] == 'OCCASIONALLY' ? ' SELECTED' : ''?>>Ocasionally</option>
+    		<?php echo $vars['person']['smoker'] == 'OCCASIONALLY' ? ' SELECTED' : ''?>>Ocasionally</option>
     	<option value='QUIT'
-    		<?=$vars['person']['smoker'] == 'QUIT' ? ' SELECTED' : ''?>>Quit</option>
+    		<?php echo $vars['person']['smoker'] == 'QUIT' ? ' SELECTED' : ''?>>Quit</option>
     	<option value='QUITTING'
-    		<?=$vars['person']['smoker'] == 'QUITTING' ? ' SELECTED' : ''?>>Quitting</option>
+    		<?php echo $vars['person']['smoker'] == 'QUITTING' ? ' SELECTED' : ''?>>Quitting</option>
     	<option value='REGULARLY'
-    		<?=$vars['person']['smoker'] == 'REGULARLY' ? ' SELECTED' : ''?>>Regularly</option>
+    		<?php echo $vars['person']['smoker'] == 'REGULARLY' ? ' SELECTED' : ''?>>Regularly</option>
     	<option value='SOCIALLY'
-    		<?=$vars['person']['smoker'] == 'SOCIALLY' ? ' SELECTED' : ''?>>Socially</option>
+    		<?php echo $vars['person']['smoker'] == 'SOCIALLY' ? ' SELECTED' : ''?>>Socially</option>
     	<option value='YES'
-    		<?=$vars['person']['smoker'] == 'YES' ? ' SELECTED' : ''?>>Yes</option>
+    		<?php echo $vars['person']['smoker'] == 'YES' ? ' SELECTED' : ''?>>Yes</option>
     </select></div>
 
     <div class="form_entry">
@@ -157,31 +157,31 @@ $date_of_birth_year = date('Y', $vars['person']['date_of_birth']);
     <select id="ethnicity" name="ethnicity">
     	<option value="-">-</option>
     	<option value="african american (black)"
-    		<?=$vars['person']['ethnicity'] == 'african american (black)' ? ' SELECTED' : ''?>>african
+    		<?php echo $vars['person']['ethnicity'] == 'african american (black)' ? ' SELECTED' : ''?>>african
     	american (black)</option>
     	<option value="asian"
-    		<?=$vars['person']['ethnicity'] == 'asian' ? ' SELECTED' : ''?>>asian</option>
+    		<?php echo $vars['person']['ethnicity'] == 'asian' ? ' SELECTED' : ''?>>asian</option>
     	<option value="caucasian (white)"
-    		<?=$vars['person']['ethnicity'] == 'caucasian (white)' ? ' SELECTED' : ''?>>caucasian
+    		<?php echo $vars['person']['ethnicity'] == 'caucasian (white)' ? ' SELECTED' : ''?>>caucasian
     	(white)</option>
     	<option value="east indian"
-    		<?=$vars['person']['ethnicity'] == 'east indian' ? ' SELECTED' : ''?>>east
+    		<?php echo $vars['person']['ethnicity'] == 'east indian' ? ' SELECTED' : ''?>>east
     	indian</option>
     	<option value="hispanic/latino"
-    		<?=$vars['person']['ethnicity'] == 'hispanic/latino' ? ' SELECTED' : ''?>>hispanic/latino</option>
+    		<?php echo $vars['person']['ethnicity'] == 'hispanic/latino' ? ' SELECTED' : ''?>>hispanic/latino</option>
     	<option value="middle eastern"
-    		<?=$vars['person']['ethnicity'] == 'middle eastern' ? ' SELECTED' : ''?>>middle
+    		<?php echo $vars['person']['ethnicity'] == 'middle eastern' ? ' SELECTED' : ''?>>middle
     	eastern</option>
     	<option value="native american"
-    		<?=$vars['person']['ethnicity'] == 'native american' ? ' SELECTED' : ''?>>native
+    		<?php echo $vars['person']['ethnicity'] == 'native american' ? ' SELECTED' : ''?>>native
     	american</option>
     	<option value="pacific islander"
-    		<?=$vars['person']['ethnicity'] == 'pacific islander' ? ' SELECTED' : ''?>>pacific
+    		<?php echo $vars['person']['ethnicity'] == 'pacific islander' ? ' SELECTED' : ''?>>pacific
     	islander</option>
     	<option value="multi-ethnic"
-    		<?=$vars['person']['ethnicity'] == 'multi-ethnic' ? ' SELECTED' : ''?>>multi-ethnic</option>
+    		<?php echo $vars['person']['ethnicity'] == 'multi-ethnic' ? ' SELECTED' : ''?>>multi-ethnic</option>
     	<option value="other"
-    		<?=$vars['person']['ethnicity'] == 'other' ? ' SELECTED' : ''?>>other</option>
+    		<?php echo $vars['person']['ethnicity'] == 'other' ? ' SELECTED' : ''?>>other</option>
     </select></div>
   </div>
 
@@ -197,19 +197,19 @@ $date_of_birth_year = date('Y', $vars['person']['date_of_birth']);
     <select name="relationship_status" id="relationship_status">
     	<option value="-">-</option>
     	<option value="Single"
-    		<?=$vars['person']['relationship_status'] == 'Single' ? ' SELECTED' : ''?>>Single</option>
+    		<?php echo $vars['person']['relationship_status'] == 'Single' ? ' SELECTED' : ''?>>Single</option>
     	<option value="In a relationship"
-    		<?=$vars['person']['relationship_status'] == 'In a relationship' ? ' SELECTED' : ''?>>In
+    		<?php echo $vars['person']['relationship_status'] == 'In a relationship' ? ' SELECTED' : ''?>>In
     	a relationship</option>
     	<option value="Engaged"
-    		<?=$vars['person']['relationship_status'] == 'Engaged' ? ' SELECTED' : ''?>>Engaged</option>
+    		<?php echo $vars['person']['relationship_status'] == 'Engaged' ? ' SELECTED' : ''?>>Engaged</option>
     	<option value="Married"
-    		<?=$vars['person']['relationship_status'] == 'Married' ? ' SELECTED' : ''?>>Married</option>
+    		<?php echo $vars['person']['relationship_status'] == 'Married' ? ' SELECTED' : ''?>>Married</option>
     	<option value="It's complicated"
-    		<?=$vars['person']['relationship_status'] == 'It\'s complicated' ? ' SELECTED' : ''?>>It's
+    		<?php echo $vars['person']['relationship_status'] == 'It\'s complicated' ? ' SELECTED' : ''?>>It's
     	complicated</option>
     	<option value="In an open relationship"
-    		<?=$vars['person']['relationship_status'] == 'In an open relationship' ? ' SELECTED' : ''?>>In
+    		<?php echo $vars['person']['relationship_status'] == 'In an open relationship' ? ' SELECTED' : ''?>>In
     	an open relationship</option>
     </select></div>
     <div class="form_entry">
@@ -217,15 +217,15 @@ $date_of_birth_year = date('Y', $vars['person']['date_of_birth']);
     <select name="looking_for" id="looking_for">
     	<option value="-">-</option>
     	<option value="Dating"
-    		<?=$vars['person']['looking_for'] == 'Dating' ? ' SELECTED' : ''?>>Dating</option>
+    		<?php echo $vars['person']['looking_for'] == 'Dating' ? ' SELECTED' : ''?>>Dating</option>
     	<option value="Friends"
-    		<?=$vars['person']['looking_for'] == 'Friends' ? ' SELECTED' : ''?>>Friends</option>
+    		<?php echo $vars['person']['looking_for'] == 'Friends' ? ' SELECTED' : ''?>>Friends</option>
     	<option value="Relationship"
-    		<?=$vars['person']['looking_for'] == 'Relationship' ? ' SELECTED' : ''?>>Relationship</option>
+    		<?php echo $vars['person']['looking_for'] == 'Relationship' ? ' SELECTED' : ''?>>Relationship</option>
     	<option value="Networking"
-    		<?=$vars['person']['looking_for'] == 'Networking' ? ' SELECTED' : ''?>>Networking</option>
+    		<?php echo $vars['person']['looking_for'] == 'Networking' ? ' SELECTED' : ''?>>Networking</option>
     	<option value="Activity partners"
-    		<?=$vars['person']['looking_for'] == 'Activity partners' ? ' SELECTED' : ''?>>Activity
+    		<?php echo $vars['person']['looking_for'] == 'Activity partners' ? ' SELECTED' : ''?>>Activity
     	partners</option>
     </select></div>
     <div class="form_entry">
@@ -234,21 +234,21 @@ $date_of_birth_year = date('Y', $vars['person']['date_of_birth']);
     <select name="living_arrangement" id="living_arrangement">
     	<option value="-">-</option>
     	<option value="Alone"
-    		<?=$vars['person']['living_arrangement'] == 'Alone' ? ' SELECTED' : ''?>>Alone</option>
+    		<?php echo $vars['person']['living_arrangement'] == 'Alone' ? ' SELECTED' : ''?>>Alone</option>
     	<option value="With roommate(s)"
-    		<?=$vars['person']['living_arrangement'] == 'With roommate(s)' ? ' SELECTED' : ''?>>With
+    		<?php echo $vars['person']['living_arrangement'] == 'With roommate(s)' ? ' SELECTED' : ''?>>With
     	roommate(s)</option>
     	<option value="With partner"
-    		<?=$vars['person']['living_arrangement'] == 'With partner' ? ' SELECTED' : ''?>>With
+    		<?php echo $vars['person']['living_arrangement'] == 'With partner' ? ' SELECTED' : ''?>>With
     	partner</option>
     	<option value="With kid(s)"
-    		<?=$vars['person']['living_arrangement'] == 'With kid(s)' ? ' SELECTED' : ''?>>With
+    		<?php echo $vars['person']['living_arrangement'] == 'With kid(s)' ? ' SELECTED' : ''?>>With
     	kid(s)</option>
     	<option value="With pet(s)"
-    		<?=$vars['person']['living_arrangement'] == 'With pet(s)' ? ' SELECTED' : ''?>>With
+    		<?php echo $vars['person']['living_arrangement'] == 'With pet(s)' ? ' SELECTED' : ''?>>With
     	pet(s)</option>
     	<option value="With parent(s)"
-    		<?=$vars['person']['living_arrangement'] == 'With parent(s)' ? ' SELECTED' : ''?>>With
+    		<?php echo $vars['person']['living_arrangement'] == 'With parent(s)' ? ' SELECTED' : ''?>>With
     	parent(s)</option>
     </select></div>
   </div>
@@ -256,31 +256,31 @@ $date_of_birth_year = date('Y', $vars['person']['date_of_birth']);
   <div id="personal">
     <div class="form_entry">
     <div class="form_label"><label for="about_me">about me</label></div>
-    <textarea name="about_me" id="about_me"><?=isset($vars['person']['about_me']) ? $vars['person']['about_me'] : ''?></textarea>
+    <textarea name="about_me" id="about_me"><?php echo isset($vars['person']['about_me']) ? $vars['person']['about_me'] : ''?></textarea>
     </div>
     <div class="form_entry">
     <div class="form_label"><label for="fashion">fashion</label></div>
-    <textarea name="fashion" id="fashion"><?=isset($vars['person']['fashion']) ? $vars['person']['fashion'] : ''?></textarea>
+    <textarea name="fashion" id="fashion"><?php echo isset($vars['person']['fashion']) ? $vars['person']['fashion'] : ''?></textarea>
     </div>
     <div class="form_entry">
     <div class="form_label"><label for="happiest_when">happiest when</label></div>
-    <textarea name="happiest_when" id="happiest_when"><?=isset($vars['person']['happiest_when']) ? $vars['person']['happiest_when'] : ''?></textarea>
+    <textarea name="happiest_when" id="happiest_when"><?php echo isset($vars['person']['happiest_when']) ? $vars['person']['happiest_when'] : ''?></textarea>
     </div>
     <div class="form_entry">
     <div class="form_label"><label for="humor">humor</label></div>
-    <textarea name="humor" id="humor"><?=isset($vars['person']['humor']) ? $vars['person']['humor'] : ''?></textarea>
+    <textarea name="humor" id="humor"><?php echo isset($vars['person']['humor']) ? $vars['person']['humor'] : ''?></textarea>
     </div>
     <div class="form_entry">
     <div class="form_label"><label for="job_interests">job interests</label></div>
-    <textarea name="job_interests" id="job_interests"><?=isset($vars['person']['job_interests']) ? $vars['person']['job_interests'] : ''?></textarea>
+    <textarea name="job_interests" id="job_interests"><?php echo isset($vars['person']['job_interests']) ? $vars['person']['job_interests'] : ''?></textarea>
     </div>
     <div class="form_entry">
     <div class="form_label"><label for="pets">pets</label></div>
-    <textarea name="pets" id="pets"><?=isset($vars['person']['pets']) ? $vars['person']['pets'] : ''?></textarea>
+    <textarea name="pets" id="pets"><?php echo isset($vars['person']['pets']) ? $vars['person']['pets'] : ''?></textarea>
     </div>
     <div class="form_entry">
     <div class="form_label"><label for="scared_of">scared of</label></div>
-    <textarea name="scared_of" id="scared_of"><?=isset($vars['person']['scared_of']) ? $vars['person']['scared_of'] : ''?></textarea>
+    <textarea name="scared_of" id="scared_of"><?php echo isset($vars['person']['scared_of']) ? $vars['person']['scared_of'] : ''?></textarea>
     </div>
   </div>
 
@@ -295,7 +295,7 @@ $date_of_birth_year = date('Y', $vars['person']['date_of_birth']);
     <div class="friend" style="margin-right: 12px">
     <div class="thumb">
     <center><img
-    	src="<?=Image::by_size(PartuzaConfig::get('site_root') . (! empty($vars['person']['thumbnail_url']) ? $vars['person']['thumbnail_url'] : '/images/people/nophoto.gif'), 64, 64)?>" /></center>
+    	src="<?php echo Image::by_size(PartuzaConfig::get('site_root') . (! empty($vars['person']['thumbnail_url']) ? $vars['person']['thumbnail_url'] : '/images/people/nophoto.gif'), 64, 64)?>" /></center>
     </div>
     <p class="uname">Current profile photo</p>
     </div>
@@ -320,12 +320,12 @@ $date_of_birth_year = date('Y', $vars['person']['date_of_birth']);
     <div class="form_entry">
     <div class="form_label"><label for="oauth_consumer_key">oauth consumer
     key</label></div>
-    					<?=$vars['oauth']['consumer_key']?>
+    					<?php echo $vars['oauth']['consumer_key']?>
     				</div>
     <div class="form_entry">
     <div class="form_label"><label for="oauth_consumer_secret">oauth
     consumer secret</label></div>
-    					<?=$vars['oauth']['consumer_secret']?>
+    					<?php echo $vars['oauth']['consumer_secret']?>
     				</div>
   </div>
   <br />
@@ -339,6 +339,6 @@ $(document).ready(function() {
 });
 </script>
 <div style="clear: both"></div>
-<?
+<?php
 $this->template('/common/footer.php');
 ?>

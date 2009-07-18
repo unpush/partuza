@@ -9,11 +9,11 @@ $this->template('profile/profile_info.php', $vars);
 <div id="profileContentWide">
 <div class="gadgets-gadget-chrome" style="width: 790px">
 <div class="gadgets-gadget-title-bar">
-			Application Settings for <?=! empty($vars['application']['directory_title']) ? $vars['application']['directory_title'] : $vars['application']['title']?>
+			Application Settings for <?php echo ! empty($vars['application']['directory_title']) ? $vars['application']['directory_title'] : $vars['application']['title']?>
 		</div>
 <div style="padding: 12px">
 <form method="post">
-<?
+<?php
   if (! empty($vars['application']['settings'])) {
     $settings = unserialize($vars['application']['settings']);
     foreach ($settings as $key => $setting) {

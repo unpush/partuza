@@ -54,8 +54,8 @@ if (! empty($vars['gadget']['error'])) {
 
   // Create some chrome, this includes a header with a title, various button for varios actions, and the actual iframe
 
-  ?><div class="gadgets-gadget-chrome" style="width:<?=$width?>px">
-<div id="gadgets-gadget-title-bar-<?=$gadget['mod_id']?>" class="gadgets-gadget-title-bar">
+  ?><div class="gadgets-gadget-chrome" style="width:<?php echo $width?>px">
+<div id="gadgets-gadget-title-bar-<?php echo $gadget['mod_id']?>" class="gadgets-gadget-title-bar">
 <?php
   if ($view != 'canvas' && $view != 'preview') {
     ?><div class="gadgets-gadget-title-button-bar"><a
@@ -71,7 +71,7 @@ if (! empty($vars['gadget']['error'])) {
     if (isset($_SESSION['id']) && $_SESSION['id'] == $vars['person']['id']) {
       if (is_object(unserialize($gadget['settings']))) {
         ?><div class="gadgets-gadget-title-button-bar"><a
-	href="<?=PartuzaConfig::get('web_prefix');?>/profile/appsettings/<?=$gadget['id']?>/<?=$gadget['mod_id']?>"
+	href="<?php echo PartuzaConfig::get('web_prefix');?>/profile/appsettings/<?php echo $gadget['id']?>/<?php echo $gadget['mod_id']?>"
 	class="gadgets-gadget-title-button"><span
 	class="ui-icon ui-icon-wrench" /></a></div><?php
       }
@@ -80,7 +80,7 @@ if (! empty($vars['gadget']['error'])) {
       ?><div class="gadgets-gadget-title-button-bar"><a
 	href="<?php
       echo PartuzaConfig::get('web_prefix');
-      ?>/profile/addapp?appUrl=<?=urlencode($gadget['url'])?>"
+      ?>/profile/addapp?appUrl=<?php echo urlencode($gadget['url'])?>"
 	title="Add application to your profile"><span
 	class="ui-icon ui-icon-plus" /></span></a></div><?php
     }
@@ -88,16 +88,16 @@ if (! empty($vars['gadget']['error'])) {
 
   // Create the actual gadget element, the name and id are used by the javascript in partuza/html/js/container.js to perform the various RPC functions (set_title, set_width, set_pref and navigation)
 
-  ?><span id="remote_iframe_<?=$gadget['mod_id']?>_title" class="gadgets-gadget-title"><?=$title?></span></div>
+  ?><span id="remote_iframe_<?php echo $gadget['mod_id']?>_title" class="gadgets-gadget-title"><?php echo $title?></span></div>
 	<div class="gadgets-gadget-content">
 		<iframe
-			width="<?=($width - 6)?>"
-        	scrolling="<?=$gadget['scrolling'] || $gadget['scrolling'] == 'true' ? 'yes' : 'no'?>"
-        	height="<?=! empty($gadget['height']) ? $gadget['height'] : '200'?>"
-        	frameborder="no" src="<?=$iframe_url?>"
+			width="<?php echo ($width - 6)?>"
+        	scrolling="<?php echo $gadget['scrolling'] || $gadget['scrolling'] == 'true' ? 'yes' : 'no'?>"
+        	height="<?php echo ! empty($gadget['height']) ? $gadget['height'] : '200'?>"
+        	frameborder="no" src="<?php echo $iframe_url?>"
         	class="gadgets-gadget"
-        	name="remote_iframe_<?=$gadget['mod_id']?>"
-        	id="remote_iframe_<?=$gadget['mod_id']?>"></iframe>
+        	name="remote_iframe_<?php echo $gadget['mod_id']?>"
+        	id="remote_iframe_<?php echo $gadget['mod_id']?>"></iframe>
     </div>
 </div>
 <?php

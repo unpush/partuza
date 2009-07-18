@@ -3,17 +3,17 @@
 <head>
 <title>Partuza</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link href="<?=PartuzaConfig::get('web_prefix')?>/css/container.css?v=5" rel="stylesheet" type="text/css">
-<link type="text/css" href="<?=PartuzaConfig::get('web_prefix')?>/css/jquery.css?v=5" rel="Stylesheet" />
-<script type="text/javascript" src="<?=PartuzaConfig::get('gadget_server')?>/gadgets/js/rpc.js?c=1"></script>
+<link href="<?php echo PartuzaConfig::get('web_prefix')?>/css/container.css?v=5" rel="stylesheet" type="text/css">
+<link type="text/css" href="<?php echo PartuzaConfig::get('web_prefix')?>/css/jquery.css?v=5" rel="Stylesheet" />
+<script type="text/javascript" src="<?php echo PartuzaConfig::get('gadget_server')?>/gadgets/js/rpc.js?c=1"></script>
+<script type="text/javascript" src="<?php echo PartuzaConfig::get('gadget_server')?>/gadgets/files/container/osapi.js"></script>
 <!--  the below was concated and compressed with yuicompressor using: java -jar {$path}/yuicompressor-2.3.5.jar -o {$file}-min.js {$file}.js -->
-<!--  script type="text/javascript" src="<?=PartuzaConfig::get('web_prefix')?>/js/jquery-1.3.js"></script>
-<script type="text/javascript" src="<?=PartuzaConfig::get('web_prefix')?>/js/jquery.ui.all.js"></script>
-<script type="text/javascript" src="<?=PartuzaConfig::get('web_prefix')?>/js/jquery.class.js"></script>
-<script type="text/javascript" src="<?=PartuzaConfig::get('web_prefix')?>/js/jquery.json-1.3.js"></script -->
-<script type="text/javascript" src="<?=PartuzaConfig::get('web_prefix')?>/js/jquery.all.js"></script>
-<script type="text/javascript" src="<?=PartuzaConfig::get('web_prefix')?>/js/container.js"></script>
-<script type="text/javascript" src="<?=PartuzaConfig::get('gadget_server')?>/gadgets/files/container/osapi.js"></script>
+<!--  script type="text/javascript" src="<?php echo PartuzaConfig::get('web_prefix')?>/js/jquery-1.3.js"></script>
+<script type="text/javascript" src="<?php echo PartuzaConfig::get('web_prefix')?>/js/jquery.ui.all.js"></script>
+<script type="text/javascript" src="<?php echo PartuzaConfig::get('web_prefix')?>/js/jquery.class.js"></script>
+<script type="text/javascript" src="<?php echo PartuzaConfig::get('web_prefix')?>/js/jquery.json-1.3.js"></script -->
+<script type="text/javascript" src="<?php echo PartuzaConfig::get('web_prefix')?>/js/jquery.all.js"></script>
+<script type="text/javascript" src="<?php echo PartuzaConfig::get('web_prefix')?>/js/container.js"></script>
 <link rel="openid2.provider openid.server" href="http://<?php echo $_SERVER['HTTP_HOST'];?>/openid/auth">
 <?php if($this instanceof profileController) { ?>
 <meta http-equiv="X-XRDS-Location" content="http://<?php echo $_SERVER['HTTP_HOST'];?>/openidxrds" />
@@ -27,16 +27,15 @@
 if (isset($_SESSION['username'])) {
 ?>
 	<div id="searchDiv">
-<form method="get" action="<?=PartuzaConfig::get('web_prefix')?>/search">|
+<form method="get" action="<?php echo PartuzaConfig::get('web_prefix')?>/search">|
 <label for="search_q">search</label> <input type="text" id="search_q"
 	name="q"> <input class="button" type="submit" value="Go" /></form>
 </div>
 <?php
 }
 ?>
-	<div id="userMenuDiv"
-	<?=! isset($_SESSION['username']) ? ' style="margin-right:12px"' : ''?>>
-		<?
+	<div id="userMenuDiv"<?php echo ! isset($_SESSION['username'])? ' style="margin-right:12px"' : '' ?>>
+		<?php
   if (isset($_SESSION['username'])) {
     echo "<a href=\"" . PartuzaConfig::get('web_prefix') . "/home\">home</a> | <a href=\"" . PartuzaConfig::get('web_prefix') . "/profile/{$_SESSION['id']}\">profile</a> | <a href=\"" . PartuzaConfig::get('web_prefix') . "/logout\">logout</a>&nbsp;";
   } else {
@@ -57,7 +56,5 @@ if (isset($_SESSION['username'])) {
   }
   ?>
 	</div>
-<span id="headerLogo"> <a
-	href="<?php
-echo PartuzaConfig::get("web_prefix")?>/home">Partuza</a> </span></div>
+<span id="headerLogo"> <a	href="<?php echo PartuzaConfig::get("web_prefix")?>/home">Partuza</a> </span></div>
 <div id="contentDiv">

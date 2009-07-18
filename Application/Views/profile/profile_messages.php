@@ -22,7 +22,7 @@ $this->template('profile/profile_info.php', $vars);
 
 </div>
 <div style="clear: both"></div>
-<script type="text/javascript" src="<?=PartuzaConfig::get('web_prefix')?>/js/messages.js"></script>
+<script type="text/javascript" src="<?php echo PartuzaConfig::get('web_prefix')?>/js/messages.js"></script>
 <?php
 $this->template('/common/footer.php');
 ?>

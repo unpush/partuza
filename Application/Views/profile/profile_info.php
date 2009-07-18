@@ -5,7 +5,7 @@ if (! file_exists($thumb)) {
   $thumb = PartuzaConfig::get('site_root') . '/images/people/nophoto.gif';
 }
 $thumb = Image::by_size($thumb, 129, 225);
-?><a href="<?=PartuzaConfig::get('web_prefix')?>/profile/<?=$vars['person']['id']?>" rel="me"><img src="<?=$thumb?>" /></a><br />
+?><a href="<?php echo PartuzaConfig::get('web_prefix')?>/profile/<?php echo $vars['person']['id']?>" rel="me"><img src="<?php echo $thumb?>" /></a><br />
 </div>
 <div class="header" style="padding-left:12px">
 <?php
@@ -22,21 +22,21 @@ echo $vars['person']['first_name'] . " " . $vars['person']['last_name'];
 if ($vars['is_owner']) {
   echo "<li><a href=\"" . PartuzaConfig::get("web_prefix") . "/profile/messages\">Messages</a></li>\n";
 } elseif (! isset($vars['is_friend']) || ! $vars['is_friend']) {
-?><li><a href="<?=PartuzaConfig::get('web_prefix');?>/home/addfriend/<?=$vars['person']['id']?>">Add <?=$vars['person']['first_name']?> as friend</a></li>
+?><li><a href="<?php echo PartuzaConfig::get('web_prefix');?>/home/addfriend/<?php echo $vars['person']['id']?>">Add <?php echo $vars['person']['first_name']?> as friend</a></li>
 <?php
 }
 if (!$vars['is_owner']) {
 ?>
 
 <!--  TODO: hook this up properly:
-<li><a href="<?php echo PartuzaConfig::get("web_prefix")?>/profile/messages/compose?to=<?=$vars['person']['id']?>">Send a message</a></li>
+<li><a href="<?php echo PartuzaConfig::get("web_prefix")?>/profile/messages/compose?to=<?php echo $vars['person']['id']?>">Send a message</a></li>
 -->
 
 <?php
 }
 ?>
-<li><a href="<?php echo PartuzaConfig::get("web_prefix")?>/profile/photos/<?=$vars['person']['id']?>">Photos</a></li>
-<li><a href="<?php echo PartuzaConfig::get("web_prefix")?>/profile/friends/<?=$vars['person']['id']?>"><?=$vars['is_owner'] ? 'Your' : $vars['person']['first_name'] . "'s"?> friends</a></li>
+<li><a href="<?php echo PartuzaConfig::get("web_prefix")?>/profile/photos/<?php echo $vars['person']['id']?>">Photos</a></li>
+<li><a href="<?php echo PartuzaConfig::get("web_prefix")?>/profile/friends/<?php echo $vars['person']['id']?>"><?php echo $vars['is_owner'] ? 'Your' : $vars['person']['first_name'] . "'s"?> friends</a></li>
 <?php
 if (!$vars['is_owner'] && isset($vars['is_friend']) && $vars['is_friend']) {
 ?><li><a href="#" id="removeButton">Remove from friends</a></li>
@@ -55,7 +55,7 @@ $('#removeButton').bind('click', function() {
 		buttons: {
 			'Remove': function() {
 				$(this).dialog('destroy');
-				window.location = '<?=PartuzaConfig::get('web_prefix');?>/home/removefriend/<?=$vars['person']['id']?>';
+				window.location = '<?php echo PartuzaConfig::get('web_prefix');?>/home/removefriend/<?php echo $vars['person']['id']?>';
 			},
 			'No': function() {
 				$(this).dialog('destroy');
@@ -65,7 +65,7 @@ $('#removeButton').bind('click', function() {
 });
 </script>
 <div id="dialog" title="Remove from your friend list?" style="display:none">
-	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Are you sure you want to remove <?=$vars['person']['first_name'].' '.$vars['person']['last_name']?> from your friend list?</p>
+	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Are you sure you want to remove <?php echo $vars['person']['first_name'].' '.$vars['person']['last_name']?> from your friend list?</p>
 </div>
 <?php
 }

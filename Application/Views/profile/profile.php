@@ -20,7 +20,7 @@ if (! empty($_SESSION['message'])) {
 
 ?>
 <!--  <div class="gadgets-gadget-title-button-bar"><a href="<?php echo PartuzaConfig::get("web_prefix")?>/profile/activities/<?php echo $vars['person']['id']?>" title="View all.."><span class="ui-icon ui-icon ui-icon-carat-1-e"></span></div>  -->
-<div class="gadgets-gadget-title-bar"><span class="gadgets-gadget-title"><?=$vars['person']['first_name']?>'s activities</span></div>
+<div class="gadgets-gadget-title-bar"><span class="gadgets-gadget-title"><?php echo $vars['person']['first_name']?>'s activities</span></div>
 <?php
   $this->template('profile/profile_activities.php', $vars);
 ?>

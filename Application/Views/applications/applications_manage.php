@@ -1,28 +1,28 @@
-<?
+<?php
 $this->template('/common/header.php');
 ?>
 
 <div id="profileInfo" class="blue">
-	<?
+	<?php
 $this->template('profile/profile_info.php', $vars);
 ?>
 </div>
 
 <div id="profileContentWide">
 <p><b>Manage Applications</b></p>
-<a href="<?=PartuzaConfig::get('web_prefix');?>/profile/appgallery">Browse
+<a href="<?php echo PartuzaConfig::get('web_prefix');?>/profile/appgallery">Browse
 the application directory >></a> <br />
 <br />
 
 Or add an application by url:<br />
 <form method="get"
-	action="<?=PartuzaConfig::get('web_prefix');?>/profile/addapp"><input
+	action="<?php echo PartuzaConfig::get('web_prefix');?>/profile/addapp"><input
 	type="text" name="appUrl" size="35" /> <input class="submit"
 	type="submit" value="Add Application" /></form>
 <hr>
 <b>Your Applications:</b><br />
 <br />
-		<?
+		<?php
   if (! count($vars['applications'])) {
     echo "You have not yet added any applications to your profile";
   } else {
@@ -62,6 +62,6 @@ Or add an application by url:<br />
 
 <div style="clear: both"></div>
 
-<?
+<?php
 $this->template('/common/footer.php');
 ?>

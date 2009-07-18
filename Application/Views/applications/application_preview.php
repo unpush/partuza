@@ -21,7 +21,7 @@ $this->template('/gadget/gadget.php', array('width' => $width, 'gadget' => $gadg
 ?>
 </div>
 <div id="profileRight" class="gadgets-gadget-chrome">
-<div class="gadgets-gadget-title-bar"><span class="gadgets-gadget-title"><?=! empty($gadget['directory_title']) ? $gadget['directory_title'] : (isset($gadget['title']) ? $gadget['title'] : '')?></span></div>
+<div class="gadgets-gadget-title-bar"><span class="gadgets-gadget-title"><?php echo ! empty($gadget['directory_title']) ? $gadget['directory_title'] : (isset($gadget['title']) ? $gadget['title'] : '')?></span></div>
 <div>
 <?php
 echo "	<div class=\"preview_thumbnail\">";
@@ -35,14 +35,14 @@ if (! empty($gadget['thumbnail'])) {
 ?>
 	</div>
 <div class="preview_section">
-		<?=isset($gadget['description']) ? $gadget['description'] : ''?>
+		<?php echo isset($gadget['description']) ? $gadget['description'] : ''?>
 	</div>
 <?php
 if (isset($gadget['url'])) {
   ?>
 <div class="preview_section"><br />
 <div class="preview_add"><a
-	href="<?=PartuzaConfig::get('web_prefix');?>/profile/addapp?appUrl=<?=urlencode($gadget['url'])?>">Add
+	href="<?php echo PartuzaConfig::get('web_prefix');?>/profile/addapp?appUrl=<?php echo urlencode($gadget['url'])?>">Add
 to my profile</a></div>
 <br />
 <small>Note: By installing this application you will be allowing it to

@@ -1,9 +1,9 @@
-<?
+<?php
 $this->template('/common/header.php');
 ?>
 
 <div id="profileInfo" class="blue">
-	<?
+	<?php
 $this->template('profile/profile_info.php', $vars);
 ?>
 </div>
@@ -40,6 +40,6 @@ $this->template('profile/profile_info.php', $vars);
 
 <div style="clear: both"></div>
 
-<?
+<?php
 $this->template('/common/footer.php');
 ?>
