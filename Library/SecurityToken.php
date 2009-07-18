@@ -29,6 +29,8 @@ abstract class SecurityToken {
 
   static public function createFromValues($owner, $viewer, $app, $domain, $appUrl, $moduleId) {}
 
+  static public $ANONYMOUS = '-1';
+
   /**
    * Serializes the token into a string. This can be the exact same as
    * toString; using a different name here is only to force interface

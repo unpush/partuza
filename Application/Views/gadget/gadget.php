@@ -39,9 +39,9 @@ if (! empty($vars['gadget']['error'])) {
 
   // Create an encrypted security token, this is used by shindig to get the various gadget instance info like the viewer and owner
   $securityToken = BasicSecurityToken::createFromValues(
-    isset($vars['person']['id']) ? $vars['person']['id'] : '0', // owner
-    (isset($_SESSION['id']) ? $_SESSION['id'] : '0'),           // viewer
-    $gadget['id'],                                              // app id
+    isset($vars['person']['id']) ? $vars['person']['id'] : SecurityToken::$ANONYMOUS, // owner
+    isset($_SESSION['id']) ? $_SESSION['id'] : SecurityToken::$ANONYMOUS,             // viewer
+    $gadget['id'],                    // app id
     PartuzaConfig::get('container'),  // domain key, shindig will check for php/config/<domain>.php for container specific configuration
     urlencode($gadget['url']),        // app url
     $gadget['mod_id']                 // mod id

@@ -52,7 +52,7 @@ class BasicSecurityToken extends SecurityToken {
    * @throws BlobCrypterException 
    */
   static public function createFromToken($token, $maxAge) {
-    return new BasicSecurityToken($token, $maxAge, null, null, null, null, null, null);
+    return new BasicSecurityToken($token, $maxAge, SecurityToken::$ANONYMOUS, SecurityToken::$ANONYMOUS, null, null, null, null);
   }
 
   /**
@@ -91,7 +91,7 @@ class BasicSecurityToken extends SecurityToken {
   }
 
   public function isAnonymous() {
-    return ($this->tokenData[$this->OWNER_KEY] === 0 && $this->tokenData[$this->VIEWER_KEY] === 0);
+    return ($this->tokenData[$this->OWNER_KEY] === SecurityToken::$ANONYMOUS) && ($this->tokenData[$this->VIEWER_KEY] === SecurityToken::$ANONYMOUS);
   }
 
   /**
