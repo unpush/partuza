@@ -136,11 +136,12 @@ var Container = Class.extend({
 				var url = elm.attr('src');
 				url = url.replace('view=' + params.view, 'view=' + view);
 				if (opt_params) {
+					var params_str = encodeURIComponent($.toJSON(opt_params));
 					if (url.indexOf('view-params=') == -1) {
-						url += '&view-params=' + $.toJSON(opt_params);
+						url += '&view-params=' + params_str;
 					} else {
 						// Replace old view-params with opt_param and keep other params.
-						url = url.replace(/([?&])view-params=.*?(&|$)/, '$1' + $.toJSON(opt_params) + '$2')
+						url = url.replace(/([?&])view-params=.*?(&|$)/, '$1view-params=' + params_str + '$2')
 					}
 				}
 				iframe.attr('src', url);
