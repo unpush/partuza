@@ -20,7 +20,7 @@
 
 class homeController extends baseController {
 
-  public function index($params) {
+  public function index($params, $message = false) {
     if (isset($_SESSION['id'])) {
       $people = $this->model('people');
       $apps = $this->model('applications');
@@ -32,9 +32,9 @@ class homeController extends baseController {
       $friend_activities = $activities->get_friend_activities($_SESSION['id'], 10);
       //TODO add activities here and parse in template..
       $this->template('profile/home.php', array(
-          'activities' => $friend_activities, 'applications' => $applications, 
-          'person' => $person, 'friend_requests' => $friend_requests, 
-          'friends' => $friends, 'is_owner' => true));
+          'activities' => $friend_activities, 'applications' => $applications,
+          'person' => $person, 'friend_requests' => $friend_requests,
+          'friends' => $friends, 'is_owner' => true, 'error_message' => $message));
     } else {
       $this->template('home/home.php');
     }

@@ -304,7 +304,7 @@ class profileController extends baseController {
       // Using the home controller to display the error on the person's home page
       include_once PartuzaConfig::get('controllers_root') . "/home/home.php";
       $homeController = new homeController();
-      $message = "Could not add application: {$ret['error']}";
+      $message = "<b>Could not add application:</b><br/> {$ret['error']}";
       $homeController->index($params, $message);
     }
   }

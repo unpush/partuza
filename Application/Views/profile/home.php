@@ -10,6 +10,12 @@ $this->template('profile/profile_info.php', $vars);
 
 <div id="profileContent">
 <?php
+if ($vars['error_message']) {
+	echo "<div class=\"ui-state-error\" style=\"margin-bottom:20px;margin-top:10px;margin-right:14px;padding:20px;\">{$vars['error_message']}</div>";
+}
+?>
+
+<?php
 $this->template('profile/profile_friendrequests.php', $vars);
 ?>
 <div class="gadgets-gadget-chrome">
@@ -27,7 +33,7 @@ if (! empty($_SESSION['message'])) {
 foreach ($vars['applications'] as $gadget) {
   $width = 488;
   $view = 'home';
-  $this->template('/gadget/gadget.php', array('width' => $width, 'gadget' => $gadget, 
+  $this->template('/gadget/gadget.php', array('width' => $width, 'gadget' => $gadget,
       'person' => $vars['person'], 'view' => $view));
 }
 ?>
