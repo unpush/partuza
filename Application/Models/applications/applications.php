@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -98,13 +99,13 @@ class applicationsModel extends Model {
     return $ret;
   }
 
-  private function fetch_gadget_metadata($app_url) {
+  private function fetch_gadget_metadata($app_url, $securityToken) {
     $request = json_encode(array(
         'context' => array('country' => 'US', 'language' => 'en', 'view' => 'default',
             'container' => 'partuza'),
         'gadgets' => array(array('url' => $app_url, 'moduleId' => '1'))));
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, PartuzaConfig::get('gadget_server') . '/gadgets/metadata');
+    curl_setopt($ch, CURLOPT_URL, PartuzaConfig::get('gadget_server') . '/gadgets/metadata?st=' . urlencode(base64_encode($securityToken->toSerialForm())));
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_AUTOREFERER, 1);
@@ -113,6 +114,7 @@ class applicationsModel extends Model {
     curl_setopt($ch, CURLOPT_TIMEOUT, 20);
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, 'request=' . urlencode($request));
+
     $content = @curl_exec($ch);
     return json_decode($content);
   }
@@ -147,7 +149,9 @@ class applicationsModel extends Model {
       $info = $db->fetch_array($res, MYSQLI_ASSOC);
     } else {
       // Either we dont have a record of this module or its out of date, so we retrieve the app meta data.
-      $response = $this->fetch_gadget_metadata($app_url);
+      // Create a fake security token so that gadgets with signed preloading don't fail to load
+      $securityToken = BasicSecurityToken::createFromValues(1, 1, 0, PartuzaConfig::get('container'), urlencode($app_url), 0);
+      $response = $this->fetch_gadget_metadata($app_url, $securityToken);
       if (! is_object($response) && ! is_array($response)) {
         // invalid json object, something bad happened on the shindig metadata side.
         $error = 'An error occured while retrieving the gadget information';
