@@ -370,7 +370,7 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
     }
   }
 
-  public function createMediaItem($userId, $groupId, $mediaItem, $data, $token) {
+  public function createMediaItem($userId, $groupId, $mediaItem, $token) {
     if ($token->getOwnerId() != $token->getViewerId() || $token->getViewerId() != $userId->getUserId($token)) {
       throw new SocialSpiException("Create media item permission denied.", ResponseError::$UNAUTHORIZED);
     }
@@ -383,7 +383,7 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
     }
   }
 
-  public function updateMediaItem($userId, $groupId, $mediaItem, $data, $token) {
+  public function updateMediaItem($userId, $groupId, $mediaItem, $token) {
     if ($token->getOwnerId() != $token->getViewerId() || $token->getViewerId() != $userId->getUserId($token)) {
       throw new SocialSpiException("Update media item permission denied.", ResponseError::$UNAUTHORIZED);
     }
