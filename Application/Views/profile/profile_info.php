@@ -35,7 +35,7 @@ if (!$vars['is_owner']) {
 <?php
 }
 ?>
-<li><a href="<?php echo PartuzaConfig::get("web_prefix")?>/profile/photos">Photos</a></li>
+<li><a href="<?php echo PartuzaConfig::get("web_prefix")?>/profile/photos/<?php echo $vars['person']['id']?>">Photos</a></li>
 <li><a href="<?php echo PartuzaConfig::get("web_prefix")?>/profile/friends/<?php echo $vars['person']['id']?>"><?php echo $vars['is_owner'] ? 'Your' : $vars['person']['first_name'] . "'s"?> friends</a></li>
 <?php
 if (!$vars['is_owner'] && isset($vars['is_friend']) && $vars['is_friend']) {

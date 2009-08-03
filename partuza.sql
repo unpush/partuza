@@ -750,7 +750,6 @@ CREATE TABLE `persons` (
   `time_zone` int(11) DEFAULT NULL,
   `first_name` varchar(64) NOT NULL,
   `last_name` varchar(64) NOT NULL,
-  `uploaded_size` int(11) DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `nickname` (`nickname`),
   KEY `email` (`email`)
