@@ -249,4 +249,60 @@ class peopleModel extends Model {
     }
     return $ret;
   }
+  
+  public function get_person_fields($id, $fields) {
+    global $db;
+    $id = $db->addslashes($id);
+    $supported_fields = array('id','email','password','about_me','age','children','date_of_birth','drinker',
+      'ethnicity','fashion','gender','happiest_when','humor','job_interests','living_arrangement','looking_for',
+      'nickname','pets','political_views','profile_song','profile_url','profile_video','relationship_status',
+      'religion','romance','scared_of','sexual_orientation','smoker','status','thumbnail_url','time_zone',
+      'first_name','last_name','uploaded_size');
+    foreach ($fields as $val) {
+      if (in_array($val, $supported_fields)) {
+      	$fields_adds[] = "`" . $db->addslashes($val) . "`";
+      }
+    }
+    $res = $db->query("select " . implode(', ', $fields_adds) . " from persons where id = $id");
+    if (! $db->num_rows($res)) {
+      throw new Exception("Invalid person");
+    }
+    return $db->fetch_array($res, MYSQLI_ASSOC);
+  }
+  
+  public function set_person_fields($id, $fields) {
+    global $db;
+    $id = $db->addslashes($id);
+    $supported_fields = array('id','email','password','about_me','age','children','date_of_birth','drinker',
+      'ethnicity','fashion','gender','happiest_when','humor','job_interests','living_arrangement','looking_for',
+      'nickname','pets','political_views','profile_song','profile_url','profile_video','relationship_status',
+      'religion','romance','scared_of','sexual_orientation','smoker','status','thumbnail_url','time_zone',
+      'first_name','last_name','uploaded_size');
+    foreach ($fields as $key => $val) {
+      $updates[] = "`" . $db->addslashes($key) . "` = '" . $db->addslashes($val) . "'";
+    }
+    if (count($updates)) {
+      $query = "update persons set " . implode(', ', $updates) . " where id = $id";
+      $db->query($query);
+      return $id;
+    }
+  }
+
+  public function set_literal_person_fields($id, $fields) {
+    global $db;
+    $id = $db->addslashes($id);
+    $supported_fields = array('id','email','password','about_me','age','children','date_of_birth','drinker',
+      'ethnicity','fashion','gender','happiest_when','humor','job_interests','living_arrangement','looking_for',
+      'nickname','pets','political_views','profile_song','profile_url','profile_video','relationship_status',
+      'religion','romance','scared_of','sexual_orientation','smoker','status','thumbnail_url','time_zone',
+      'first_name','last_name','uploaded_size');
+    foreach ($fields as $key => $val) {
+      $updates[] = "`" . $db->addslashes($key) . "` = " . $val ;
+    }
+    if (count($updates)) {
+      $query = "update persons set " . implode(', ', $updates) . " where id = $id";
+      $db->query($query);
+      return $id;
+    }
+  }
 }

@@ -177,17 +177,213 @@ class profileController extends baseController {
     }
   }
 
-  public function photos($params) {
-    if (! isset($params[3]) || ! is_numeric($params[3])) {
-      header("Location: /");
-      die();
+  public function album_edit($album_id) {
+  	$album = $this->model('albums');
+    if (isset($album_id) && is_numeric($album_id)) {
+      $album = $album->get_album($_SESSION['id'], $album_id);
+  	}
+  	if (!is_array($album)) $album = array();
+    $this->template('/profile/profile_album_edit.php', array('album' => $album));
+  }
+
+  public function media_edit($media_id) {
+  	$media = $this->model('medias');
+  	if (isset($media_id) && is_numeric($media_id)) {
+      $media = $media->get_media($media_id);
+  	}
+  	$album = $this->model('albums');
+  	$albums = $album->get_album($_SESSION['id']);
+  	if (!is_array($media)) $media = array();
+    $this->template('/profile/profile_media_edit.php', array('media' => $media, 'albums' => $albums));
+  }
+
+  public function album_save() {
+  	$album = $this->model('albums');
+    if (count($_POST)) {
+      try {
+      	if(empty($_POST['album_id'])) {
+      	  $album->add_album($_POST['title'], $_POST['description'], $_POST['address'], $_SESSION['id'], null, $_POST['media_type'], $_POST['thumbnail_url'], 0);
+      	} else if(is_numeric($_POST['album_id'])) {
+          $album->update_album($_POST['album_id'], $_POST['title'], $_POST['description'], $_POST['address'], $_SESSION['id'], null, $_POST['media_type'], $_POST['thumbnail_url'], 0);
+        }
+        $message = 'Saved information';
+      } catch (DBException $e) {
+        $message = 'Error saving information (' . $e->getMessage() . ')';
+      }
     }
-    $people = $this->model('people');
-    $person = isset($_SESSION['id']) ? $people->get_person($params[3], true) : false;
-    $apps = $this->model('applications');
-    $applications = $apps->get_person_applications($params[3]);
-    $is_friend = isset($_SESSION['id']) ? ($_SESSION['id'] == $params[3] ? true : $people->is_friend($params[3], $_SESSION['id'])) : false;
-    $this->template('profile/profile_photos.php', array('is_friend' => $is_friend, 'applications' => $applications, 'person' => $person, 'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $params[3]) : false));
+  }
+
+  public function media_save() {
+  	$album_id = empty($_POST['album_id']) ? 0 : $_POST['album_id'];
+  	$app_id = empty($_POST['app_id']) ? 0 : $_POST['app_id'];
+  	$album_dir = 'albums/' . $album_id;
+  	$file_dir = PartuzaConfig::get('site_root') . '/' . $album_dir;
+  	if (!file_exists($file_dir)) {
+  	  if (!@mkdir($file_dir, 0775, true)) {
+  	    throw new Exception("Can't create the directory for the uploaded files");
+  	  }
+  	}
+  	$media = $this->model('medias');
+  	if (empty($_POST['media_id'])) {
+  	  $media_item = array(
+        'album_id' => $album_id,
+        'owner_id' => $_SESSION['id'],
+        'mime_type' => '',
+        'created' => time(),
+        'last_updated' => time(),
+        'title' => $_POST['title'],
+        'description' => $_POST['description'],
+        'type' => $_POST['type'],
+        'url' => '',
+        'app_id' => 0,
+      );
+      $media_update_id = $media->add_media($media_item);
+  	} else {
+  	  $media_item = array(
+        'album_id' => $album_id,
+        'last_updated' => time(),
+        'title' => $_POST['title'],
+        'description' => $_POST['description'],
+        'type' => $_POST['type'],
+        'app_id' => 0,
+      );  
+      $media_update_id = $media->update_media($_POST['media_id'], $media_item);
+  	}
+  	if (is_numeric($media_update_id) && isset($_POST['file_name']) && $_POST['file_size'] > 0) {
+  		$media_item = array();
+  		$tmp_file_name = ini_get('upload_tmp_dir').DIRECTORY_SEPARATOR.$_POST['file_name'];
+  		$ext = strtolower(substr($_POST['file_name'], strrpos($_POST['file_name'], '.')));
+  		$file_name = $album_dir . '/' . $media_update_id . $ext;
+  		$file_dir = PartuzaConfig::get('site_root') . '/' . $file_name;
+  		Image::convert($tmp_file_name, $file_dir);
+  		$media_item['url'] = PartuzaConfig::get('partuza_url') . $file_name;
+  		$media_item['thumbnail_url'] = PartuzaConfig::get('partuza_url') . $file_name;
+  		$media_item['file_size'] = intval($_POST['file_size']);
+  		$info = getimagesize($tmp_file_name);
+  		$media_item['mime_type'] = $info['mime'];
+  	  $media = $media->update_media($media_update_id, $media_item);
+  	  $people = $this->model('people');
+  	  $person = $people->set_literal_person_fields($_SESSION['id'], array('uploaded_size' => "uploaded_size + {$media_item['file_size']}"));
+  	}
+  }
+
+  public function album_gets($owner_id) {
+  	$start = 0;
+    $count = 20;
+    if (isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0) {
+      $start = ($_GET['page'] - 1) * 20;
+    }
+  	$album = $this->model('albums');
+  	$album = $album->get_album($owner_id, null, $start, $count);
+    $this->template('/profile/profile_albums_show.php' , array('albums' => $album));
+  }
+  
+  public function media_gets($owner_id, $album_id) {
+  	$start = 0;
+    $count = 20;
+    if (isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0) {
+      $start = ($_GET['page'] - 1) * 20;
+    }
+    $media = $this->model('medias');
+    $media = $media->gets_media($owner_id, $album_id, $start, $count);
+    $this->template('/profile/profile_medias_show.php' , array('medias' => $media));
+  }
+
+  public function media_get($media_id) {
+    $media = $this->model('medias');
+    $media = $media->get_media($media_id);
+  }
+  
+  public function album_delete($album_id) {
+  	$album = $this->model('albums');
+    $album = $album->delete_album($album_id);
+  }
+  
+  public function media_delete($media_id) {
+    $media = $this->model('medias');
+    $media = $media->delete_media($media_id);
+    $person->update_person();
+  }
+
+  public function media_upload() {
+  	$people = $this->model('people');
+  	$person = $people->get_person_fields($_SESSION['id'], array('uploaded_size'));
+
+  	if (isset($_FILES['userfile']) && !empty($_FILES['userfile']['name'])) {
+  		$file = $_FILES['userfile'];
+  		if (PartuzaConfig::get('upload_quota') - $person['uploaded_size'] < $file['size']) {
+  		  die("{error:true, error_msg:'file size be big'}");
+  		}
+  	  if (substr($file['type'], 0, strlen('image/')) == 'image/') {
+        $ext = strtolower(substr($file['name'], strrpos($file['name'], '.') + 1));
+        // it's a file extention that we accept too (not that means anything really)
+        $accepted = array('gif', 'jpg', 'jpeg', 'png');
+        if (in_array($ext, $accepted) && $file['size']) {
+        	$pos = strrpos($file['tmp_name'], DIRECTORY_SEPARATOR);
+        	$dir = substr($file['tmp_name'], 0, $pos);
+        	$file_name = $dir . DIRECTORY_SEPARATOR . $file['name'];
+          if (! move_uploaded_file($file['tmp_name'], $file_name)) {
+            die("{error : true, error_msg : 'file move failed.'}");
+          } else {
+            echo "{error: false, file_name: '{$file['name']}', file_size: '{$file['size']}', uploaded_size: '{$person['uploaded_size']}'}";
+          }
+        } else {
+          die ("{error : true, error_msg : 'file size error.'}");
+        }
+  	  } else {
+        die("{error : true, error_msg : 'file upload type error.'}");
+      }
+  	}	else {
+  	  die ("{error : true, error_msg : 'file upload failed.'}");
+  	}
+  }
+
+  public function photos($params) {
+    if (! isset($_SESSION['id'])) {
+      header("Location: /");
+    }
+    if (isset($params[3])) {
+      if (!isset($params[4])) {
+        $params[4] = null;
+      }
+      switch ($params[3]) {
+      	case 'album_edit' :
+      	  $this->album_edit($params[4]);
+      	  break;
+      	case 'media_edit' :
+      	  $this->media_edit($params[4]);
+      	  break;
+      	case 'album_save' :
+      	  $this->album_save();
+      	  break;
+      	case 'media_save' :
+      	  $this->media_save();
+      	  break;
+      	case 'album_list':
+      	  $this->album_gets($_SESSION['id']);
+      	  break;
+      	case 'media_list':
+      	  $this->media_gets($_SESSION['id'], $params[4]);
+      	  break;
+      	case 'media_get':
+      	  $this->media_get($params[4]);
+      	  break;
+      	case 'album_delete':
+      	  $this->album_delete($params[4]);
+      	case 'media_delete':
+      	  $this->media_delete($params[4]);
+      	  break;
+      	case 'media_upload':
+      	  $this->media_upload();
+      	  break;
+      }
+    } else {
+      $people = $this->model('people');
+      $apps = $this->model('applications');
+      $applications = $apps->get_person_applications($_SESSION['id']);
+      $person = $people->get_person($_SESSION['id'], true);
+      $this->template('profile/profile_photos.php', array('person' => $person, 'applications' => $applications, 'is_owner' => true));
+    }
   }
 
   public function edit($params) {
