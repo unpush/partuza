@@ -50,7 +50,8 @@ if (! empty($vars['gadget']['error'])) {
   parse_str(parse_url($gadget['url'], PHP_URL_QUERY), $gadget_url_params);
 
   // Create the actual iframe URL, this containers a slew of query params that shindig requires to render the gadget, and for the gadget to be able to make social requests
-  $iframe_url = PartuzaConfig::get('gadget_server') . '/gadgets/ifr?' . "synd=" . PartuzaConfig::get('container') . "&container=" . PartuzaConfig::get('container') . "&viewer=" . (isset($_SESSION['id']) ? $_SESSION['id'] : '0') . "&owner=" . (isset($vars['person']['id']) ? $vars['person']['id'] : '0') . "&aid=" . $gadget['id'] . "&mid=" . $gadget['mod_id'] . ((isset($_GET['nocache']) && $_GET['nocache'] == '1') || (isset($gadget_url_params['nocache']) && intval($gadget_url_params['nocache']) == 1) || isset($_GET['bpc']) && $_GET['bpc'] == '1' ? "&nocache=1" : '') . "&country=US" . "&lang=en" . "&view=" . $view . "&parent=" . urlencode("http://" . $_SERVER['HTTP_HOST']) . $prefs . (isset($_GET['appParams']) ? '&view-params=' . urlencode($_GET['appParams']) : '') . "&st=" . urlencode(base64_encode($securityToken->toSerialForm())) . "&v=" . $gadget['version'] . "&url=" . urlencode($gadget['url']) . "#rpctoken=" . rand(0, getrandmax());
+  $rpctoken = rand(0, getrandmax());
+  $iframe_url = PartuzaConfig::get('gadget_server') . '/gadgets/ifr?' . "synd=" . PartuzaConfig::get('container') . "&container=" . PartuzaConfig::get('container') . "&viewer=" . (isset($_SESSION['id']) ? $_SESSION['id'] : '0') . "&owner=" . (isset($vars['person']['id']) ? $vars['person']['id'] : '0') . "&aid=" . $gadget['id'] . "&mid=" . $gadget['mod_id'] . ((isset($_GET['nocache']) && $_GET['nocache'] == '1') || (isset($gadget_url_params['nocache']) && intval($gadget_url_params['nocache']) == 1) || isset($_GET['bpc']) && $_GET['bpc'] == '1' ? "&nocache=1" : '') . "&country=US" . "&lang=en" . "&view=" . $view . "&parent=" . urlencode("http://" . $_SERVER['HTTP_HOST']) . $prefs . (isset($_GET['appParams']) ? '&view-params=' . urlencode($_GET['appParams']) : '') . "&st=" . urlencode(base64_encode($securityToken->toSerialForm())) . "&v=" . $gadget['version'] . "&url=" . urlencode($gadget['url']) . "#rpctoken=" . $rpctoken;
 
   // Create some chrome, this includes a header with a title, various button for varios actions, and the actual iframe
 
@@ -98,6 +99,11 @@ if (! empty($vars['gadget']['error'])) {
         	class="gadgets-gadget"
         	name="remote_iframe_<?php echo $gadget['mod_id']?>"
         	id="remote_iframe_<?php echo $gadget['mod_id']?>"></iframe>
+
+        <script type="text/javascript">
+          gadgets.rpc.setRelayUrl("remote_iframe_<?php echo $gadget['mod_id']?>", "<?php echo $iframe_url?>");
+          gadgets.rpc.setAuthToken("remote_iframe_<?php echo $gadget['mod_id']?>", "<?php echo $rpctoken?>");
+        </script>
     </div>
 </div>
 <?php
