@@ -647,6 +647,10 @@ class PartuzaDbFetcher {
     return $this->createMediaItemInternal($userId, $appId, $mediaItem, 0);
   }
 
+  /**
+   * Updates the media item. Each media item should be associated to a url to point to the content of the media item.
+   * The url field cann't be changed.
+   */
   public function updateMediaItem($userId, $groupId, $appId, $mediaItem) {
     $this->checkDb();
 
@@ -699,9 +703,8 @@ class PartuzaDbFetcher {
       throw new SocialSpiException("Type not correct.", ResponseError::$BAD_REQUEST);
     }
     $type = $this->getEscapedValue(strtoupper($mediaItem['type']));
-    $url = $this->getEscapedField($mediaItem, 'url');
-
-    $query = "update media_items set album_id = $albumId, mime_type = $mimeType, " . "file_size = $fileSize, duration = $duration, last_updated = $lastUpdated, " . "language = $language, address_id = $addressId, num_comments = $numComments, " . "num_views = $numViews, num_votes = $numVotes, rating = $rating, " . "start_time = $startTime, title = $title, description = $description, " . "tagged_people = $taggedPeople, tags = $tags, thumbnail_url = $thumbnailUrl, " . "type = $type, url = $url where id = $id";
+    
+    $query = "update media_items set album_id = $albumId, mime_type = $mimeType, " . "file_size = $fileSize, duration = $duration, last_updated = $lastUpdated, " . "language = $language, address_id = $addressId, num_comments = $numComments, " . "num_views = $numViews, num_votes = $numVotes, rating = $rating, " . "start_time = $startTime, title = $title, description = $description, " . "tagged_people = $taggedPeople, tags = $tags, thumbnail_url = $thumbnailUrl, " . "type = $type where id = $id";
     if (! mysqli_query($this->db, $query)) {
       throw new SocialSpiException("Update media item failed.", ResponseError::$INTERNAL_ERROR);
     }
@@ -785,7 +788,6 @@ class PartuzaDbFetcher {
     if (! ($activityId = mysqli_insert_id($this->db))) {
       return false;
     }
-    $mediaItems = isset($activity['mediaItems']) ? $activity['mediaItems'] : array();
     if (count($mediaItems)) {
       foreach ($mediaItems as $mediaItem) {
         // Updates the activityId of the media item if the activity is bound with the existing media item.
@@ -832,23 +834,23 @@ class PartuzaDbFetcher {
     $activities['startIndex'] = $startIndex;
     $activities['count'] = $count;
     $query = "
-			select
-				activities.person_id as person_id,
-				activities.id as activity_id,
-				activities.title as activity_title,
-				activities.body as activity_body,
-				activities.created as created
-			from
-				activities
-			where
-				activities.person_id in ($ids)
-				$activityIdQuery
-				$appIdQuery
-			order by
-				created desc
-			limit
-				$startIndex, $count
-			";
+      select
+        activities.person_id as person_id,
+        activities.id as activity_id,
+        activities.title as activity_title,
+        activities.body as activity_body,
+        activities.created as created
+      from
+        activities
+      where
+        activities.person_id in ($ids)
+        $activityIdQuery
+        $appIdQuery
+      order by
+        created desc
+      limit
+        $startIndex, $count
+      ";
     $res = mysqli_query($this->db, $query);
     if ($res) {
       if (@mysqli_num_rows($res)) {
@@ -878,10 +880,17 @@ class PartuzaDbFetcher {
     $userId = intval($userId);
     $appId = intval($appId);
 
-    $query = "delete media_items, addresses from media_items left join addresses on media_items.id = addresses.media_item_id" . " where media_items.activity_id in ($activityIds) and media_items.app_id = $appId and media_items.owner_id = $userId and media_items.album_id = 0";
+    // Deletes the addresses that is associated with the mediaitems that will be deleted.
+    $query = "delete from addresses where addresses.id in (select media_items.address_id from media_items where media_items.album_id = 0 and media_items.app_id = $appId and media_items.owner_id = $userId and media_items.activity_id in ($activityIds))";
     if (! mysqli_query($this->db, $query)) {
       throw new SocialSpiException("Delete media item failed.", ResponseError::$INTERNAL_ERROR);
     }
+    // Deletes the media items that is not in any album(album_id = 0).
+    $query = "delete from media_items where media_items.album_id = 0 and media_items.app_id = $appId and media_items.owner_id = $userId and media_items.activity_id in ($activityIds)";
+    if (! mysqli_query($this->db, $query)) {
+      throw new SocialSpiException("Delete media item failed.", ResponseError::$INTERNAL_ERROR);
+    }
+    // If the media item is in some album it shouldn't be deleted instead the 'activity_id' is set to 0.
     $query = "update media_items set activity_id = '0' where activity_id in ($activityIds) and owner_id = $userId and app_id = $appId";
     if (! mysqli_query($this->db, $query)) {
       throw new SocialSpiException("Delete media item failed.", ResponseError::$INTERNAL_ERROR);
@@ -975,6 +984,27 @@ class PartuzaDbFetcher {
       $data[$person_id][$key] = $value;
     }
     return $data;
+  }
+  
+  public function getUploadedSize($id) {
+    $this->checkDb();
+    $id = intval($id);
+    $query = "select uploaded_size from persons where id = $id";
+    $res = mysqli_query($this->db, $query);
+    if ($res) {
+      $row = @mysqli_fetch_array($res, MYSQLI_ASSOC);
+      return $row['uploaded_size'];
+    }
+    return 0;
+  }
+  
+  public function setUploadedSize($id, $size) {
+    $this->checkDb();
+    $id = intval($id);
+    $size = intval($size);
+    $query = "update persons set uploaded_size = $size where id = $id";
+    $res = mysqli_query($this->db, $query);
+    return $res ? true : false;
   }
 
   public function getPeople($ids, $fields, $options, $token) {
@@ -1412,7 +1442,7 @@ class PartuzaDbFetcher {
     }
     $type = $this->getEscapedValue(strtoupper($mediaItem['type']));
     if (! isset($mediaItem['mimeType'])) {
-      throw new SocialSpiException("MediaMimeType not correct.", ResponseError::$BAD_REQUEST);
+      $mediaItem['mimeType'] = '';
     }
     $mimeType = $this->getEscapedField($mediaItem, 'mimeType');
 
@@ -1436,6 +1466,16 @@ class PartuzaDbFetcher {
       $mediaItem['id'] = $mediaItemId;
       return $mediaItem;
     }
+  }
+
+  /**
+   * Updates the url of the media item. It's used to update the url to the fully
+   * qualified url to support content upload. 
+   */
+  public function updateMediaItemUrl($mediaItemId, $url) {
+    $this->checkDb();
+    $query = "update media_items set url = ". $this->getEscapedValue($url) . " where id = $mediaItemId";
+    mysqli_query($this->db, $query);
   }
 
   /**

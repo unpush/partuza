@@ -23,6 +23,41 @@
  */
 class PartuzaService implements ActivityService, PersonService, AppDataService, MessagesService, AlbumService, MediaItemService {
 
+  private $partuzaConfig;
+
+  private function checkPartuzaConfig() {
+    if (!isset($this->partuzaConfig)) {
+      $this->initializeConfig();
+    }
+  }
+
+  /**
+   * Initializes the partuza config and includes the required library file.
+   */
+  private function initializeConfig() {
+    // Uses the location of PartuzaService.php to find the config.php and Image.php files.
+    $extension_class_paths = Config::get('extension_class_paths');
+    foreach (explode(',', $extension_class_paths) as $path) {
+      if (file_exists($path . "/PartuzaService.php")) {
+        $configFile = $path . '/../html/config.php';
+        $imageLibrary = $path . '/../Library/Image.php';
+        require $configFile;
+        require $imageLibrary;
+        if (! isset($config)) {
+          throw new Exception("Could not locate partuza's configuration file while scanning extension_class_paths ({$extension_class_paths})");
+        }
+        $this->partuzaConfig = $config;
+        // Removes the last '/' if it is the last character.
+        if ($this->partuzaConfig['partuza_url'][strlen($this->partuzaConfig['partuza_url']) - 1] == '/') {
+          $this->partuzaConfig['partuza_url'] = substr($this->partuzaConfig['partuza_url'], 0, strlen($this->partuzaConfig['partuza_url']) - 1);
+        }
+        if ($this->partuzaConfig['site_root'][strlen($this->partuzaConfig['site_root']) - 1] == '/') {
+          $this->partuzaConfig['site_root'] = substr($this->partuzaConfig['site_root'], 0, strlen($this->partuzaConfig['site_root']) - 1);
+        }
+      }
+    }
+  }
+
   public function getPerson($userId, $groupId, $fields, SecurityToken $token) {
     if (! is_object($userId)) {
       $userId = new UserId('userId', $userId);
@@ -143,8 +178,7 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
   }
 
   public function getActivity($userId, $groupId, $appdId, $fields, $activityId, SecurityToken $token) {
-    $activities = $this->getActivities($userId, $groupId, $appdId, null, null, null, null, 0, 20, $fields, array(
-        $activityId), $token);
+    $activities = $this->getActivities($userId, $groupId, $appdId, null, null, null, null, 0, 20, $fields, array($activityId), $token);
     if ($activities instanceof RestFulCollection) {
       $activities = $activities->getEntry();
       foreach ($activities as $activity) {
@@ -342,16 +376,30 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
     }
   }
 
-  public function deleteAlbum($userId, $groupId, $albumId, $token) {
+  public function deleteAlbum($userId, $groupId, $albumIds, $token) {
     if ($token->getOwnerId() != $token->getViewerId() || $token->getViewerId() != $userId->getUserId($token)) {
       throw new SocialSpiException("Delete album permission denied.", ResponseError::$UNAUTHORIZED);
     }
-    try {
-      PartuzaDbFetcher::get()->deleteAlbum($userId->getUserId($token), $groupId, $token->getAppId(), $albumId);
-    } catch (SocialSpiException $e) {
-      throw $e;
-    } catch (Exception $e) {
-      throw new SocialSpiException("Unable to delete the album. " . $e->getMessage(), ResponseError::$INTERNAL_ERROR);
+    foreach ($albumIds as $albumId) {
+	    try {
+	      PartuzaDbFetcher::get()->deleteAlbum($userId->getUserId($token), $groupId, $token->getAppId(), $albumId);
+	      // Deletes the uploaded files that is associated with the media items in the album.
+	      $this->checkPartuzaConfig();
+	      $files = glob($this->getAlbumsPath() . '/' . intval($albumId) . '/*');
+	      $size = 0;
+	      foreach ($files as $file) {
+	        $size += filesize($file);
+	        @unlink($file);
+	      }
+	      $currentSize = PartuzaDbFetcher::get()->getUploadedSize($userId->getUserId($token));
+	      $newSize = $currentSize - $size > 0 ? $currentSize - $size : 0;
+	      PartuzaDbFetcher::get()->setUploadedSize($userId->getUserId($token), $newSize);
+	      @rmdir($this->getAlbumsPath() . '/' . intval($albumId));
+	    } catch (SocialSpiException $e) {
+	      throw $e;
+	    } catch (Exception $e) {
+	      throw new SocialSpiException("Unable to delete the album. " . $e->getMessage(), ResponseError::$INTERNAL_ERROR);
+	    }
     }
   }
 
@@ -370,12 +418,102 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
     }
   }
 
-  public function createMediaItem($userId, $groupId, $mediaItem, $token) {
+
+  private function checkUploadQuota($userId, $addedSize) {
+    $this->checkPartuzaConfig();
+    $quota = isset($this->partuzaConfig['upload_quota']) ? $this->partuzaConfig['upload_quota'] : 0;
+    $currentSize = PartuzaDbFetcher::get()->getUploadedSize($userId);
+    if (($currentSize + $addedSize) > $quota) {
+      throw new SocialSpiException("The upload_quota $quota is exceeded.", ResponseError::$REQUEST_TOO_LARGE);
+    }
+  }
+
+  /**
+   * Makes sure the file meta data is valid and checks the user quota.
+   */
+  private function checkFile($file) {
+    if (!isset($file['tmp_name']) || !file_exists($file['tmp_name']) || substr($file['type'], 0, strlen('image/')) != 'image/') {
+      throw new SocialSpiException("We only support images types i.e. gif, jpg and png.", ResponseError::$NOT_IMPLEMENTED);
+    }
+    $ext = $this->getExtensionName($file['type']);
+    $accepted = array('gif', 'jpg', 'jpeg', 'png');
+    if (!in_array($ext, $accepted)) {
+      throw new SocialSpiException("We only support images types i.e. gif, jpg and png.", ResponseError::$NOT_IMPLEMENTED);
+    }
+  }
+
+  /**
+   * Uses the image libary to read the user uploaded file and move the file to the proper location.
+   * The path for the file is $site_root/images/albums/$albumsId/$mediaItem['id'].$fileExtensionName
+   */
+  private function moveFile($userId, $file, $mediaItem) {
+    $this->checkPartuzaConfig();
+
+    if ($mediaItem && isset($mediaItem['id']) && isset($file['tmp_name'])) {
+      $path = $this->getAlbumsPath() . '/' . $mediaItem['albumId'];
+      if (!is_dir($path) && !@mkdir($path, 0775, true)) {
+        throw new SocialSpiException("Couldn't create the directory for the uploaded files.", ResponseError::$INTERNAL_ERROR);
+      }
+      $fileName = $path . '/' . $mediaItem['id'] . '.' . $this->getExtensionName($file['type']);
+      Image::convert($file['tmp_name'], $fileName);
+      $currentSize = PartuzaDbFetcher::get()->getUploadedSize($userId);
+      PartuzaDbFetcher::get()->setUploadedSize($userId, $currentSize + $file['size']);
+    }
+  }
+  
+  /**
+   * Returns the base path of the albums in the server.
+   */
+  private function getAlbumsPath() {
+    $this->checkPartuzaConfig();
+    return $this->partuzaConfig['site_root'] . '/images/albums';
+  }
+  
+  /**
+   * Returns the public accessible URL base of the albums directory.
+   */
+  private function getAlbumsUrl() {
+    $this->checkPartuzaConfig();
+    return $this->partuzaConfig['partuza_url'] . '/images/albums';
+  }
+  
+  /**
+   * Given the content type returns the file extension name.
+   */
+  private function getExtensionName($type) {
+    $ext = strtolower(substr($type, strpos($type, '/') + 1));
+    if (strpos($ext, ';') !== false) {
+      $ext = substr($ext, 0, strpos($ext, ';'));
+    }
+    return trim($ext);
+  }
+
+  /**
+   * Creates the media item and the image file. Currently only accepts the gif, jpg, jpeg and png image file type.
+   * The location of the created image file is $siteRoot/images/albums/$albumId/($mediaItemId . $fileExtensionName).
+   */
+  public function createMediaItem($userId, $groupId, $mediaItem, $file, $token) {
     if ($token->getOwnerId() != $token->getViewerId() || $token->getViewerId() != $userId->getUserId($token)) {
       throw new SocialSpiException("Create media item permission denied.", ResponseError::$UNAUTHORIZED);
     }
+    if (!empty($file)) {
+      $this->checkUploadQuota($userId->getUserId($token), $file['size']);
+      $this->checkFile($file);
+      // The url will be overwritten to the fully qualified url.
+      $mediaItem['url'] = '@field:' . $file['name'];
+      $mediaItem['mimeType'] = $file['type'];
+    }
     try {
-      return PartuzaDbFetcher::get()->createMediaItem($userId->getUserId($token), $groupId, $token->getAppId(), $mediaItem);
+      $ret = PartuzaDbFetcher::get()->createMediaItem($userId->getUserId($token), $groupId, $token->getAppId(), $mediaItem);
+      if (!empty($file)) {
+        $this->moveFile($userId->getUserId($token), $file, $ret);
+        $ext = $this->getExtensionName($file['type']);
+        $this->checkPartuzaConfig();
+        $url = $this->getAlbumsUrl() . '/' . $ret['albumId'] . '/' . $ret['id'] . ".$ext";
+        PartuzaDbFetcher::get()->updateMediaItemUrl($ret['id'], $url);
+        $ret['url'] = $url;
+      }
+      return $ret;
     } catch (SocialSpiException $e) {
       throw $e;
     } catch (Exception $e) {
@@ -402,6 +540,18 @@ class PartuzaService implements ActivityService, PersonService, AppDataService, 
     }
     try {
       PartuzaDbFetcher::get()->deleteMediaItems($userId->getUserId($token), $groupId, $token->getAppId(), $albumId, $mediaItemIds);
+      // Deletes the uploaded file that is associated with the media item.
+      $this->checkPartuzaConfig();
+      foreach ($mediaItemIds as $mediaItemId) {
+        $files = glob($this->getAlbumsPath() . '/' . intval($albumId) . "/$mediaItemId.*");
+        if (count($files) == 1) {
+          $size = filesize($files[0]);
+          $currentSize = PartuzaDbFetcher::get()->getUploadedSize($userId->getUserId($token));
+          $newSize = $currentSize - $size > 0 ? $currentSize - $size : 0;
+          PartuzaDbFetcher::get()->setUploadedSize($userId->getUserId($token), $newSize);
+          @unlink($files[0]);
+        }
+      }
     } catch (SocialSpiException $e) {
       throw $e;
     } catch (Exception $e) {
