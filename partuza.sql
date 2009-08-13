@@ -90,6 +90,10 @@ CREATE TABLE `albums` (
   `media_type` enum('AUDIO','IMAGE','VIDEO') NOT NULL,
   `thumbnail_url` char(128) DEFAULT NULL,
   `app_id` int(11) DEFAULT 0,
+  `created` int(11),
+  `modified` int(11),
+  `media_count` int(11) DEFAULT 0,
+  `media_id` int(11),
   KEY `id` (`id`),
   KEY `owner_id` (`owner_id`)
 ) ENGINE=MyISAM;
@@ -750,6 +754,7 @@ CREATE TABLE `persons` (
   `time_zone` int(11) DEFAULT NULL,
   `first_name` varchar(64) NOT NULL,
   `last_name` varchar(64) NOT NULL,
+  `uploaded_size` int(11) DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `nickname` (`nickname`),
   KEY `email` (`email`)

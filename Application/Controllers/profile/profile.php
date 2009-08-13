@@ -41,7 +41,7 @@ class profileController extends baseController {
       $person_apps = $apps->get_person_applications($_SESSION['id']);
     }
     $this->template('profile/profile.php', array('activities' => $person_activities, 'applications' => $applications, 'person' => $person, 'friend_requests' => $friend_requests, 'friends' => $friends,
-    	'is_friend' => $is_friend, 'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $id) : false, 'person_apps' => $person_apps));
+      'is_friend' => $is_friend, 'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $id) : false, 'person_apps' => $person_apps));
   }
 
   public function friends($params) {
@@ -183,11 +183,372 @@ class profileController extends baseController {
       die();
     }
     $people = $this->model('people');
+    $person = isset($params[3]) ? $people->get_person($params[3], true) : false;
+    $apps = $this->model('applications');
+    $applications = $apps->get_person_applications($params[3]);
+    $is_friend = isset($_SESSION['id']) ? ($_SESSION['id'] == $params[3] ? true : $people->is_friend($params[3], $_SESSION['id'])) : false;
+    $this->template('profile/profile_photos.php', 
+      array('is_friend' => $is_friend, 
+            'applications' => $applications, 
+            'person' => $person, 
+            'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $params[3]) : false));
+  }
+
+  /**
+   * save an album item add or update.
+   */
+  public function photos_save($params) {
+    if (! isset($_SESSION['id']) || $_SESSION['id'] != $params[3] || ! isset($params[3]) || ! is_numeric($params[3])) {
+      header("Location: /");
+      die();
+    }
+    $album = $this->model('albums');
+    $album_item = array();
+    if (isset($_POST['title'])) $album_item['title'] = $_POST['title'];
+    if (isset($_POST['description'])) $album_item['description'] = $_POST['description'];
+    $album_item['owner_id'] = $_SESSION['id'];
+    $album_item['media_mime_type'] = 'image';
+    $album_item['media_type'] = 'IMAGE';
+    $album_item['app_id'] = 0;
+    // if $params[4] have not set, it's add an album item.
+    // if $params[4] set, it's update an album item.
+    if (! isset($params[4]) || ! is_numeric($params[4])) {
+      $album_item['created'] = time();
+      $album_item['modified'] = time();
+      $album_item['media_count'] = 0;
+      $album_id = $album->add_album($album_item);
+      die($album_id);
+    } else {
+      $album_item['modified'] = time();
+      $album_id = $params[4];
+      $album_id = $album->update_album($album_id, $album_item);
+      die($album_id);
+    }
+  }
+
+  /*
+   * save an media item update.
+   */
+  public function photo_save($params) {
+    if (! isset($_SESSION['id']) || $_SESSION['id'] != $params[3] || ! isset($params[3]) || 
+      ! is_numeric($params[3]) || ! isset($params[4]) || ! is_numeric($params[4])) {
+      header("Location: /");
+      die();
+    }
+    $media = $this->model('medias');
+    $media_item = array();
+    // if thumbnial_url set, will update album table, set the media_id to album table.
+    if (isset($_POST['thumbnail_url'])) {
+      $media_items = $media->get_media($params[4]);
+      $album_item = array();
+      $album_item['thumbnail_url'] = isset($media_items['thumbnail_url']) ? $media_items['thumbnail_url'] : $media_items['url'];
+      $album_item['media_id'] = $media_items['id'];
+      $album = $this->model('albums');
+      $album->update_album($media_items['album_id'], $album_item);
+    }
+    
+    if (isset($_POST['title'])) $media_item['title'] = $_POST['title'];
+    if (isset($_POST['description'])) $media_item['description'] = $_POST['description'];
+    $media_item['app_id'] = 0;
+    $media_item['last_updated'] = time();
+    $media_id = $media->update_media($params[4], $media_item);
+    die($media_id);
+  }
+
+  /*
+   * when $_SESSION['id'] not set, display album albums have not 'edit' and 'delete' button. so $is_owner be used in this view.
+   * $_GET['s'] is start index for album items;
+   * $_GET['c'] is one page display num.
+   */
+  public function photos_list($params) {
+    if (! isset($params[3]) || ! is_numeric($params[3])) {
+      header("Location: /");
+      die();
+    }
+    if (isset($_GET['c']) && is_numeric($_GET['c'])) {
+      $items_to_show = $_GET['c'];
+    } else {
+      $items_to_show = 10;
+    }
+    if (isset($_GET['s']) && is_numeric($_GET['s'])) {
+      $start_index = intval($_GET['s']);
+      $start_index = floor($start_index/$items_to_show) * $items_to_show;
+    } else {
+      $start_index = 0;
+    }
+    if (isset($params[4]) && $params[4] == 'self') {
+      $albums = $this->model('albums');
+      try {
+        $albums = $albums->get_albums($params[3], $start_index, $items_to_show);
+      }
+      catch (DBException $e) {
+        $message = 'Error saving information (' . $e->getMessage() . ')';
+        die($message);
+      }
+      $this->template('profile/profile_photos_list.php', 
+        array('albums' => $albums,
+              'person_id' => $params[3],
+              'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $params[3]) : false,
+              'page' => array('start_index'=>$start_index, 'items_to_show'=>$items_to_show, 'items_count'=>$albums['found_rows'])));  
+    }
+    else {
+      $albums = $this->model('albums');
+      echo 'not implemented';
+    }
+  }
+  /*
+   * when $_SESSION['id'] not set, display album photos have not 'edit' and 'delete' button. so $is_owner be used in this view.
+   * $_GET['s'] is start index for album items;
+   * $_GET['c'] is one page display num.
+   */
+  public function photos_view($params) {
+    if (! isset($params[3]) || ! is_numeric($params[3]) || ! isset($params[4]) || ! is_numeric($params[4])) {
+      header("Location: /");
+      die();
+    }
+    if (isset($_GET['c']) && is_numeric($_GET['c'])) {
+      $items_to_show = $_GET['c'];
+    } else {
+      $items_to_show = 12;
+    }
+    if (isset($_GET['s']) && is_numeric($_GET['s'])) {
+      $start_index = intval($_GET['s']);
+      $start_index = floor($start_index/$items_to_show) * $items_to_show;
+    } else {
+      $start_index = 0;
+    }
+
+    $people = $this->model('people');
     $person = isset($_SESSION['id']) ? $people->get_person($params[3], true) : false;
     $apps = $this->model('applications');
     $applications = $apps->get_person_applications($params[3]);
     $is_friend = isset($_SESSION['id']) ? ($_SESSION['id'] == $params[3] ? true : $people->is_friend($params[3], $_SESSION['id'])) : false;
-    $this->template('profile/profile_photos.php', array('is_friend' => $is_friend, 'applications' => $applications, 'person' => $person, 'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $params[3]) : false));
+    $album = $this->model('albums');
+    $albums = $album->get_album($params[4]);
+    if ($start_index > $albums['media_count']) $start_index = floor($albums['media_count']/$items_to_show)*$items_to_show;
+    $media = $this->model('medias');
+    
+    $medias = $media->get_medias($params[3], $params[4], $start_index, $items_to_show);
+    if (! isset($albums['id'])) $albums['id'] = '';
+    if (! isset($albums['owner_id'])) $albums['owner_id'] = '';
+    if (! isset($albums['title'])) $albums['title'] = '';
+    if (! isset($albums['description'])) $albums['description'] = '';
+    if (! isset($medias['found_rows'])) $medias['found_rows'] = 0;
+    $this->template('profile/profile_photos_view.php', 
+      array('is_friend' => $is_friend, 
+            'applications' => $applications, 
+            'person' => $person, 
+            'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $params[3]) : false,
+            'medias' => $medias,
+            'albums' => $albums,
+            'page' => array('start_index'=>$start_index, 'items_to_show'=>$items_to_show, 'items_count'=>$medias['found_rows'])));
+  }
+
+  /*
+   * $params[3] owner_id, $params[4] albums_id, $params[5] media_id.
+   */
+  public function photo_view($params) {
+    if (! isset($params[3]) || ! is_numeric($params[3])
+      || !isset($params[4]) || ! is_numeric($params[4])
+      || !isset($params[5]) || ! is_numeric($params[5])) {
+      header("Location: /");
+      die();
+    }
+    $people = $this->model('people');
+    $person = isset($_SESSION['id']) ? $people->get_person($params[3], true) : false;
+    $apps = $this->model('applications');
+    $applications = $apps->get_person_applications($params[3]);
+    $is_friend = isset($_SESSION['id']) ? ($_SESSION['id'] == $params[3] ? true : $people->is_friend($params[3], $_SESSION['id'])) : false;
+    $media = $this->model('medias');
+    $medias = $media->get_media_has_order($params[4], $params[5]);
+    $album = $this->model('albums');
+    $albums = $album->get_album($params[4]);
+    $item_order = $medias['item_order'];
+    $item_count = $medias['found_rows'];
+    if ($item_order == 1) {
+      $current_media = $medias[0];
+    } else {
+      $current_media = $medias[1];
+    }
+    if (! isset($albums['id'])) $albums['id'] = '';
+    if (! isset($albums['title'])) $albums['title'] = '';
+    if (! isset($albums['description'])) $albums['description'] = '';
+    if (! isset($albums['media_count'])) $albums['media_count'] = 0;
+    if (! isset($current_media['title'])) $current_media['title'] = '';
+    if (! isset($current_media['description'])) $current_media['description'] = '';
+    if (! isset($current_media['item_order'])) $current_media['item_order'] = '';
+    $tmp_pos = strrpos($current_media['url'], '.');
+    $current_media['original_url'] = $current_media['url'];
+    $current_media['url'] = substr($current_media['url'], 0, $tmp_pos) . '.600x600' . substr($current_media['url'], $tmp_pos);
+    unset($medias['item_order']);
+    unset($medias['found_rows']);
+    $this->template('profile/profile_photo_view.php', 
+      array('is_friend' => $is_friend, 
+            'applications' => $applications, 
+            'person' => $person, 
+            'is_owner' => isset($_SESSION['id']) ? ($_SESSION['id'] == $params[3]) : false,
+            'medias' => $medias,
+            'albums' => $albums,
+            'current_media' => $current_media,
+            'item_order' => $item_order,
+            'item_count' => $item_count));
+  }
+
+  public function photo_show($params) {
+  	if (! isset($params[3]) || ! is_numeric($params[3])) {
+      header("Location: /");
+      die();
+    }
+  	$media = $this->model('medias');
+  	$media_item = $media->get_media($params[3]);
+  	$file_path = str_replace(PartuzaConfig::get('partuza_url'), PartuzaConfig::get('site_root').'/', $media_item['url']);
+    die();
+  }
+
+  public function photo_upload($params) {
+    if (! isset($params[3]) || ! is_numeric($params[3]) || $_SESSION['id'] != $params[3]
+      || !isset($params[4]) || ! is_numeric($params[4])) {
+      header("Location: /");
+      $this->template('profile/profile_photos_upload.php', array('result' => false));
+      die();
+    }
+
+    $people = $this->model('people');
+    $person = $people->get_person_fields($_SESSION['id'], array('uploaded_size'));
+
+    // upload file info is empty
+    if (! isset($_FILES['uploadPhoto']) || empty($_FILES['uploadPhoto']['name'])) {
+      $this->template('profile/profile_photos_upload.php', array('result' => false));
+      die();
+    }
+    
+    // upload file size over quota.
+    $file = $_FILES['uploadPhoto'];
+    if (PartuzaConfig::get('upload_quota') - $person['uploaded_size'] < $file['size']) {
+      $this->template('profile/profile_photos_upload.php', array('result' => false));
+      die();
+    }
+    if (substr($file['type'], 0, strlen('image/')) != 'image/') {
+      $this->template('profile/profile_photos_upload.php', array('result' => false));
+      die();
+    }
+    $ext = strtolower(substr($file['name'], strrpos($file['name'], '.') + 1));
+    // it's a file extention that we accept too (not that means anything really)
+    $accepted = array('gif', 'jpg', 'jpeg', 'png');
+    if (!in_array($ext, $accepted) || $file['size'] < 4) {
+      $this->template('profile/profile_photos_upload.php', array('result' => false));
+      die();
+    }
+
+    // it's upload file path.
+    $album_id = $params[4];
+    $tmp_dir = array('/images', '/albums', '/'.$album_id);
+    $album_dir = '/images/albums/'.$album_id;
+    $file_dir = PartuzaConfig::get('site_root');
+    foreach($tmp_dir as $val) {
+    	$file_dir .= $val;
+      if (!file_exists($file_dir)) {
+        if (!@mkdir($file_dir, 0775, true)) {
+          $this->template('profile/profile_photos_upload.php', array('result' => false));
+          die();
+        }
+      }
+    }
+    $title = (!empty($_POST['title'])) ? $_POST['title'] : substr($file['name'], 0, strrpos($file['name'], '.'));
+    $media = $this->model('medias');
+    $media_item = array(
+      'album_id' => $album_id,
+      'owner_id' => $_SESSION['id'],
+      'mime_type' => '',
+      'title' => $title,
+      'file_size' => $file['size'],
+      'created' => time(),
+      'last_updated' => time(),
+      'type' => 'IMAGE',
+      'url' => '',
+      'app_id' => 0,
+    );
+    
+    // if insert data failed, throw an error.
+    try {
+      $media_id = $media->add_media($media_item);
+    } catch (DBException $e) {
+      $this->template('profile/profile_photos_upload.php', array('result' => false));
+      die();
+    }
+
+    $file_path = $file_dir . '/' . $media_id . '.' . $ext;
+    if (! Image::createImage($file['tmp_name'], $file_path, null, null)) {
+    	// if move file failed, need delete the item in media_item table.
+      $media->delete_media($params[3], $media_id);
+      $this->template('profile/profile_photos_upload.php', array('result' => false));
+      die();
+    } else {
+    	// insert and upload file is success.
+      $media_item = array();
+      $media_item['url'] = $album_dir . '/' . $media_id . '.' . $ext;
+      $media_item['thumbnail_url'] = Image::by_size($file_path, 220, 220);
+      $media_id = $media->update_media($media_id, $media_item);
+      $album = $this->model('albums');
+      $album_record = $album->get_album($params[4]);
+      $album_item = array();
+      $album_item["media_count"] = $album_record["media_count"]  + 1;
+      $album_item["modified"] = time();
+      if (empty($album_record['media_id'])) {
+        $album_item['media_id'] = $media_id;
+        $album_item['thumbnail_url'] = $media_item['thumbnail_url'];
+      }
+      $album_id = $album->update_album($params[4], $album_item);
+      $person = $people->literal_set_person_fields($params[3], array('uploaded_size' => "uploaded_size + {$file['size']}"));
+      $this->template('profile/profile_photos_upload.php', array('result' => true));
+      Image::by_size($file_path, 600, 600);
+      die();
+    }
+  }
+
+  public function album_delete($params) {
+    if (! isset($_SESSION['id']) || $_SESSION['id'] != $params[3] 
+      || ! isset($params[3]) || ! is_numeric($params[3]) || ! isset($params[4]) || ! is_numeric($params[4])) {
+      header("Location: /");
+    }
+    $album = $this->model('albums');
+    $album->delete_album($params[3], $params[4]);
+    die('success');
+  }
+
+  public function media_delete($params) {
+    if (! isset($_SESSION['id']) || $_SESSION['id'] != $params[3] 
+      || ! isset($params[3]) || ! is_numeric($params[3]) || ! isset($params[4]) || ! is_numeric($params[4])) {
+      header("Location: /");
+    }
+    $media = $this->model('medias');
+    $media_item = $media->get_media($params[4]);
+    $albums = $this->model('albums');
+
+    $people = $this->model('people');
+    $person = $people->literal_set_person_fields($params[3], array('uploaded_size' => "uploaded_size - {$media_item['file_size']}"));
+    if (!empty($media_item['album_id'])) {
+    	// delete one media item, update album item and person item.
+      $album_item = $albums->get_album($media_item['album_id']);
+      $album_record = array();
+      if (($album_item['media_id'] == $media_item['id'])) {
+      	// if the delete one is a cover picture.
+        $media_tmp = $media->get_media_previous($media_item['album_id'], $media_item['id']);
+        if (empty($media_tmp)) $media_tmp = $media->get_media_next($media_item['album_id'], $media_item['id']);
+        if (empty($media_tmp)) {
+          $album_record['thumbnail_url'] = null;
+          $album_record['media_id'] = null;
+        } else {
+          $album_record = array();
+          $album_record['thumbnail_url'] = empty($media_tmp['thumbnail_url']) ? $media_tmp['url'] : $media_tmp['thumbnail_url'];
+          $album_record['media_id'] = $media_tmp['id'];
+        }
+      }
+      $album_record['media_count'] = $album_item['media_count'] - 1;
+      $albums->update_album($album_item['id'], $album_record);
+    }
+    $media->delete_media($params[3], $params[4]);
+    die('success');
   }
 
   public function edit($params) {

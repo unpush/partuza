@@ -34,6 +34,14 @@ img {
 	border: none;
 }
 
+p {
+  color:#000;
+  font-family: Verdana,Arial,sans-serif;
+  font-size:12px;
+  margin:0;
+  padding:0;
+}
+
 .gadgets-gadget-title-button-bar {
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
@@ -395,6 +403,11 @@ form#register div .label {
 	
 }
 
+.form_entry_div {
+  margin:10px;
+  padding:2px;
+}
+
 .form_entry {
 	min-height: 24px;
 	line-height: 24px;
@@ -403,6 +416,15 @@ form#register div .label {
 
 .form_label {
 	width: 144px;
+	text-align: left;
+	float: left;
+	color: #3366CC;
+	line-height: 21px;
+	min-height: 21px;
+}
+
+.form_label_photo {
+	width: 100px;
 	text-align: left;
 	float: left;
 	color: #3366CC;
@@ -492,3 +514,63 @@ form#register div .label {
 .friendEntry {
 	cursor : pointer;
 }
+
+.margin10 {margin:10px;}
+.align_center {text-align:center;}
+.align_left {text-align:left;}
+.align_right {text-align:right;}
+.height1 {height:1px;}
+
+.photo_normal {
+  margin: 5px 10px;
+}
+
+.listlight{
+  zoom: 1;
+  overflow: hidden;
+}
+
+.grabtn {
+  
+}
+
+.listdivi {
+  margin-top:1px;
+  margin-bottom:1px;
+  clear:both;
+  font-size:1px;
+  line-height:1px;
+  overflow:hidden;
+  background:transparent;
+  height:0;
+}
+
+.triplel {
+  width:32%;
+  float:left;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  text-align:center;
+  overflow:hidden;
+}
+
+.media_item {
+  text-align : center;
+  height : 250px;
+  width: 224px;
+  border: 1px solid #cccccc;
+  float : left;
+ margin: 8px;
+}
+
+.media_picture {
+  background-position: center center;
+  background-repeat : no-repeat;
+  height: 220px;
+  width: 220px;
+  margin:0 auto;
+  margin-bottom: 8px;
+}
+
+.photothumb{margin: 0;}
+.deletedialog .ui-dialog-titlebar-close{display: none;}

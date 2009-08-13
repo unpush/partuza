@@ -113,28 +113,31 @@ class Image {
     if (! $src) {
       return false;
     }
-    $tmp = @imagecreatetruecolor($desired_width, $desired_height);
-    // this line actually does the image resizing
-    // copying from the original image into the $tmp image
-    if (! @imagecopyresampled($tmp, $src, 0, 0, 0, 0, $desired_width, $desired_height, $info[0], $info[1])) {
+    if ($desired_width && $desired_height) {
+	    $tmp_image = @imagecreatetruecolor($desired_width, $desired_height);
+	    // this line actually does the image resizing
+	    // copying from the original image into the $tmp_image image
+	    if (! @imagecopyresampled($tmp_image, $src, 0, 0, 0, 0, $desired_width, $desired_height, $info[0], $info[1])) {
+	      @imagedestroy($src);
+	      return false;
+	    }
+	    @unlink($destination);
       @imagedestroy($src);
-      return false;
+      $src = &$tmp_image;
     }
-    @unlink($destination);
     switch ($info['mime']) {
       case 'image/jpeg':
-        $ret = @imagejpeg($tmp, $destination, 100);
+        $ret = @imagejpeg($src, $destination);
         break;
       case 'image/gif':
-        imagetruecolortopalette($tmp, true, 256);
-        $ret = @imagegif($tmp, $destination, 100);
+        imagetruecolortopalette($src, true, 256);
+        $ret = @imagegif($src, $destination);
         break;
       case 'image/png':
-        $ret = @imagepng($tmp, $destination, 100);
+        $ret = @imagepng($src, $destination);
         break;
     }
     @imagedestroy($src);
-    @imagedestroy($tmp);
     if (! $ret) {
       return false;
     }

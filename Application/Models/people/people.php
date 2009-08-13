@@ -20,6 +20,12 @@
 
 class peopleModel extends Model {
   public $cachable = array('is_friend', 'get_person', 'get_person_info', 'get_friends', 'get_friends_count', 'get_friend_requests');
+  // persons table supported fields.
+  public $supported_fields = array('id','email','password','about_me','age','children','date_of_birth','drinker',
+    'ethnicity','fashion','gender','happiest_when','humor','job_interests','living_arrangement','looking_for',
+    'nickname','pets','political_views','profile_song','profile_url','profile_video','relationship_status',
+    'religion','romance','scared_of','sexual_orientation','smoker','status','thumbnail_url','time_zone',
+    'first_name','last_name','uploaded_size');
 
   public function load_is_friend($person_id, $friend_id) {
     global $db;
@@ -54,14 +60,8 @@ class peopleModel extends Model {
     global $db;
     $this->invalidate_dependency('people', $id);
     $id = $db->addslashes($id);
-    $supported_fields = array('about_me', 'children', 'birthday', 'drinker', 'ethnicity', 'fashion',
-        'gender', 'happiest_when', 'humor', 'job_interests', 'living_arrangement',
-        'looking_for', 'nickname', 'pets', 'political_views', 'profile_song',
-        'profile_video', 'relationship_status', 'religion', 'romance', 'scared_of',
-        'sexual_orientation', 'smoker', 'status', 'utc_offset', 'first_name',
-        'last_name');
     foreach ($person as $key => $val) {
-      if (in_array($key, $supported_fields)) {
+      if (in_array($key, $this->supported_fields)) {
         if ($val == '-') {
           $updates[] = "`" . $db->addslashes($key) . "` = null";
         } else {
@@ -118,11 +118,11 @@ class peopleModel extends Model {
   }
 
   /*
-	 * doing a select * on a large table is way to IO and memory expensive to do
-	 * for all friends/people on a page. So this gets just the basic fields required
-	 * to build a person expression:
-	 * id, email, first_name, last_name, thumbnail_url and profile_url
-	 */
+   * doing a select * on a large table is way to IO and memory expensive to do
+   * for all friends/people on a page. So this gets just the basic fields required
+   * to build a person expression:
+   * id, email, first_name, last_name, thumbnail_url and profile_url
+   */
   public function load_get_person_info($id) {
     global $db;
     $this->add_dependency('people', $id);
@@ -248,5 +248,66 @@ class peopleModel extends Model {
       $ret[] = $row;
     }
     return $ret;
+  }
+
+  /*
+   * get person info, need set field which we need.
+   */
+  public function get_person_fields($id, $fields) {
+    global $db;
+    $id = $db->addslashes($id);
+    foreach ($fields as $val) {
+      if (in_array($val, $this->supported_fields)) {
+        $fields_adds[] = "`" . $db->addslashes($val) . "`";
+      }
+    }
+    $res = $db->query("select " . implode(', ', $fields_adds) . " from persons where id = $id");
+    if (! $db->num_rows($res)) {
+      throw new Exception("Invalid person");
+    }
+    return $db->fetch_array($res, MYSQLI_ASSOC);
+  }
+
+  /*
+   * set person info, need set field which we need.
+   */
+  public function set_person_fields($id, $fields) {
+    global $db;
+    $id = $db->addslashes($id);
+    foreach ($fields as $key => $val) {
+    	if (in_array($key, $this->supported_fields)) {
+        if (is_null($val)) {
+          $updates[] = "`" . $db->addslashes($key) . "` = null";
+        } else {
+          $updates[] = "`" . $db->addslashes($key) . "` = '" . $db->addslashes($val) . "'";
+        }
+      }
+    }
+    if (count($updates)) {
+      $query = "update persons set " . implode(', ', $updates) . " where id = $id";
+      $db->query($query);
+      return $id;
+    }
+  }
+
+  /*
+   * if we can promise our code is safe, we can do it.
+   * update media table use literal word, so do not escape update code.
+   * for example update albums set uploaded_size = uploaded_size+1000; it will be easy.
+   */
+  public function literal_set_person_fields($id, $fields) {
+    global $db;
+    $id = $db->addslashes($id);
+    foreach ($fields as $key => $val) {
+    	if (in_array($key, $this->supported_fields)) {
+    		$updates[] = "`" . $db->addslashes($key) . "` = " . $val ;
+    	}
+    }
+      
+    if (count($updates)) {
+      $query = "update persons set " . implode(', ', $updates) . " where id = $id";
+      $db->query($query);
+      return $id;
+    }
   }
 }

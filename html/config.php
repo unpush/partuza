@@ -65,6 +65,10 @@ $config = array(
 // apply to both shindig and partuza
 'cache_root' => '/tmp/shindig',
 
+// How many bytes each user can upload to partuza. It contains the files uploaded via the content uploading api
+// and the partuza native upload  mechanism. Content uploading is disabled if it's removed or set to 0.
+'upload_quota' => 50 * 1024 * 1024,
+
 /* No need to edit the settings below in general, unless you modified the directory layout.
  * Note: On production systems it's faster to put absolute paths here instead of using these dynamicly generated ones
 */

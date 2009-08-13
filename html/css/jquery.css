@@ -383,7 +383,7 @@
 .ui-slider-vertical .ui-slider-handle { left: -.3em; margin-left: 0; margin-bottom: -.6em; }
 .ui-slider-vertical .ui-slider-range { left: 0; height: auto; width: 100%; }/* Tabs
 ----------------------------------*/
-.ui-tabs {padding: .2em;}
+.ui-tabs {padding: .2em; zoom:1;overflow:hidden;}
 .ui-tabs-nav { padding: .2em .2em 0 .2em;  position: relative; }
 .ui-tabs-nav li { float: left; border-bottom: 0 !important; margin: 0 .2em -1px 0; padding: 0; }
 .ui-tabs-nav li a { display:block; text-decoration: none; padding: .5em 1em; }
