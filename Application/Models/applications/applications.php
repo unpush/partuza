@@ -115,6 +115,7 @@ class applicationsModel extends Model {
 	    curl_setopt($ch, CURLOPT_POST, 1);
 	    curl_setopt($ch, CURLOPT_POSTFIELDS, 'request=' . urlencode($request));
 	    $content = @curl_exec($ch);
+	    curl_close($ch);
 	    $ret = json_decode($content);
 	    if (!isset($ret->gadgets[0]->errors[0])) {
 	    	break;
