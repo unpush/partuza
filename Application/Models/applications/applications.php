@@ -100,23 +100,27 @@ class applicationsModel extends Model {
   }
 
   private function fetch_gadget_metadata($app_url, $securityToken) {
-    $request = json_encode(array(
-        'context' => array('country' => 'US', 'language' => 'en', 'view' => 'default',
-            'container' => 'partuza'),
-        'gadgets' => array(array('url' => $app_url, 'moduleId' => '1'))));
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, PartuzaConfig::get('gadget_server') . '/gadgets/metadata?st=' . urlencode(base64_encode($securityToken->toSerialForm())));
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_AUTOREFERER, 1);
-    curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 4);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 20);
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, 'request=' . urlencode($request));
-
-    $content = @curl_exec($ch);
-    return json_decode($content);
+    foreach (array('profile', 'home', 'canvas', 'default') as $view) {
+	    $request = json_encode(array(
+	        'context' => array('country' => 'US', 'language' => 'en', 'view' => $view, 'container' => 'partuza'),
+	        'gadgets' => array(array('url' => $app_url, 'moduleId' => '1'))));
+	    $ch = curl_init();
+	    curl_setopt($ch, CURLOPT_URL, PartuzaConfig::get('gadget_server') . '/gadgets/metadata?st=' . urlencode(base64_encode($securityToken->toSerialForm())));
+	    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+	    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	    curl_setopt($ch, CURLOPT_AUTOREFERER, 1);
+	    curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
+	    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 4);
+	    curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+	    curl_setopt($ch, CURLOPT_POST, 1);
+	    curl_setopt($ch, CURLOPT_POSTFIELDS, 'request=' . urlencode($request));
+	    $content = @curl_exec($ch);
+	    $ret = json_decode($content);
+	    if (!isset($ret->gadgets[0]->errors[0])) {
+	    	break;
+	    }
+    }
+    return $ret;
   }
 
   public function load_get_application_by_id($id) {
